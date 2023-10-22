@@ -216,7 +216,9 @@ button > i {
 .search-recipe {
   flex: 2;
 }
-
+.select-recipe-file {
+  margin-left: 5px;
+}
 .target-image {
   border-top: 3px solid #704214;
   border-bottom: 3px solid #704214;

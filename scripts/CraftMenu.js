@@ -119,6 +119,10 @@ export class CraftMenu extends FormApplication {
                     this.render();
                     break;
                 }
+            case `search_recipe`: {
+                //TODO:
+                break;
+            }
             case `save-recipe-file`:
                 {
                     await RecipeData.saveDataToFile();
@@ -175,7 +179,6 @@ export class CraftMenu extends FormApplication {
                         title: "Confirm Deletion",
                         content: "Are you sure you want to delete this recipe? This action cannot be undone."
                     });
-
                     if (confirmed) {
                         await RecipeData.deleteRecipe(recipeID);
                         this.render();
