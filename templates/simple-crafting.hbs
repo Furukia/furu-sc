@@ -1,0 +1,140 @@
+<form>
+    <div id="crafting-form">
+        <div class="control-container">
+            <div class="search-recipe">
+                Search recipes:
+                <input type="search" title="Search for a recipe" data-input="search_recipe" placeholder="Search..." />
+            </div>
+            <div class="select-recipe-file">
+                <p>
+                    Current file:
+                </p>
+                <select data-select="select_file" title="Select file with the recipes">
+                    {{#select (getCurrentFile)}}
+                    {{#each fileNames}}
+                    {{log "hb_name:" this}}
+                    <option value="{{this}}">{{this}}</option>
+                    {{/each}}
+                    {{/select}}
+                </select>
+            </div>
+            <div class="cm-button">
+                <button type="button" title="Delete currently selected file" data-action="delete-recipe-file">
+                    <i class="fas fa-trash-xmark {{#if (notGM)}}disabled{{/if}}"></i>
+                </button>
+            </div>
+            <div class="cm-button">
+                <button type="button" title="Clear all recipes from a file" data-action="clear-recipe-file">
+                    <i class="fas fa-eraser {{#if (notGM)}}disabled{{/if}}"></i>
+                </button>
+            </div>
+            <div class="cm-button">
+                <button type="button" title="Create a new recipe file" data-action="create-recipe-file">
+                    <i class="fas fa-file {{#if (notGM)}}disabled{{/if}}"></i>
+                </button>
+            </div>
+            <div class="cm-button">
+                <button type="button" title="Save all recipes" data-action="save-recipe-file">
+                    <i class="fas fa-floppy-disk {{#if (notGM)}}disabled{{/if}}"></i>
+                </button>
+            </div>
+            <div class="cm-button">
+                <button type="button" title="Create a new recipe" data-action="add_recipe">
+                    <i class="fas fa-plus {{#if (notGM)}}disabled{{/if}}"></i>
+                </button>
+            </div>
+        </div>
+        <div class="recipe-container">
+            {{#each recipes}}
+            {{#if isVisible}}
+            <div class="recipe-card">
+                <div class="edit-container">
+                    <input type="text" class="edit-name" name="{{id}}.name" value="{{name}}" data-dtype="String">
+                    <div class="edit-type">
+                        <select name="{{id}}.type">
+                            {{#select type}}
+                            <option value="text">Text</option>
+                            <option value="items">Items</option>
+                            {{/select}}
+                        </select>
+                    </div>
+                    <div class="edit-buttons" data-recipe-id="{{id}}">
+                        <button type="button" title="Delete recipe" data-action="delete_recipe">
+                            <i class="fas fa-minus {{#if (notGM)}}disabled{{/if}}"></i>
+                        </button>
+                        {{#if (equals type "text")}}
+                        {{#if editMode}}
+                        <button type="button" title="Save recipe" data-action="save_recipe">
+                            <i class="fas fa-floppy-disk {{#if (notGM)}}disabled{{/if}}"></i>
+                        </button>
+                        {{else}}
+                        <button type="button" title="Edit recipe" data-action="edit_recipe">
+                            <i class="fas fa-edit {{#if (notGM)}}disabled{{/if}}"></i>
+                        </button>
+                        {{/if}}
+                        {{/if}}
+                        <button type="button" title="Craft from recipe" data-action="craft_from_recipe">
+                            <i class="fas fa-hammer-crash"></i>
+                        </button>
+                    </div>
+                </div>
+                {{#if (equals type "text")}}
+                {{#if editMode}}
+                <div class="edit-container">
+                    {{editor
+                    description
+                    target = (concat id ".description")
+                    button = false
+                    owner = true
+                    editable = true}}
+                </div>
+                {{else}}
+                <div class="description-container" data-recipe-id="{{id}}">
+                    <div class="target-item-container">
+                        {{#if target}}
+                        <h2>Target item:</h2>
+                        <img src="{{target.img}}" class="target-image" />
+                        <p>{{target.name}}</p>
+                        {{/if}}
+                    </div>
+                    <div class="description-text-container">
+                        <div class="height-limiter">
+                            {{{description}}}
+                        </div>
+                    </div>
+                </div>
+                {{/if}}
+                {{else}}
+                <div class="items-container" data-recipe-id="{{id}}">
+                    <div class="target-item-container">
+                        {{#if target}}
+                        <h2>Target item:</h2>
+                        <img src="{{target.img}}" class="target-image" />
+                        <p>{{target.name}}</p>
+                        {{/if}}
+                    </div>
+                    <div class="required-item-container">
+                        <h2>Required items:</h2>
+                        {{#if ingredients}}
+                        <div class="required-items">
+                            {{#each ingredients}}
+                            <div class="required-item" data-item-id="{{this._id}}">
+                                <img src="{{this.img}}" class="required-image" />
+                                <p>{{this.name}}</p>
+                                <p style="width:20%;">Quantity placeholder</p>
+                                <button type="button" title="Delete item" data-action="delete_item">
+                                    <i class="fas fa-minus {{#if (notGM)}}disabled{{/if}}"></i>
+                                </button>
+                            </div>
+                            {{/each}}
+                        </div>
+                        {{/if}}
+                    </div>
+                </div>
+                {{/if}}
+            </div>
+            {{/if}}
+            {{/each}}
+        </div>
+    </div>
+</form>

@@ -1,0 +1,26 @@
+{
+  "FURU-SC": {
+    "SETTINGS": {
+      "SAVEPATH": {
+        "name": "Save path",
+        "hint": "The default path where you want to save your recipe files. Path should be relevant to your data folder."
+      },
+      "CURRENTFILE": {
+        "name": "Current file name",
+        "hint": "The name of a loaded file with recipes, that we are changing right now."
+      },
+      "DATAHANDLING": {
+        "name": "Data handling",
+        "hint": "Choose how the module will handle an item's data. The module can either save all of the item's data, which will allow it to create the same item's in other world's with the same system, but will also increase the size of the recipes file. Or the module can save only the id's of the item's. Which will make the recipe file not compatible with other world's but will make the file size much smaller.",
+        "types": {
+          "all": "Save all",
+          "reference": "Save ID references"
+        }
+      },
+      "QUANTITY": {
+        "name": "System quantity path",
+        "hint": "If the system provides a quantity variable in an item, you can provide a path relative to an item, for that variable. Simple Crafting will use it instead of using it's own quantity system."
+      }
+    }
+  }
+}

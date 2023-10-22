@@ -1,0 +1,31 @@
+{
+  "id": "furu-sc",
+  "title": "Furukai's Simple Crafting",
+  "description": "A system independent module, to create your own crafting recipes.",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "11",
+    "verified": "11"
+  },
+  "authors": [
+    {
+      "name": "Furukai",
+      "email": "furukai0@gmail.com",
+      "flags": {}
+    }
+  ],
+  "esmodules": [
+    "scripts/simple-crafting.js"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json"
+    }
+  ],
+  "styles": [
+    "styles/simple-crafting.css"
+  ],
+  "persistentStorage": true
+}

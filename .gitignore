@@ -1,0 +1,10 @@
+#Visual studio stuff
+*.vscode/*
+!/.vscode/extensions.json
+!/.vscode/launch.json
+!/.vscode/tasks.json
+
+#Lock file
+furu-sc.lock
+#TO DO file
+TODO.txt
