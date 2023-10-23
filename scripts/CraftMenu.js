@@ -256,13 +256,6 @@ export class CraftMenu extends FormApplication {
     }
 
     async close() {
-        // Turn off editMode for every recipe on closing
-        for (const recipeID in RecipeData.loadDataFromJSONFile()) {
-            let updateData = {
-                editMode: false
-            }
-            RecipeData.updateRecipe(recipeID, updateData);
-        }
         let confirmation = await Dialog.confirm({
             title: 'Save',
             content: `<p>Save your progress?</p>`,

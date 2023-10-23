@@ -146,9 +146,7 @@ export class RecipeData {
             }
         });
         allRecipes[recipeID].ingredients = updateData.ingredients;
-        // update the database with the updated ingredient list
-        //this.saveDataToJSONFile(allRecipes);
-
+        // update the data with the updated ingredient list
         CraftMenu.craftMenu.object = allRecipes;
     }
 
@@ -159,8 +157,7 @@ export class RecipeData {
         // delete the relevant recipe from the existing recipes
         delete allRecipes[recipeID];
 
-        // update the database with the updated recipe list
-        // this.saveDataToJSONFile(allRecipes);
+        // update the data with the updated recipe list
         CraftMenu.craftMenu.object = allRecipes;
     }
 
@@ -196,6 +193,15 @@ export class RecipeData {
         if (!folder || !file) {
             ui.notification.error(`Can't get the current folder and/or file. | FolderPath = ${folder} | FilePath = ${file} |`);
             return;
+        }
+        // Turn off editMode for every recipe on saving
+        // And make them visible
+        for (const recipeID in CraftMenu.craftMenu.object) {
+            let updateData = {
+                editMode: false,
+                isVisible: true
+            }
+            await RecipeData.updateRecipe(recipeID, updateData);
         }
         await RecipeData.saveDataToJSONFile(CraftMenu.craftMenu.object, folder, file, isQuiet);
     }
