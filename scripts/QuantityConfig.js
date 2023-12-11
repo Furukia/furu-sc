@@ -14,7 +14,6 @@ export class QuantityConfig extends FormApplication {
     getData() {
         let context = super.getData();
         context = game.settings.get(MODULE, `quantity-path`);
-        console.log("context", context);
         let data = {
             paths: context,
             showHelp: this.object

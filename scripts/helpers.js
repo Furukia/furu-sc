@@ -104,7 +104,6 @@ export function setNestedValue(obj, key, value) {
     let lastKey = keys.pop();
     let nestedObj = keys.reduce((obj, key) => obj[key] ??= {}, obj);
     nestedObj[lastKey] = value;
-    console.log("object after setNestedValue", obj);
     return obj;
 }
 

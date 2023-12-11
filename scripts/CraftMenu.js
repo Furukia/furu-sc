@@ -55,9 +55,7 @@ export class CraftMenu extends FormApplication {
     static async initialize() {
         console.log(`${MODULE} | initializing Craft Menu.`);
         const dataPath = await getFullFilePath();
-        console.log("CraftMenu - dataPath:", dataPath);
         let data = await RecipeData.loadDataFromJSONFile(dataPath);
-        console.log("CraftMenu - data:", data);
         let fileInfo = {
             system: game.system.id,
             world: game.world.id
@@ -68,13 +66,11 @@ export class CraftMenu extends FormApplication {
         }
         else {
             fileInfo = data.fileInfo;
-            console.log("fileInfo", fileInfo);
             delete data["fileInfo"];
         }
         this.craftMenu = new CraftMenu(data);
         this.craftMenu.fileInfo = fileInfo;
         this.craftMenu.searchQuery = null;
-        console.log("this.craftMenu ", this.craftMenu);
     }
 
     /**
