@@ -206,7 +206,7 @@ export class RecipeData {
         const numericValue = Number(value);
         const numericCurrentQuantity = Number(currentQuantity);
         const updatedQuantity = rewrite ? numericValue : numericCurrentQuantity + numericValue;
-        item = await setNestedValue(item, path, updatedQuantity);
+        item = await setNestedValue(item, path, Math.max(1, updatedQuantity));
         if (isTarget) {
             allRecipes[recipeId].target = item;
         } else {
