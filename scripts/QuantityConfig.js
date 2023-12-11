@@ -28,6 +28,11 @@ export class QuantityConfig extends FormApplication {
     }
 
 
+    /**
+     * Handles the button click event.
+     *
+     * @param {Object} event - The button click event object.
+     */
     async _handleButtonClick(event) {
         const clickedElement = $(event.currentTarget);
         const action = clickedElement.data().action;
@@ -42,6 +47,12 @@ export class QuantityConfig extends FormApplication {
         super.render(force, options);
     }
 
+    /**
+     * Updates the object based on the provided event and formData.
+     *
+     * @param {Event} event - The event that triggered the update.
+     * @param {Object} formData - The form data used to update the object.
+     */
     async _updateObject(event, formData) {
         const settingsArray = Object.entries(formData).map(([key, value]) => ({ type: key.split(".")[0], path: value ? value : null }));
         game.settings.set(MODULE, `quantity-path`, settingsArray);

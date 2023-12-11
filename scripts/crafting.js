@@ -38,92 +38,104 @@ export class RecipeData {
         allRecipes[newRecipe.id] = newRecipe;
         CraftMenu.craftMenu.object = allRecipes;
     }
+
     /**
-     * Searches for recipes based on a search query and updates their visibility in the Craft Menu.
-     *
-     * @param {string} searchQuery - The search query used to filter the recipes.
-     */
+    * Searches for recipes based on a search query and updates their visibility in the Craft Menu.
+    *
+    * @param {string} searchQuery - The search query used to filter the recipes.
+    */
     static async searchRecipe(searchQuery) {
-        CraftMenu.craftMenu.searchQuery = searchQuery;
-        searchQuery = searchQuery.toLowerCase();
-        // Get all existing recipes
-        let allRecipes = CraftMenu.craftMenu.object;
-        const allRecipesArray = Object.values(allRecipes);
-
-        // Perform the search
+        const lowerCaseSearchQuery = searchQuery.toLowerCase();
+        const allRecipes = { ...CraftMenu.craftMenu.object };
         let isVisible = false;
-        allRecipesArray.forEach(recipe => {
-            let recipeIsVisible = false;
-            if (searchQuery === "" || !searchQuery) {
-                recipeIsVisible = true;
-            } else {
-                const searchFields = [
-                    recipe.name,
-                    recipe.target?.name,
-                    recipe.target?.img,
-                    recipe.description,
-                    ...(Object.values(recipe.ingredients ?? {}) ?? []).map(ingredient => ingredient.name),
-                    ...(Object.values(recipe.ingredients ?? {}) ?? []).map(ingredient => ingredient.img)
-                ];
 
-                recipeIsVisible = searchFields.some(field =>
-                    field?.toLowerCase().includes(searchQuery.toLowerCase())
-                );
-            }
+        Object.values(allRecipes).forEach(recipe => {
+            const searchFields = [
+                recipe.name,
+                recipe.target?.name,
+                recipe.target?.img,
+                recipe.description,
+                ...(Object.values(recipe.ingredients ?? {}).map(ingredient => ingredient.name)),
+                ...(Object.values(recipe.ingredients ?? {}).map(ingredient => ingredient.img))
+            ];
+
+            const recipeIsVisible = searchFields.some(field =>
+                field?.toLowerCase().includes(lowerCaseSearchQuery)
+            );
 
             recipe.isVisible = recipeIsVisible;
             isVisible = isVisible || recipeIsVisible;
         });
-        // Make all elements visible if none of them match the search query
+
         if (!isVisible) {
-            allRecipesArray.forEach(recipe => {
+            Object.values(allRecipes).forEach(recipe => {
                 recipe.isVisible = true;
             });
             ui.notifications.notify("Found no recipes for the search query");
         }
-        // Update the data
+
+        CraftMenu.craftMenu.searchQuery = searchQuery;
         CraftMenu.craftMenu.object = allRecipes;
     }
 
     /**
-     * Updates a recipe with the provided recipe ID and update data.
+     * Updates a recipe with the given recipe ID and update data.
      *
-     * @param {string} recipeID - The ID of the recipe to be updated.
-     * @param {object} updateData - The data to be updated in the recipe.
+     * @param {string} recipeID - The ID of the recipe to update.
+     * @param {Object} updateData - The data to update the recipe with.
      */
     static async updateRecipe(recipeID, updateData) {
-        // Get all the recipes
         const allRecipes = CraftMenu.craftMenu.object;
+
         if (!allRecipes.hasOwnProperty(recipeID)) {
-            // If the recipe doesn't exist, log an error message
-            console.error(`${MODULE} | Recipe with id ${recipeID} not found`);
+            console.error(`Recipe with id ${recipeID} not found`);
             return;
         }
-        // Check if the updateData has a "target" property
+
         if (updateData.hasOwnProperty("target")) {
-            // If it does, update the "target" property of the recipe
             allRecipes[recipeID].target = updateData.target;
         } else {
-            // If it doesn't, merge the updateData with the existing recipe data
             const updatedRecipe = mergeObject(allRecipes[recipeID], updateData, {
                 overwrite: true,
                 insertKeys: true,
                 insertValues: true
             });
-            // Update the recipe with the merged data
             allRecipes[recipeID] = updatedRecipe;
         }
-        // Update the CraftMenu object with the updated recipes
+
         CraftMenu.craftMenu.object = allRecipes;
     }
 
+    /**
+     * Updates the recipes in the CraftMenu object based on the provided update data.
+     *
+     * @param {object} updateData - An object containing the recipe IDs as keys and the update data as values.
+     */
     static async updateRecipes(updateData) {
-        // update each recipe with the provided data
         for (const recipeID in updateData) {
             if (updateData.hasOwnProperty(recipeID)) {
                 await this.updateRecipe(recipeID, updateData[recipeID]);
             }
         }
+    }
+
+    /**
+     * Updates the name of a recipe if the current name is either "New Recipe" or empty.
+     *
+     * @param {number} recipeID - The ID of the recipe to update.
+     * @param {string} newName - The new name for the recipe.
+     */
+    static async tryRecipeNameChange(recipeID, newName) {
+        // get all existing recipes
+        const allRecipes = CraftMenu.craftMenu.object;
+        let currentName = allRecipes[recipeID].name;
+        if (currentName !== "New recipe" && !!currentName) {
+            return;
+        }
+        const updateData = {
+            name: newName
+        }
+        await this.updateRecipe(recipeID, updateData);
     }
 
     /**
@@ -142,6 +154,12 @@ export class RecipeData {
         await this.updateRecipe(recipeID, updateData);
     }
 
+    /**
+     * Processes an ingredient for a given recipe.
+     *
+     * @param {Object} item - The ingredient item.
+     * @param {string} recipeID - The ID of the recipe.
+     */
     static async ProcessIngredient(item, recipeID) {
         let allRecipes = CraftMenu.craftMenu.object;
         let ingredients = allRecipes[recipeID].ingredients;
@@ -156,14 +174,13 @@ export class RecipeData {
             return; //And leave
         }
         // Adding a new ingredient
-        let itemObject = item.toObject();
-        delete itemObject["_id"];
-        console.log("itemObject", itemObject);
+        let itemObject = { ...item.toObject(), _id: undefined };
         ingredients[sourceId] = itemObject;
         allRecipes[recipeID].ingredients = ingredients;
         CraftMenu.craftMenu.object = allRecipes;
         CraftMenu.craftMenu.render();
     }
+
     /**
     * Process the quantity of an item in a recipe or target.
     * @param {string} recipeId - The recipe ID.
@@ -177,10 +194,6 @@ export class RecipeData {
     static async ProcessQuantity(recipeId, value, options = {}) {
         const allRecipes = CraftMenu.craftMenu.object;
         const { originalItemId = null, rewrite = false, isTarget = true } = options;
-        console.log("options", options);
-        console.log("originalItemId", originalItemId);
-        console.log("rewrite", rewrite);
-        console.log("isTarget", isTarget);
         let item;
         if (isTarget) {
             item = allRecipes[recipeId].target;
@@ -203,40 +216,52 @@ export class RecipeData {
         CraftMenu.craftMenu.render();
     }
 
+    /**
+     * Deletes an ingredient from a recipe.
+     *
+     * @param {string} recipeID - The ID of the recipe.
+     * @param {string} itemID - The ID of the ingredient to be deleted.
+     */
     static async deleteIngredient(recipeID, itemID) {
-        // get all existing recipes
-        let allRecipes = CraftMenu.craftMenu.object;
-        let ingredients = allRecipes[recipeID].ingredients;
-        // deleting the ingredient
+        const allRecipes = CraftMenu.craftMenu.object;
+        const ingredients = allRecipes[recipeID].ingredients;
         delete ingredients[itemID];
         allRecipes[recipeID].ingredients = ingredients;
-        // update the data with the updated ingredient list
         CraftMenu.craftMenu.object = allRecipes;
     }
 
+    /**
+     * Delete a recipe from the CraftMenu object.
+     *
+     * @param {string} recipeID - The ID of the recipe to be deleted.
+     */
     static async deleteRecipe(recipeID) {
-        // get all existing recipes
         const allRecipes = CraftMenu.craftMenu.object;
-
-        // delete the relevant recipe from the existing recipes
         delete allRecipes[recipeID];
-
-        // update the data with the updated recipe list
         CraftMenu.craftMenu.object = allRecipes;
     }
 
-
+    /**
+     * Clear all recipes from the file.
+     */
     static async clearAllRecipes() {
-        let confirmation = await Dialog.confirm({
+        const shouldDeleteData = await Dialog.confirm({
             title: 'Confirm',
             content: `<p>This will delete all the data from the file. Are you sure?</p>`,
         });
-        if (!confirmation)
+        if (!shouldDeleteData)
             return;
+
         CraftMenu.craftMenu.object = {};
         this.saveDataToFile();
     }
 
+    /**
+     * Creates a new recipe file.
+     *
+     * @param {string} path - The path where the file will be created. If not provided, the default data folder will be used.
+     * @param {string} fileName - The name of the new file. If not provided, a prompt will be shown to the user to enter the name.
+     */
     static async createRecipeFile(path, fileName) {
         let jsonPath = !path ? DATA_DEFAULT_FOLDER : path;
         if (!fileName) {
@@ -255,66 +280,61 @@ export class RecipeData {
             CraftMenu.craftMenu.object = {};
     }
 
+    /**
+     * Saves data to a file.
+     *
+     * @param {boolean} isQuiet - indicates whether to display notifications or not (default: false)
+     */
     static async saveDataToFile(isQuiet = false) {
         const folder = game.settings.get(MODULE, 'save-path');
         const file = game.settings.get(MODULE, 'current-file');
+
         if (!folder || !file) {
             ui.notification.error(`Can't get the current folder and/or file. | FolderPath = ${folder} | FilePath = ${file} |`);
             return;
         }
-        // Turn off editMode for every recipe on saving
-        // And make them visible
-        for (const recipeID in CraftMenu.craftMenu.object) {
-            let updateData = {
+
+        const recipes = CraftMenu.craftMenu.object;
+        for (const recipeID in recipes) {
+            const updateData = {
                 editMode: false,
                 isVisible: true
-            }
+            };
             await RecipeData.updateRecipe(recipeID, updateData);
         }
-        await RecipeData.saveDataToJSONFile(CraftMenu.craftMenu.object, folder, file, isQuiet, CraftMenu.craftMenu.fileInfo);
+
+        await RecipeData.saveDataToJSONFile(recipes, folder, file, isQuiet, CraftMenu.craftMenu.fileInfo);
     }
 
     /**
-     * TODO: Description placeholder
-     * @static
-     * @async
-     * @param {object} updateData - The data object we convert to JSON and then save
-     * @param {string} path - The path where to save the JSON file
+     * Saves data to a JSON file.
+     *
+     * @param {Object} updateData - the data to be saved
+     * @param {string} [path=DATA_DEFAULT_FOLDER] - the path of the JSON file
+     * @param {string} [filename=RECIPES] - the name of the JSON file
+     * @param {boolean} [isQuiet=false] - indicates whether to display notifications
+     * @param {Object} [fileInfo={ system: game.system.id, world: game.world.id }] - additional information to be included in the saved data
      */
-    static async saveDataToJSONFile(updateData, path, filename, isQuiet = false, fileInfo = null) {
-        let jsonPath = path === undefined ? DATA_DEFAULT_FOLDER : path;
-        let jsonFilename = filename === undefined ? RECIPES : filename
-
-        //delete updateData["searchQuery"]; //TODO: add search query where needed, to track it
-        if (!fileInfo) {
-            fileInfo = {
-                system: game.system.id,
-                world: game.world.id
-            }
-        }
+    static async saveDataToJSONFile(updateData, path = DATA_DEFAULT_FOLDER, filename = RECIPES, isQuiet = false, fileInfo = { system: game.system.id, world: game.world.id }) {
         const finalData = mergeObject({ fileInfo: fileInfo }, updateData, { insertKeys: true });
-        console.log("Saving data comparison:", updateData, finalData);
-        // Replace special characters in name to underscores
-        const safeName = jsonFilename.replace(/[^ a-z0-9-_()[\]<>]/gi, '_');
-        // Generate the system safe filename
+        const safeName = filename.replace(/[^ a-z0-9-_()[\]<>]/gi, '_');
         const fileName = encodeURI(`${safeName}.json`);
-        console.log("saving - dataJSONstring:", JSON.stringify(finalData, null, ' '));
         const file = new File([JSON.stringify(finalData, null, ' ')], fileName, { type: 'application/json' });
-        const response = await FilePicker.upload("data", jsonPath, file, {}, { notify: false });
+        const response = await FilePicker.upload("data", path, file, {}, { notify: false });
         if (!response.path) {
             console.error(`Could not create recipes JSON: ${safeName}.json\nReason: ${response}`);
             throw new Error('Could not upload recipes data to the server!');
         }
-        if (!isQuiet)
-            ui.notifications.notify(`Successfully saved file: \"${jsonPath}/${fileName}\"`);
+        if (!isQuiet) {
+            ui.notifications.notify(`Successfully saved file: "${path}/${fileName}"`);
+        }
     }
+
     /**
-     * Load's data from the JSON file with the optional path to the file.
-     * Load's from the module default path if no path provided. 
-     * Return null if no data was loaded.
-     * @static
-     * @async
-     * @param {string} path - An optional path to JSON file
+     * Retrieves data from a JSON file located at the specified path.
+     *
+     * @param {string} path - The path to the JSON file. If not provided, a default path will be used.
+     * @return {Promise<object|null>} The JSON data retrieved from the file, or null if the data is empty.
      */
     static async loadDataFromJSONFile(path) {
         let jsonPath = path === undefined ? DEFAULT_RECIPES_DATA : path;
@@ -329,8 +349,6 @@ export class RecipeData {
         let jsonData = response;
         if (!jsonData)
             return null;
-        console.log("loadDataFromJSONFile - jsonData:", jsonData);
         return jsonData;
-
     }
 }

@@ -72,12 +72,14 @@ button > i {
   flex-direction: row-reverse;
 }
 
+.recipe-card .edit-name {
+  flex: 2;
+}
 .recipe-card .edit-type {
-  flex: auto;
+  flex: 1;
   margin-left: 10px;
   margin-right: 10px;
 }
-
 .recipe-card .edit-name > input,
 .recipe-card .edit-type > select {
   background: #deb887;

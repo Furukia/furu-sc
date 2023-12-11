@@ -1,10 +1,15 @@
 import { MODULE, DATA_DEFAULT_FOLDER, RECIPES } from "./const.js"; //import the const variables
 import { getFileNames } from "./helpers.js";
 import { QuantityConfig } from "./QuantityConfig.js";
-/**
- * Registering settings
- */
 
+
+/**
+ * Registers the settings for the module.
+ *
+ * @async
+ * @function RegisterSettings
+ * 
+ */
 export async function RegisterSettings() {
 
     game.settings.register(MODULE, 'save-path', {
@@ -59,7 +64,7 @@ export async function RegisterSettings() {
     });
 }
 /**
- * Validating if settings data is correct. And fixing them as needed.
+ * Validates the settings of the module. And fixes them as needed.
  * Called on initialization.
  */
 export async function ValidateSettings() {

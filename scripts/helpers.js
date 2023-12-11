@@ -1,9 +1,11 @@
 import { MODULE, DATA_DEFAULT_FOLDER } from "./const.js"; //import the const variables
 import { RecipeData } from "./crafting.js";
 
+
 /**
- * Creating a folder if we don't have one
- * @async
+ * Creates a folder if it is missing at the specified path.
+ *
+ * @param {string} path - The path where the folder should be created. If not provided, the default path will be used.
  */
 export async function createFolderIfMissing(path) {
     let jsonPath = path === undefined ? DATA_DEFAULT_FOLDER : path;
@@ -15,9 +17,9 @@ export async function createFolderIfMissing(path) {
 }
 
 /**
- * Checks for all file's in the recipes path and returns their names
- * @async
- * @returns {Array}
+ * Retrieves the names of all files with the ".json" extension in the specified folder.
+ *
+ * @return {Array} An array containing the names of the JSON files in the folder.
  */
 export async function getFileNames() {
     let folderPath = game.settings.get(MODULE, 'save-path');
@@ -26,11 +28,9 @@ export async function getFileNames() {
     let fileNames = [];
     const re = /(?:\.([^.]+))?$/;
     await files.forEach(path => {
-        //console.log("path:", path);
         let ext = re.exec(path)[1];
         if (ext !== "json")
             return;
-        //console.log("ext:", ext);
         let fileName = path.split("/").pop().split(".").slice(0, -1).join(".");
         fileNames.push(fileName);
     });
@@ -45,11 +45,9 @@ export async function getFileNames() {
 };
 
 /**
- * Get's the full path for the current file from the settings.
+ * Retrieves the full file path by concatenating the current folder and file name.
  *
- * @export
- * @async
- * @returns {string}
+ * @return {string} The full file path.
  */
 export async function getFullFilePath() {
     const folder = game.settings.get(MODULE, 'save-path');
@@ -62,12 +60,12 @@ export async function getFullFilePath() {
     return path;
 }
 
+
 /**
- * Gets the path for an item's quantity field according to the setting.
- * Returns an object with a path and a type of the path - system or flag.
- * @export
- * @param {Object} item
- * @returns {Object}
+ * Retrieves the correct quantity path for the given item.
+ *
+ * @param {Object} item - The item object.
+ * @return {Object} - An object containing the correct quantity path and type.
  */
 export function getCorrectQuantityPathForItem(item) {
     let quantityPaths = game.settings.get(MODULE, `quantity-path`);
@@ -80,12 +78,27 @@ export function getCorrectQuantityPathForItem(item) {
     return path ? { path: path, type: "system" } : { path: `flags.${MODULE}.quantity`, type: "flag" };
 }
 
+/**
+ * Retrieves a nested value from an object based on a provided key.
+ *
+ * @param {Object} obj - The object from which to retrieve the nested value.
+ * @param {string} key - The key indicating the path to the nested value.
+ * @return {*} - The nested value retrieved from the object.
+ */
 export function getNestedValue(obj, key) {
     return key.split(".").reduce(function (result, key) {
         return result[key]
     }, obj);
 }
 
+/**
+ * Sets a nested value in an object.
+ *
+ * @param {Object} obj - The object in which to set the nested value.
+ * @param {string} key - The key representing the nested value.
+ * @param {*} value - The value to set.
+ * @return {Object} - The modified object with the nested value set.
+ */
 export function setNestedValue(obj, key, value) {
     let keys = key.split(".");
     let lastKey = keys.pop();
@@ -95,12 +108,13 @@ export function setNestedValue(obj, key, value) {
     return obj;
 }
 
-export function processSourceId(id, restore = false) {
-    if (!id) return null;
-    if (restore) {
-        return "Item." + id;
-    }
-    else {
-        return id.split('.')[1];
-    }
+/**
+ * Processes the source ID by removing the "Item." prefix and optionally restores it back to the original format.
+ *
+ * @param {string} sourceId - The source ID to be processed.
+ * @param {boolean} [restore=false] - Whether or not to restore the source ID.
+ * @return {string} - The processed source ID.
+ */
+export function processSourceId(sourceId, restore = false) {
+    return restore ? "Item." + sourceId : sourceId.split('.')[1];
 }

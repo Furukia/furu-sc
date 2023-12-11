@@ -5,6 +5,11 @@ import { RecipeData } from "./crafting.js";
 import { getFileNames, getFullFilePath } from "./helpers.js";
 export class CraftMenu extends FormApplication {
 
+    /**
+     * Activate event listeners for the provided HTML element.
+     *
+     * @param {HTMLElement} html - The HTML element to activate listeners on.
+     */
     activateListeners(html) {
         super.activateListeners(html);
         html.on('click', "[data-select]", this._handleSelectClick.bind(this));
@@ -12,6 +17,11 @@ export class CraftMenu extends FormApplication {
         html.on('keydown', "[data-input]", this._handleInputEnter.bind(this));
     }
 
+    /**
+     * Returns the default options for the App.
+     *
+     * @return {Object} The default options object.
+     */
     static get defaultOptions() {
         const defaults = super.defaultOptions;
 
@@ -38,12 +48,9 @@ export class CraftMenu extends FormApplication {
         return mergedOptions;
     }
 
+
     /**
-     * Handles important file info and initializes the CraftMenu
-     *
-     * @static
-     * @async
-     * @returns {void}
+     * Initializes the Craft Menu.
      */
     static async initialize() {
         console.log(`${MODULE} | initializing Craft Menu.`);
@@ -87,13 +94,17 @@ export class CraftMenu extends FormApplication {
         await this.render();
     }
 
+    /**
+     * Handles the event when the Enter key is pressed in the input field.
+     *
+     * @param {Event} event - The event object representing the key press event.
+     */
     async _handleInputEnter(event) {
         if (event.key !== "Enter") return;
         const input = event.currentTarget;
         const action = input.dataset.input;
         const value = input.value;
         const recipeID = $(input).parents('[data-recipe-id]').data('recipeId');
-
         switch (action) {
             case 'search_recipe':
                 await RecipeData.searchRecipe(value);
@@ -120,40 +131,42 @@ export class CraftMenu extends FormApplication {
         }
     }
 
+    /**
+     * Handles the click event on the select element.
+     *
+     * @param {Event} event - The click event.
+     */
     async _handleSelectClick(event) {
         const clickedElement = event.currentTarget;
         const action = clickedElement.dataset.select;
-        console.log("action", action);
         const value = clickedElement.value;
-        console.log("value", value);
         switch (action) {
             case 'select_file':
-                {
-                    const currentFile = game.settings.get(MODULE, 'current-file');
-                    console.log("currentFile", currentFile);
-                    if (currentFile === value) return;
-                    // First - save the data of the current file
-                    await RecipeData.saveDataToFile(true);
-                    // Only after that we change settings and load the data for the chosen file
-                    game.settings.set(MODULE, 'current-file', value);
-                    const dataPath = await getFullFilePath();
-                    console.log("_handleSelectClick - dataPath", dataPath);
-                    let data = await RecipeData.loadDataFromJSONFile(dataPath);
-                    //Handling important file info
-                    this.fileInfo = data.fileInfo;
-                    delete data["fileInfo"];
-                    this.object = data;
-                    this.render();
-                    break;
-                }
+                const currentFile = game.settings.get(MODULE, 'current-file');
+                if (currentFile === value) return;
+                // Save the data of the current file
+                await RecipeData.saveDataToFile(true);
+                // Change settings and load the data for the chosen file
+                game.settings.set(MODULE, 'current-file', value);
+                const dataPath = await getFullFilePath();
+                let data = await RecipeData.loadDataFromJSONFile(dataPath);
+                // Handling important file info
+                this.fileInfo = data.fileInfo;
+                delete data.fileInfo;
+                this.object = data;
+                this.render();
+                break;
             default:
-                {
-                    console.log(`${MODULE} | Invalid action detected:`, { action, value });
-                    break;
-                }
+                console.log(`${MODULE} | Invalid action detected:`, { action, value });
+                break;
         }
     }
 
+    /**
+     * Handles the click event on a button.
+     *
+     * @param {Object} event - The click event object.
+     */
     async _handleButtonClick(event) {
         const clickedElement = $(event.currentTarget);
         const action = clickedElement.data().action;
@@ -212,11 +225,11 @@ export class CraftMenu extends FormApplication {
                 break;
             case 'delete_recipe':
                 if (!game.user.isGM) return;
-                const confirmed = await Dialog.confirm({
+                const confirmedDeletion = await Dialog.confirm({
                     title: 'Confirm Deletion',
                     content: 'Are you sure you want to delete this recipe? This action cannot be undone.'
                 });
-                if (confirmed) {
+                if (confirmedDeletion) {
                     await RecipeData.deleteRecipe(recipeID);
                     this.render();
                 }
@@ -233,59 +246,53 @@ export class CraftMenu extends FormApplication {
         }
     }
 
+    /**
+     * Executes when a drop event occurs.
+     *
+     * @param {Event} event - The drop event object.
+     */
     async _onDrop(event) {
-        let data = TextEditor.getDragEventData(event);
-        //Getting an actual item data
-        let element = event.target.closest("[data-recipe-id]");
-        // Get the recipe ID from the data attribute
+        const data = TextEditor.getDragEventData(event);
+        const element = event.target.closest("[data-recipe-id]");
         const recipeID = element ? element.dataset.recipeId : null;
-        let dropTargetClass = event.target.className;
-        dropTargetClass = dropTargetClass.split(" ")[0]; //Important! DragDrop classes should always be the first class
+        let dropTargetClass = event.target.className.split(" ")[0]; //Important! DragDrop classes should always be the first class
         let dropType = "target";
-        if (dropTargetClass !== "target-item-container" && dropTargetClass !== "target-image") {
+        if (dropTargetClass !== "target-item-container" && dropTargetClass !== "target-image")
             dropType = "ingredient";
-        }
-        let updateData;
+        const item = await Item.implementation.fromDropData(data);
         switch (dropType) {
             case 'target':
-                {
-                    const item = await Item.implementation.fromDropData(data);
-                    let itemObject = item.toObject();
-                    delete itemObject["_id"];
-                    console.log("itemObject", itemObject);
-                    updateData = {
-                        target: itemObject
-                    };
-                    console.log("updateData", updateData);
-                    await RecipeData.updateRecipe(recipeID, updateData);
-                    this.render();
-                    break;
-                }
+                const itemObject = { ...item.toObject(), _id: undefined };
+                const updateData = {
+                    target: itemObject
+                };
+                await RecipeData.updateRecipe(recipeID, updateData);
+                await RecipeData.tryRecipeNameChange(recipeID, item.name);
+                this.render();
+                break;
             case 'ingredient':
-                {
-                    let item = await Item.implementation.fromDropData(data);
-                    let itemSourceID = item.flags.core.sourceId;
-                    let itemName = item.name;
-                    let targetItem = this.object[recipeID].target;
-                    if (targetItem) {
-                        if (targetItem.name === itemName || targetItem.flags.core.sourceId === itemSourceID) {
-                            let confirmation = await Dialog.confirm({
-                                title: 'Warning!',
-                                content: `<p>Target item and your dragged item has the same name or source item! It's not very logical to craft the item from itself.</p>
-                                <p>Are you sure?</p>`,
-                            });
-                            if (!confirmation)
-                                return;
-                        }
-                    }
-                    RecipeData.ProcessIngredient(item, recipeID);
-                    break;
+                const itemSourceID = item.flags.core.sourceId;
+                const itemName = item.name;
+                const targetItem = this.object[recipeID].target;
+                if (targetItem && (targetItem.name === itemName || targetItem.flags.core.sourceId === itemSourceID)) {
+                    const confirmation = await Dialog.confirm({
+                        title: 'Warning!',
+                        content: `<p>Target item and your dragged item have the same name or source item! It's not very logical to craft the item from itself.</p>
+                        <p>Are you sure?</p>`,
+                    });
+                    if (!confirmation)
+                        return;
                 }
+                RecipeData.ProcessIngredient(item, recipeID);
+                break;
             default:
                 break;
         }
     }
 
+    /**
+    * This code get's called on the Craft Menu closing.
+    */
     async close() {
         let confirmation = await Dialog.confirm({
             title: 'Save',
@@ -296,6 +303,9 @@ export class CraftMenu extends FormApplication {
         super.close();
     }
 
+    /**
+     * Returns the data for the GUI of the Craft Menu.
+     */
     async getData() {
         const worldInfo = {
             system: game.system.id,
