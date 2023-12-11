@@ -1,4 +1,5 @@
 import { MODULE, DATA_DEFAULT_FOLDER } from "./const.js"; //import the const variables
+import { RecipeData } from "./crafting.js";
 
 /**
  * Creating a folder if we don't have one
@@ -19,8 +20,8 @@ export async function createFolderIfMissing(path) {
  * @returns {Array}
  */
 export async function getFileNames() {
-    let files = await FilePicker.browse('data',
-        game.settings.get(MODULE, 'SavePath'));
+    let folderPath = game.settings.get(MODULE, 'save-path');
+    let files = await FilePicker.browse('data', folderPath);
     files = files.files;
     let fileNames = [];
     const re = /(?:\.([^.]+))?$/;
@@ -35,7 +36,10 @@ export async function getFileNames() {
     });
     if (!fileNames.length) {
         console.log(MODULE, " | ", "No files in the directory!");
-        return;
+        console.log(MODULE, " | ", `Creating a new file: ${game.world.id}.json`);
+        await RecipeData.createRecipeFile(folderPath, game.world.id);
+        fileNames.push(game.world.id);
+        game.settings.set(MODULE, 'current-file', game.world.id);
     }
     return fileNames;
 };
@@ -48,12 +52,55 @@ export async function getFileNames() {
  * @returns {string}
  */
 export async function getFullFilePath() {
-    const folder = game.settings.get(MODULE, 'SavePath');
-    const file = game.settings.get(MODULE, 'CurrentFile');
+    const folder = game.settings.get(MODULE, 'save-path');
+    const file = game.settings.get(MODULE, 'current-file');
     if (!folder || !file) {
         ui.notification.error(`Can't get the current folder and/or file. | FolderPath = ${folder} | FilePath = ${file} |`);
         return;
     }
     const path = folder + `/` + file + `.json`;
     return path;
+}
+
+/**
+ * Gets the path for an item's quantity field according to the setting.
+ * Returns an object with a path and a type of the path - system or flag.
+ * @export
+ * @param {Object} item
+ * @returns {Object}
+ */
+export function getCorrectQuantityPathForItem(item) {
+    let quantityPaths = game.settings.get(MODULE, `quantity-path`);
+    let path = null;
+    quantityPaths.forEach(_path => {
+        if (_path.type === item.type) {
+            path = _path.path;
+        }
+    })
+    return path ? { path: path, type: "system" } : { path: `flags.${MODULE}.quantity`, type: "flag" };
+}
+
+export function getNestedValue(obj, key) {
+    return key.split(".").reduce(function (result, key) {
+        return result[key]
+    }, obj);
+}
+
+export function setNestedValue(obj, key, value) {
+    let keys = key.split(".");
+    let lastKey = keys.pop();
+    let nestedObj = keys.reduce((obj, key) => obj[key] ??= {}, obj);
+    nestedObj[lastKey] = value;
+    console.log("object after setNestedValue", obj);
+    return obj;
+}
+
+export function processSourceId(id, restore = false) {
+    if (!id) return null;
+    if (restore) {
+        return "Item." + id;
+    }
+    else {
+        return id.split('.')[1];
+    }
 }

@@ -1,50 +1,52 @@
 <form>
     <div id="crafting-form">
+        <ul style="display: contents; list-style-type: none;">
+            {{#if (equals fileInfo.system worldInfo.system)}}
+            {{else}}
+            <li class="notification error">This recipes file was made in another game system. Item's probably won't be
+                compatible at all!</li>
+            {{/if}}
+            {{#if (equals fileInfo.world worldInfo.world)}}
+            {{else}}
+            <li class="notification error">This recipes file was made in another world. There is a possibility of item
+                conflicts!</li>
+            {{/if}}
+        </ul>
         <div class="control-container">
             <div class="search-recipe">
-                Search recipes:
-                <input type="search" title="Search for a recipe" data-input="search_recipe" placeholder="Search..." />
-            </div>
-            <div class="cm-button">
-                <button type="button" title="Search for a recipe" data-action="search_recipe">
-                    <i class="fas fa-magnifying-glass"></i>
-                </button>
+                <p>Search recipes:</p>
+                <input type="search" title="Search for a recipe" id="sc-search" class="br-none"
+                    data-input="search_recipe" placeholder="Search..." value="{{searchQuery}}" />
             </div>
             <div class="select-recipe-file">
-                <p>
-                    Current file:
-                </p>
+                <p>Current file:</p>
                 <select data-select="select_file" title="Select file with the recipes">
                     {{#select (getCurrentFile)}}
                     {{#each fileNames}}
-                    {{log "hb_name:" this}}
                     <option value="{{this}}">{{this}}</option>
                     {{/each}}
                     {{/select}}
                 </select>
             </div>
             <div class="cm-button">
-                <button type="button" title="Delete currently selected file" data-action="delete-recipe-file">
-                    <i class="fas fa-trash-xmark {{#if (notGM)}}disabled{{/if}}"></i>
-                </button>
-            </div>
-            <div class="cm-button">
-                <button type="button" title="Clear all recipes from a file" data-action="clear-recipe-file">
+                <button type="button" title="Clear all recipes from selected file" class="br-none br-rad10"
+                    data-action="clear-recipe-file">
                     <i class="fas fa-eraser {{#if (notGM)}}disabled{{/if}}"></i>
                 </button>
             </div>
             <div class="cm-button">
-                <button type="button" title="Create a new recipe file" data-action="create-recipe-file">
+                <button type="button" title="Create a new recipe file" class="br-none br-rad10"
+                    data-action="create-recipe-file">
                     <i class="fas fa-file {{#if (notGM)}}disabled{{/if}}"></i>
                 </button>
             </div>
             <div class="cm-button">
-                <button type="button" title="Save all recipes" data-action="save-recipe-file">
+                <button type="button" title="Save recipe file" class="br-none br-rad10" data-action="save-recipe-file">
                     <i class="fas fa-floppy-disk {{#if (notGM)}}disabled{{/if}}"></i>
                 </button>
             </div>
             <div class="cm-button">
-                <button type="button" title="Create a new recipe" data-action="add_recipe">
+                <button type="button" title="Create a new recipe" class="br-none br-rad10" data-action="add_recipe">
                     <i class="fas fa-plus {{#if (notGM)}}disabled{{/if}}"></i>
                 </button>
             </div>
@@ -52,10 +54,14 @@
         <div class="recipe-container">
             {{#each recipes}}
             {{#if isVisible}}
-            <div class="recipe-card">
+            <div class="recipe-card br-full br-rad15">
                 <div class="edit-container">
-                    <input type="text" class="edit-name" name="{{id}}.name" value="{{name}}" data-dtype="String">
+                    <div class="edit-name">
+                        <p>Recipe name:</p>
+                        <input type="text" class="br-none" name="{{id}}.name" value="{{name}}" data-dtype="String">
+                    </div>
                     <div class="edit-type">
+                        <p>Recipe type:</p>
                         <select name="{{id}}.type">
                             {{#select type}}
                             <option value="text">Text</option>
@@ -64,79 +70,107 @@
                         </select>
                     </div>
                     <div class="edit-buttons" data-recipe-id="{{id}}">
-                        <button type="button" title="Delete recipe" data-action="delete_recipe">
+                        <button type="button" title="Delete recipe" class="br-none br-rad10"
+                            data-action="delete_recipe">
                             <i class="fas fa-minus {{#if (notGM)}}disabled{{/if}}"></i>
                         </button>
                         {{#if (equals type "text")}}
                         {{#if editMode}}
-                        <button type="button" title="Save recipe" data-action="save_recipe">
+                        <button type="button" title="Save recipe" class="br-none br-rad10" data-action="save_recipe">
                             <i class="fas fa-floppy-disk {{#if (notGM)}}disabled{{/if}}"></i>
                         </button>
                         {{else}}
-                        <button type="button" title="Edit recipe" data-action="edit_recipe">
+                        <button type="button" title="Edit recipe" class="br-none br-rad10" data-action="edit_recipe">
                             <i class="fas fa-edit {{#if (notGM)}}disabled{{/if}}"></i>
                         </button>
                         {{/if}}
                         {{/if}}
-                        <button type="button" title="Craft from recipe" data-action="craft_from_recipe">
+                        <button type="button" title="Craft from recipe" class="br-none br-rad10"
+                            data-action="craft_from_recipe">
                             <i class="fas fa-hammer-crash"></i>
                         </button>
                     </div>
                 </div>
-                {{#if (equals type "text")}}
-                {{#if editMode}}
-                <div class="edit-container">
-                    {{editor
-                    description
-                    target = (concat id ".description")
-                    button = false
-                    owner = true
-                    editable = true}}
-                </div>
-                {{else}}
-                <div class="description-container" data-recipe-id="{{id}}">
-                    <div class="target-item-container">
+                <div class="items-container br-full br-rad15" data-recipe-id="{{id}}">
+                    <div class="target-item-container br-right">
                         {{#if target}}
-                        <h2>Target item:</h2>
-                        <img src="{{target.img}}" class="target-image" />
+                        <h2 class="br-bottom">Target item:</h2>
+                        <img src="{{target.img}}" class="target-image br-none br-bottom" />
+                        <div class="br-bottom">
+                            <button type="button" title="Subtract quantity" class="item_button"
+                                data-action="substract_quantity_target">
+                                <i class="fas fa-angle-left {{#if (notGM)}}disabled{{/if}}"></i>
+                            </button>
+                            <input type="text" title="Quantity" data-input="change_quantity_target"
+                                class="quantity-input br-none br-rad0 br-left br-right"
+                                value="{{getCorrectQuantityValue target}}" />
+                            <button type="button" title="Add quantity" class="item_button"
+                                data-action="add_quantity_target">
+                                <i class="fas fa-angle-right {{#if (notGM)}}disabled{{/if}}"></i>
+                            </button>
+                        </div>
                         <p>{{target.name}}</p>
+                        {{else}}
+                        <i class="fas fa-circle-down" style="
+                        width: 64px;
+                        padding: 10px;
+                        padding-left: 50%;"></i>
                         {{/if}}
                     </div>
+                    {{#if (equals type "text")}}
+                    {{#if editMode}}
+                    <div class="tmce-editor-container">
+                        {{editor
+                        description
+                        target = (concat id ".description")
+                        button = false
+                        owner = true
+                        class = sc-editor-style
+                        editable = true}}
+                    </div>
+                    {{else}}
                     <div class="description-text-container">
+                        <h2 class="br-bottom">Description:</h2>
                         <div class="height-limiter">
                             {{{description}}}
                         </div>
                     </div>
-                </div>
-                {{/if}}
-                {{else}}
-                <div class="items-container" data-recipe-id="{{id}}">
-                    <div class="target-item-container">
-                        {{#if target}}
-                        <h2>Target item:</h2>
-                        <img src="{{target.img}}" class="target-image" />
-                        <p>{{target.name}}</p>
-                        {{/if}}
-                    </div>
-                    <div class="required-item-container">
-                        <h2>Required items:</h2>
+                    {{/if}}
+                    {{else}}
+                    <div class="required-item-container br-none">
+                        <h2 class="br-bottom">Required items:</h2>
                         {{#if ingredients}}
                         <div class="required-items">
                             {{#each ingredients}}
-                            <div class="required-item" data-item-id="{{this._id}}">
-                                <img src="{{this.img}}" class="required-image" />
-                                <p>{{this.name}}</p>
-                                <p style="width:20%;">Quantity placeholder</p>
-                                <button type="button" title="Delete item" data-action="delete_item">
+                            <div class="required-item br-rad15 br-full" data-item-id="{{@key}}">
+                                <img src="{{this.img}}" class="required-image br-none" />
+                                <p class="br-left">{{this.name}}</p>
+                                <button type="button" title="Subtract quantity" class="item_button br-rad0 br-left"
+                                    data-action="substract_quantity">
+                                    <i class="fas fa-angle-left {{#if (notGM)}}disabled{{/if}}"></i>
+                                </button>
+                                <input type="text" title="Quantity" data-input="change_quantity"
+                                    class="quantity-input  br-none br-rad0 br-left br-right"
+                                    value="{{getCorrectQuantityValue this}}" />
+                                <button type="button" title="Add quantity" class="item_button"
+                                    data-action="add_quantity">
+                                    <i class="fas fa-angle-right {{#if (notGM)}}disabled{{/if}}"></i>
+                                </button>
+                                <button type="button" title="Delete item" class="delete_item_button br-left"
+                                    data-action="delete_item">
                                     <i class="fas fa-minus {{#if (notGM)}}disabled{{/if}}"></i>
                                 </button>
                             </div>
                             {{/each}}
                         </div>
+                        {{else}}
+                        <i class="fas fa-circle-down" style="
+                        width: 64px;
+                        padding-left: 50%;"></i>
                         {{/if}}
                     </div>
+                    {{/if}}
                 </div>
-                {{/if}}
             </div>
             {{/if}}
             {{/each}}

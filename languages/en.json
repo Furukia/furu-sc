@@ -3,7 +3,7 @@
     "SETTINGS": {
       "SAVEPATH": {
         "name": "Save path",
-        "hint": "The default path where you want to save your recipe files. Path should be relevant to your data folder."
+        "hint": "The default path where you want to save your recipe files. Path should be relevant to your data folder. You can also use it to sort different recipe files between different worlds by folders! Note: Don't use folders with other json files!"
       },
       "CURRENTFILE": {
         "name": "Current file name",

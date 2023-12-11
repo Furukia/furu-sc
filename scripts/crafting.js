@@ -1,5 +1,6 @@
 import { MODULE, DATA_DEFAULT_FOLDER, RECIPES, DEFAULT_RECIPES_DATA } from "./const.js"; //import the const variables
 import { CraftMenu } from "./CraftMenu.js";
+import { getCorrectQuantityPathForItem, getNestedValue, setNestedValue, processSourceId } from "./helpers.js";
 
 /**
  * @typedef {Object} Recipe
@@ -7,8 +8,8 @@ import { CraftMenu } from "./CraftMenu.js";
  * @property {string} name - The name of the recipe.
  * @property {string} description - The description of the recipe.
  * @property {string} type - A type of a recipe
- * @property {bool} isVisible - Is a recipe visible for player's?
- * @property {bool} editMode - Are we editing this recipe or not?
+ * @property {bool} isVisible - Is a recipe visible right now?
+ * @property {bool} editMode - Are we editing this recipe text or not?
  * @property {Object} target - The object that we want to craft.
  * @property {Array<Object>} ingredients - The list of objects we use to craft the target.
  */
@@ -19,8 +20,10 @@ import { CraftMenu } from "./CraftMenu.js";
  */
 export class RecipeData {
 
+    /**
+     * Creates a new recipe.
+     */
     static async createRecipe() {
-        // generate a random id for this new data and populate the database
         const newRecipe = {
             id: foundry.utils.randomID(16),
             name: "New recipe",
@@ -30,24 +33,19 @@ export class RecipeData {
             editMode: false,
             target: undefined,
             ingredients: undefined
-        }
-        // get all existing recipes
-        let allRecipes = CraftMenu.craftMenu.object;
-        console.log("createRecipe - allRecipes", allRecipes);
-
-        if (allRecipes === null || allRecipes === undefined) {
-            allRecipes = {};
-            ui.notifications.error('Failed to load recipe list! Creating a new file...');
-        }
-
-        // add the new recipe to the existing recipes
+        };
+        let allRecipes = CraftMenu.craftMenu.object || {};
         allRecipes[newRecipe.id] = newRecipe;
-
-        // Update the data
         CraftMenu.craftMenu.object = allRecipes;
     }
-
+    /**
+     * Searches for recipes based on a search query and updates their visibility in the Craft Menu.
+     *
+     * @param {string} searchQuery - The search query used to filter the recipes.
+     */
     static async searchRecipe(searchQuery) {
+        CraftMenu.craftMenu.searchQuery = searchQuery;
+        searchQuery = searchQuery.toLowerCase();
         // Get all existing recipes
         let allRecipes = CraftMenu.craftMenu.object;
         const allRecipesArray = Object.values(allRecipes);
@@ -56,7 +54,6 @@ export class RecipeData {
         let isVisible = false;
         allRecipesArray.forEach(recipe => {
             let recipeIsVisible = false;
-
             if (searchQuery === "" || !searchQuery) {
                 recipeIsVisible = true;
             } else {
@@ -65,8 +62,8 @@ export class RecipeData {
                     recipe.target?.name,
                     recipe.target?.img,
                     recipe.description,
-                    ...(recipe.ingredients ?? []).map(ingredient => ingredient.name),
-                    ...(recipe.ingredients ?? []).map(ingredient => ingredient.img)
+                    ...(Object.values(recipe.ingredients ?? {}) ?? []).map(ingredient => ingredient.name),
+                    ...(Object.values(recipe.ingredients ?? {}) ?? []).map(ingredient => ingredient.img)
                 ];
 
                 recipeIsVisible = searchFields.some(field =>
@@ -82,32 +79,42 @@ export class RecipeData {
             allRecipesArray.forEach(recipe => {
                 recipe.isVisible = true;
             });
+            ui.notifications.notify("Found no recipes for the search query");
         }
         // Update the data
         CraftMenu.craftMenu.object = allRecipes;
     }
 
+    /**
+     * Updates a recipe with the provided recipe ID and update data.
+     *
+     * @param {string} recipeID - The ID of the recipe to be updated.
+     * @param {object} updateData - The data to be updated in the recipe.
+     */
     static async updateRecipe(recipeID, updateData) {
-        // get all existing recipes
-        //const allRecipes = await this.loadDataFromJSONFile();
-
+        // Get all the recipes
         const allRecipes = CraftMenu.craftMenu.object;
-
-        // update the recipe with the provided id
-        if (allRecipes.hasOwnProperty(recipeID)) {
-            let updatedRecipe;
-            // merge the existing recipe data with the updated data
-            updatedRecipe = mergeObject(allRecipes[recipeID], updateData, { overwrite: true, insertKeys: true, insertValues: true });
-
-            //console.log("updatedRecipe:", updatedRecipe)
-            // update the recipe with the merged data
-            allRecipes[recipeID] = updatedRecipe;
-
-            // Update the data
-            CraftMenu.craftMenu.object = allRecipes;
-        } else {
+        if (!allRecipes.hasOwnProperty(recipeID)) {
+            // If the recipe doesn't exist, log an error message
             console.error(`${MODULE} | Recipe with id ${recipeID} not found`);
+            return;
         }
+        // Check if the updateData has a "target" property
+        if (updateData.hasOwnProperty("target")) {
+            // If it does, update the "target" property of the recipe
+            allRecipes[recipeID].target = updateData.target;
+        } else {
+            // If it doesn't, merge the updateData with the existing recipe data
+            const updatedRecipe = mergeObject(allRecipes[recipeID], updateData, {
+                overwrite: true,
+                insertKeys: true,
+                insertValues: true
+            });
+            // Update the recipe with the merged data
+            allRecipes[recipeID] = updatedRecipe;
+        }
+        // Update the CraftMenu object with the updated recipes
+        CraftMenu.craftMenu.object = allRecipes;
     }
 
     static async updateRecipes(updateData) {
@@ -119,6 +126,11 @@ export class RecipeData {
         }
     }
 
+    /**
+     * Edits a recipe by toggling its edit mode on or off.
+     *
+     * @param {number} recipeID - The ID of the recipe to edit.
+     */
     static async editRecipe(recipeID) {
         // get all existing recipes
         const allRecipes = CraftMenu.craftMenu.object;
@@ -130,22 +142,74 @@ export class RecipeData {
         await this.updateRecipe(recipeID, updateData);
     }
 
+    static async ProcessIngredient(item, recipeID) {
+        let allRecipes = CraftMenu.craftMenu.object;
+        let ingredients = allRecipes[recipeID].ingredients;
+        let sourceId = processSourceId(item.flags.core.sourceId);
+        if (!ingredients) {
+            // No ingredients. Making it an empty object to fill in later
+            ingredients = {};
+        }
+        else if (ingredients.hasOwnProperty(sourceId)) {
+            // Already got that ingredient here. Just change it's quantity
+            this.ProcessQuantity(recipeID, 1, { originalItemId: sourceId, isTarget: false });
+            return; //And leave
+        }
+        // Adding a new ingredient
+        let itemObject = item.toObject();
+        delete itemObject["_id"];
+        console.log("itemObject", itemObject);
+        ingredients[sourceId] = itemObject;
+        allRecipes[recipeID].ingredients = ingredients;
+        CraftMenu.craftMenu.object = allRecipes;
+        CraftMenu.craftMenu.render();
+    }
+    /**
+    * Process the quantity of an item in a recipe or target.
+    * @param {string} recipeId - The recipe ID.
+    * @param {number} value - The value to add to the item's quantity.
+    * @param {Object} options - Additional options.
+    * @param {string} options.originalItemId - The original item ID.
+    * @param {boolean} options.rewrite - Whether to rewrite the item's quantity instead of adding to it.
+    * @param {boolean} options.isTarget - Whether the item is a target or a recipe ingredient.
+    * @returns {Promise<void>} - A promise that resolves once the quantity has been processed.
+    */
+    static async ProcessQuantity(recipeId, value, options = {}) {
+        const allRecipes = CraftMenu.craftMenu.object;
+        const { originalItemId = null, rewrite = false, isTarget = true } = options;
+        console.log("options", options);
+        console.log("originalItemId", originalItemId);
+        console.log("rewrite", rewrite);
+        console.log("isTarget", isTarget);
+        let item;
+        if (isTarget) {
+            item = allRecipes[recipeId].target;
+        } else {
+            item = allRecipes[recipeId].ingredients[originalItemId];
+        }
+        const pathObject = getCorrectQuantityPathForItem(item);
+        const path = pathObject.path;
+        const currentQuantity = getNestedValue(item, path);
+        const numericValue = Number(value);
+        const numericCurrentQuantity = Number(currentQuantity);
+        const updatedQuantity = rewrite ? numericValue : numericCurrentQuantity + numericValue;
+        item = await setNestedValue(item, path, updatedQuantity);
+        if (isTarget) {
+            allRecipes[recipeId].target = item;
+        } else {
+            allRecipes[recipeId].ingredients[originalItemId] = item;
+        }
+        CraftMenu.craftMenu.object = allRecipes;
+        CraftMenu.craftMenu.render();
+    }
+
     static async deleteIngredient(recipeID, itemID) {
         // get all existing recipes
-        //let allRecipes = await this.loadDataFromJSONFile();
-
         let allRecipes = CraftMenu.craftMenu.object;
-        // form a new list of ingredients
-        let updateData = {
-            ingredients: []
-        };
-        //("updateData:", updateData);
-        allRecipes[recipeID].ingredients.forEach(ingredient => {
-            if (ingredient._id !== itemID) {
-                updateData.ingredients.push(ingredient);
-            }
-        });
-        allRecipes[recipeID].ingredients = updateData.ingredients;
+        let ingredients = allRecipes[recipeID].ingredients;
+        // deleting the ingredient
+        delete ingredients[itemID];
+        allRecipes[recipeID].ingredients = ingredients;
         // update the data with the updated ingredient list
         CraftMenu.craftMenu.object = allRecipes;
     }
@@ -173,23 +237,27 @@ export class RecipeData {
         this.saveDataToFile();
     }
 
-    static async createRecipeFile(path) {
-        let jsonPath = path === undefined ? DATA_DEFAULT_FOLDER : path;
-        let fileName = await Dialog.prompt({
-            title: 'File creation',
-            content: `<p>Please name a new file.</p>
+    static async createRecipeFile(path, fileName) {
+        let jsonPath = !path ? DATA_DEFAULT_FOLDER : path;
+        if (!fileName) {
+            fileName = await Dialog.prompt({
+                title: 'File creation',
+                content: `<p>Please name a new file.</p>
             <input type="text" style="margin-top:6px; margin-bottom:6px;">`,
-            callback: (html) => html.find('input').val()
-        })
-        if (!fileName)
-            return;
-        this.saveDataToJSONFile({}, jsonPath, fileName);
-        CraftMenu.craftMenu.object = {};
+                callback: (html) => html.find('input').val()
+            })
+            if (!fileName)
+                return;
+        }
+        RecipeData.saveDataToJSONFile({}, jsonPath, fileName);
+        game.settings.set(MODULE, 'current-file', fileName);
+        if (CraftMenu.craftMenu)
+            CraftMenu.craftMenu.object = {};
     }
 
     static async saveDataToFile(isQuiet = false) {
-        const folder = game.settings.get(MODULE, 'SavePath');
-        const file = game.settings.get(MODULE, 'CurrentFile');
+        const folder = game.settings.get(MODULE, 'save-path');
+        const file = game.settings.get(MODULE, 'current-file');
         if (!folder || !file) {
             ui.notification.error(`Can't get the current folder and/or file. | FolderPath = ${folder} | FilePath = ${file} |`);
             return;
@@ -203,28 +271,34 @@ export class RecipeData {
             }
             await RecipeData.updateRecipe(recipeID, updateData);
         }
-        await RecipeData.saveDataToJSONFile(CraftMenu.craftMenu.object, folder, file, isQuiet);
+        await RecipeData.saveDataToJSONFile(CraftMenu.craftMenu.object, folder, file, isQuiet, CraftMenu.craftMenu.fileInfo);
     }
 
     /**
-     * Description placeholder
+     * TODO: Description placeholder
      * @static
      * @async
      * @param {object} updateData - The data object we convert to JSON and then save
      * @param {string} path - The path where to save the JSON file
      */
-    static async saveDataToJSONFile(updateData, path, filename, isQuiet = false) {
+    static async saveDataToJSONFile(updateData, path, filename, isQuiet = false, fileInfo = null) {
         let jsonPath = path === undefined ? DATA_DEFAULT_FOLDER : path;
         let jsonFilename = filename === undefined ? RECIPES : filename
 
-        const systemID = game.system.id;
-        const worldID = game.world.id;
-        const finalData = mergeObject({ system: systemID, world: worldID }, updateData, { insertKeys: true });
-
+        //delete updateData["searchQuery"]; //TODO: add search query where needed, to track it
+        if (!fileInfo) {
+            fileInfo = {
+                system: game.system.id,
+                world: game.world.id
+            }
+        }
+        const finalData = mergeObject({ fileInfo: fileInfo }, updateData, { insertKeys: true });
+        console.log("Saving data comparison:", updateData, finalData);
         // Replace special characters in name to underscores
         const safeName = jsonFilename.replace(/[^ a-z0-9-_()[\]<>]/gi, '_');
         // Generate the system safe filename
         const fileName = encodeURI(`${safeName}.json`);
+        console.log("saving - dataJSONstring:", JSON.stringify(finalData, null, ' '));
         const file = new File([JSON.stringify(finalData, null, ' ')], fileName, { type: 'application/json' });
         const response = await FilePicker.upload("data", jsonPath, file, {}, { notify: false });
         if (!response.path) {
@@ -252,21 +326,11 @@ export class RecipeData {
         catch (e) {
             return ui.notifications.error(e);
         }
-        //console.log(response);
         let jsonData = response;
+        if (!jsonData)
+            return null;
+        console.log("loadDataFromJSONFile - jsonData:", jsonData);
+        return jsonData;
 
-        if (jsonData !== undefined || foundry.data.validators.isJSON(jsonData)) {
-            if (jsonData.system != game.system.id) {
-                ui.notifications.error('This recipes file was made in another game system. Item\'s probably won\'t be compatible at all!');
-            }
-            if (jsonData.world != game.world.id) {
-                ui.notifications.error('This recipes file was made in another world. There is a possibility of item conflicts!');
-            }
-            delete jsonData["system"];
-            delete jsonData["world"];
-            console.log("loadDataFromJSONFile - jsonData:", jsonData);
-            return jsonData;
-        }
-        return null;
     }
 }

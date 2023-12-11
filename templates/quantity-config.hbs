@@ -1,0 +1,50 @@
+<form>
+    <button type="button" title="Get help on getting the path's value's" data-action="open_help" style="width:100%;">
+        <i class="fas fa-circle-info"></i> Help
+    </button>
+    {{#if showHelp}}
+    <h3 style="padding-top:10px;">
+        Steps to get to that quantity path
+    </h3>
+    <ol>
+        <li>
+            Create some items of different types and check if they have a quantity property anywhere
+        </li>
+        <li>
+            Open the console. Default key - "F12"
+        </li>
+        <li>
+            Type | game.items | in the console. This will give a list of all items in that world.
+            If you want to get a specific item - type | game.items.get("") | and add an itemID between the ""
+        </li>
+        <li>
+            Check all of those items properties and find the quantity of that item. Then write down the path you took to
+            get it, relevant to that item.
+            It should look something like this - "data.quantity" or "system.count" or even just "quantity" e.t.c. The
+            important part is to be sure it contains the necessary data.
+        </li>
+        <li>
+            Finally write that path to the field corresponding to that item type. If your item does not contain any
+            quantity properties. Just leave it blank.
+        </li>
+    </ol>
+    {{/if}}
+    <header class="table-header flexrow">
+        <label>Type</label>
+        <label>Path</label>
+    </header>
+
+    <ul class="action-list">
+        {{#each paths}}
+        <li class="action form-group">
+            <div class="item-type-text">{{type}}</div>
+            <input name="{{type}}.path" class="path-text" type="text" value="{{path}}" />
+        </li>
+        {{/each}}
+    </ul>
+    <div class="form-group">
+        <button type="submit">
+            <i class="fas fa-save"></i> "Save"
+        </button>
+    </div>
+</form>

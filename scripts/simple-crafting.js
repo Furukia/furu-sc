@@ -1,5 +1,5 @@
 import { MODULE, MODULE_NAME } from "./const.js"; //import the const variables
-import { createFolderIfMissing } from "./helpers.js";
+import { createFolderIfMissing, getCorrectQuantityPathForItem, getNestedValue } from "./helpers.js";
 import { RegisterSettings, ValidateSettings } from "./settings.js";
 import { CraftMenu } from "./CraftMenu.js";
 
@@ -8,7 +8,7 @@ import { CraftMenu } from "./CraftMenu.js";
  * @param {Object} controls
  */
 function addButton(controls) {
-  let buttonControls = controls.find(control => control.name === 'token');
+  let buttonControls = controls.find(control => control.name === 'notes');
   buttonControls.tools.push({
     name: 'craftmenu',
     title: 'Craft menu',
@@ -36,9 +36,15 @@ function openMenu() {
  */
 
 Hooks.once("init", async function () {
+  //TODO - V Не забудь убрать это в конце работы над модулем
+  // CONFIG.debug.hooks = true 
   console.log(`${MODULE} | initializing ${MODULE_NAME} module.`);
   createFolderIfMissing();
   await RegisterSettings();
+});
+
+Hooks.once("ready", async function () {
+  console.log(`${MODULE} | Setting up settings and initializing craft menu.`);
   await ValidateSettings();
   CraftMenu.initialize();
 });
@@ -56,6 +62,13 @@ Handlebars.registerHelper('notGM', function () {
   return !game.user.isGM;
 });
 
+Handlebars.registerHelper('getCorrectQuantityValue', function (item) {
+  let pathObject = getCorrectQuantityPathForItem(item);
+  let path = pathObject.path;
+  let currentQuantity = getNestedValue(item, path);
+  return currentQuantity;
+});
+
 Handlebars.registerHelper('getCurrentFile', function () {
-  return game.settings.get(MODULE, 'CurrentFile');
+  return game.settings.get(MODULE, 'current-file');
 });
