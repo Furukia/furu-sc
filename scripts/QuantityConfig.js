@@ -26,7 +26,6 @@ export class QuantityConfig extends FormApplication {
         html.on('click', "[data-action]", this._handleButtonClick.bind(this));
     }
 
-
     /**
      * Handles the button click event.
      *

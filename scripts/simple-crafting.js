@@ -2,6 +2,7 @@ import { MODULE, MODULE_NAME } from "./const.js"; //import the const variables
 import { createFolderIfMissing, getCorrectQuantityPathForItem, getNestedValue } from "./helpers.js";
 import { RegisterSettings, ValidateSettings } from "./settings.js";
 import { CraftMenu } from "./CraftMenu.js";
+import { CraftTable } from "./CraftTable.js";
 
 /**
  * Adds a button to open a Craft Menu
@@ -24,11 +25,6 @@ function addButton(controls) {
  */
 function openMenu() {
   CraftMenu.craftMenu.render(true);
-  try {
-    CraftMenu.craftMenu.bringToTop();
-  } catch (e) {
-    console.error(e);
-  }
 }
 
 /*
@@ -47,6 +43,7 @@ Hooks.once("ready", async function () {
   console.log(`${MODULE} | Setting up settings and initializing craft menu.`);
   await ValidateSettings();
   CraftMenu.initialize();
+  CraftTable.initialize();
 });
 
 Hooks.on('getSceneControlButtons', addButton);

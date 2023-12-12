@@ -94,7 +94,7 @@
                 <div class="items-container br-full br-rad15" data-recipe-id="{{id}}">
                     <div class="target-item-container br-right">
                         {{#if target}}
-                        <h2 class="br-bottom">Target item:</h2>
+                        <h2 class="br-bottom" style="margin:0px;">Target item:</h2>
                         <img src="{{target.img}}" class="target-image br-none br-bottom" />
                         <div class="br-bottom">
                             <button type="button" title="Subtract quantity" class="item_button"
@@ -143,8 +143,8 @@
                         <div class="required-items">
                             {{#each ingredients}}
                             <div class="required-item br-rad15 br-full" data-item-id="{{@key}}">
-                                <img src="{{this.img}}" class="required-image br-none" />
-                                <p class="br-left">{{this.name}}</p>
+                                <img src="{{this.img}}" class="required-image br-none br-right" />
+                                <p>{{this.name}}</p>
                                 <button type="button" title="Subtract quantity" class="item_button br-rad0 br-left"
                                     data-action="substract_quantity">
                                     <i class="fas fa-angle-left {{#if (notGM)}}disabled{{/if}}"></i>

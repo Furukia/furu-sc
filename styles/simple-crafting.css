@@ -97,8 +97,6 @@ button > i {
   background: #9e733b;
   margin-top: 10px;
   margin-bottom: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
 }
 .recipe-container .description-container,
 .recipe-container .items-container,
@@ -197,24 +195,20 @@ button > i {
   flex-direction: column;
 }
 .required-image {
-  padding: 10px;
   max-height: 64px;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
 }
 .required-item > p {
-  white-space: nowrap;
+  margin: 0px;
   padding-left: 5px;
-  padding-right: 5px;
-  padding-top: 11px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: center;
-  font-size: medium;
-  max-height: 100px;
-  width: 100%;
-  height: 100%;
+  padding-right: 5px; 
   overflow-y: scroll;
+  text-align: center;
+  font-size: 1rem;
+  max-height: 64px;
+  width: 350px;
+  height: 100%;
 }
 
 #crafting-form .required-item > input[type="text"] {
@@ -228,9 +222,8 @@ button > i {
   background: #9e733b;
   display: flex;
   max-width: 100%;
-  height: 50px;
+  width: fit-content;
   align-items: center;
-  justify-content: space-between;
   margin: 5px;
 }
 .required-item-container,
@@ -274,7 +267,6 @@ button > i {
 }
 .target-image {
   min-width: 100%;
-  padding: 5px;
 }
 .target-item-container {
   max-width: 25%;
@@ -307,11 +299,13 @@ button > i {
   width: 50%;
 }
 #furu-sc-quantity-config section.window-content,
-#furu-sc-craft-menu .window-content {
+#furu-sc-craft-menu .window-content,
+#furu-sc-craft-table .window-content {
   background: rgba(32, 32, 32);
   color: #deb887;
 }
 #furu-sc-quantity-config button,
+#furu-sc-craft-table button,
 #crafting-form button {
   background: #deb887;
   margin: 0px;
@@ -356,4 +350,34 @@ button > i {
   background: #deb887;
   height: 100%;
   text-align: center;
+}
+
+#furu-sc-craft-table p {
+  background: #deb887;
+  margin: 0px;
+  text-align: center;
+  color: black;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.sc-loading-bar {
+  height: 20px;
+  margin-top: 10px;
+  background-color: #deb887;
+}
+#sc-loading-bar-fill {
+  height: 100%;
+  background-color: green;
+}
+
+.table-target-block {
+  width: 100%;
+  display: flex;
+}
+
+.table-target-image {
+  width: 64px;
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
 }
