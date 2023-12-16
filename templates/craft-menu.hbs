@@ -12,13 +12,13 @@
                 conflicts!</li>
             {{/if}}
         </ul>
-        <div class="control-container">
-            <div class="search-recipe">
+        <div class="sc-control-container">
+            <div class="sc-search-recipe">
                 <p>Search recipes:</p>
-                <input type="search" title="Search for a recipe" id="sc-search" class="br-none"
+                <input type="search" title="Search for a recipe" id="sc-search" class="sc-br-none"
                     data-input="search_recipe" placeholder="Search..." value="{{searchQuery}}" />
             </div>
-            <div class="select-recipe-file">
+            <div class="sc-select-recipe-file">
                 <p>Current file:</p>
                 <select data-select="select_file" title="Select file with the recipes">
                     {{#select (getCurrentFile)}}
@@ -28,39 +28,39 @@
                     {{/select}}
                 </select>
             </div>
-            <div class="cm-button">
-                <button type="button" title="Clear all recipes from selected file" class="br-none br-rad10"
+            <div class="sc-cm-button">
+                <button type="button" title="Clear all recipes from selected file" class="sc-br-none sc-br-rad10"
                     data-action="clear-recipe-file">
-                    <i class="fas fa-eraser {{#if (notGM)}}disabled{{/if}}"></i>
+                    <i class="fas fa-eraser {{#if (notGM)}}sc-disabled{{/if}}"></i>
                 </button>
             </div>
-            <div class="cm-button">
-                <button type="button" title="Create a new recipe file" class="br-none br-rad10"
+            <div class="sc-cm-button">
+                <button type="button" title="Create a new recipe file" class="sc-br-none sc-br-rad10"
                     data-action="create-recipe-file">
-                    <i class="fas fa-file {{#if (notGM)}}disabled{{/if}}"></i>
+                    <i class="fas fa-file {{#if (notGM)}}sc-disabled{{/if}}"></i>
                 </button>
             </div>
-            <div class="cm-button">
-                <button type="button" title="Save recipe file" class="br-none br-rad10" data-action="save-recipe-file">
-                    <i class="fas fa-floppy-disk {{#if (notGM)}}disabled{{/if}}"></i>
+            <div class="sc-cm-button">
+                <button type="button" title="Save recipe file" class="sc-br-none sc-br-rad10" data-action="save-recipe-file">
+                    <i class="fas fa-floppy-disk {{#if (notGM)}}sc-disabled{{/if}}"></i>
                 </button>
             </div>
-            <div class="cm-button">
-                <button type="button" title="Create a new recipe" class="br-none br-rad10" data-action="add_recipe">
-                    <i class="fas fa-plus {{#if (notGM)}}disabled{{/if}}"></i>
+            <div class="sc-cm-button">
+                <button type="button" title="Create a new recipe" class="sc-br-none sc-br-rad10" data-action="add_recipe">
+                    <i class="fas fa-plus {{#if (notGM)}}sc-disabled{{/if}}"></i>
                 </button>
             </div>
         </div>
-        <div class="recipe-container">
+        <div class="sc-recipe-container">
             {{#each recipes}}
             {{#if isVisible}}
-            <div class="recipe-card br-full br-rad15">
-                <div class="edit-container">
-                    <div class="edit-name">
+            <div class="sc-recipe-card sc-br-full sc-br-rad15">
+                <div class="sc-edit-container">
+                    <div class="sc-edit-name">
                         <p>Recipe name:</p>
-                        <input type="text" class="br-none" name="{{id}}.name" value="{{name}}" data-dtype="String">
+                        <input type="text" class="sc-br-none" name="{{id}}.name" value="{{name}}" data-dtype="String">
                     </div>
-                    <div class="edit-type">
+                    <div class="sc-edit-type">
                         <p>Recipe type:</p>
                         <select name="{{id}}.type">
                             {{#select type}}
@@ -69,44 +69,44 @@
                             {{/select}}
                         </select>
                     </div>
-                    <div class="edit-buttons" data-recipe-id="{{id}}">
-                        <button type="button" title="Delete recipe" class="br-none br-rad10"
+                    <div class="sc-edit-buttons" data-recipe-id="{{id}}">
+                        <button type="button" title="Delete recipe" class="sc-br-none sc-br-rad10"
                             data-action="delete_recipe">
-                            <i class="fas fa-minus {{#if (notGM)}}disabled{{/if}}"></i>
+                            <i class="fas fa-minus {{#if (notGM)}}sc-disabled{{/if}}"></i>
                         </button>
                         {{#if (equals type "text")}}
                         {{#if editMode}}
-                        <button type="button" title="Save recipe" class="br-none br-rad10" data-action="save_recipe">
-                            <i class="fas fa-floppy-disk {{#if (notGM)}}disabled{{/if}}"></i>
+                        <button type="button" title="Save recipe" class="sc-br-none sc-br-rad10" data-action="save_recipe">
+                            <i class="fas fa-floppy-disk {{#if (notGM)}}sc-disabled{{/if}}"></i>
                         </button>
                         {{else}}
-                        <button type="button" title="Edit recipe" class="br-none br-rad10" data-action="edit_recipe">
-                            <i class="fas fa-edit {{#if (notGM)}}disabled{{/if}}"></i>
+                        <button type="button" title="Edit recipe" class="sc-br-none sc-br-rad10" data-action="edit_recipe">
+                            <i class="fas fa-edit {{#if (notGM)}}sc-disabled{{/if}}"></i>
                         </button>
                         {{/if}}
                         {{/if}}
-                        <button type="button" title="Craft from recipe" class="br-none br-rad10"
+                        <button type="button" title="Craft from recipe" class="sc-br-none sc-br-rad10"
                             data-action="craft_from_recipe">
                             <i class="fas fa-hammer-crash"></i>
                         </button>
                     </div>
                 </div>
-                <div class="items-container br-full br-rad15" data-recipe-id="{{id}}">
-                    <div class="target-item-container br-right">
+                <div class="sc-items-container sc-br-full sc-br-rad15" data-recipe-id="{{id}}">
+                    <div class="sc-target-item-container sc-br-right sc-br-tl-rad15 sc-br-bl-rad15">
                         {{#if target}}
-                        <h2 class="br-bottom" style="margin:0px;">Target item:</h2>
-                        <img src="{{target.img}}" class="target-image br-none br-bottom" />
-                        <div class="br-bottom">
-                            <button type="button" title="Subtract quantity" class="item_button"
+                        <h2 class="sc-br-bottom" style="margin:0px;">Target item:</h2>
+                        <img src="{{target.img}}" class="sc-target-image sc-br-none sc-br-bottom" />
+                        <div class="sc-br-bottom">
+                            <button type="button" title="Subtract quantity" class="sc-item_button"
                                 data-action="substract_quantity_target">
-                                <i class="fas fa-angle-left {{#if (notGM)}}disabled{{/if}}"></i>
+                                <i class="fas fa-angle-left {{#if (notGM)}}sc-disabled{{/if}}"></i>
                             </button>
                             <input type="text" title="Quantity" data-input="change_quantity_target"
-                                class="quantity-input br-none br-rad0 br-left br-right"
+                                class="sc-quantity-input sc-br-none sc-br-rad0 sc-br-left sc-br-right"
                                 value="{{getCorrectQuantityValue target}}" />
-                            <button type="button" title="Add quantity" class="item_button"
+                            <button type="button" title="Add quantity" class="sc-item_button"
                                 data-action="add_quantity_target">
-                                <i class="fas fa-angle-right {{#if (notGM)}}disabled{{/if}}"></i>
+                                <i class="fas fa-angle-right {{#if (notGM)}}sc-disabled{{/if}}"></i>
                             </button>
                         </div>
                         <p>{{target.name}}</p>
@@ -129,36 +129,36 @@
                         editable = true}}
                     </div>
                     {{else}}
-                    <div class="description-text-container">
-                        <h2 class="br-bottom">Description:</h2>
-                        <div class="height-limiter">
+                    <div class="sc-description-text-container">
+                        <h2 class="sc-br-bottom">Description:</h2>
+                        <div class="sc-description-height-limiter">
                             {{{description}}}
                         </div>
                     </div>
                     {{/if}}
                     {{else}}
-                    <div class="required-item-container br-none">
-                        <h2 class="br-bottom">Required items:</h2>
+                    <div class="sc-required-item-container sc-br-none">
+                        <h2 class="sc-br-bottom">Required items:</h2>
                         {{#if ingredients}}
-                        <div class="required-items">
+                        <div class="sc-required-items">
                             {{#each ingredients}}
-                            <div class="required-item br-rad15 br-full" data-item-id="{{@key}}">
-                                <img src="{{this.img}}" class="required-image br-none br-right" />
+                            <div class="sc-required-item sc-br-rad15 sc-br-full" data-item-id="{{@key}}">
+                                <img src="{{this.img}}" class="sc-required-image sc-br-none sc-br-right sc-br-tl-rad12_5 sc-br-bl-rad12_5" />
                                 <p>{{this.name}}</p>
-                                <button type="button" title="Subtract quantity" class="item_button br-rad0 br-left"
+                                <button type="button" title="Subtract quantity" class="sc-item_button sc-br-rad0 sc-br-left"
                                     data-action="substract_quantity">
-                                    <i class="fas fa-angle-left {{#if (notGM)}}disabled{{/if}}"></i>
+                                    <i class="fas fa-angle-left {{#if (notGM)}}sc-disabled{{/if}}"></i>
                                 </button>
                                 <input type="text" title="Quantity" data-input="change_quantity"
-                                    class="quantity-input  br-none br-rad0 br-left br-right"
+                                    class="sc-quantity-input  sc-br-none sc-br-rad0 sc-br-left sc-br-right"
                                     value="{{getCorrectQuantityValue this}}" />
-                                <button type="button" title="Add quantity" class="item_button"
+                                <button type="button" title="Add quantity" class="sc-item_button"
                                     data-action="add_quantity">
-                                    <i class="fas fa-angle-right {{#if (notGM)}}disabled{{/if}}"></i>
+                                    <i class="fas fa-angle-right {{#if (notGM)}}sc-disabled{{/if}}"></i>
                                 </button>
-                                <button type="button" title="Delete item" class="delete_item_button br-left"
+                                <button type="button" title="Delete item" class="sc-delete-item-button sc-br-left sc-br-rad0 sc-br-tr-rad12_5 sc-br-br-rad12_5"
                                     data-action="delete_item">
-                                    <i class="fas fa-minus {{#if (notGM)}}disabled{{/if}}"></i>
+                                    <i class="fas fa-minus {{#if (notGM)}}sc-disabled{{/if}}"></i>
                                 </button>
                             </div>
                             {{/each}}

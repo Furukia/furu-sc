@@ -29,7 +29,7 @@
         </li>
     </ol>
     {{/if}}
-    <header class="table-header flexrow">
+    <header class="sc-table-header flexrow">
         <label>Type</label>
         <label>Path</label>
     </header>
@@ -37,7 +37,7 @@
     <ul class="action-list">
         {{#each paths}}
         <li class="action form-group">
-            <div class="item-type-text">{{type}}</div>
+            <div class="sc-item-type-text">{{type}}</div>
             <input name="{{type}}.path" class="path-text" type="text" value="{{path}}" />
         </li>
         {{/each}}

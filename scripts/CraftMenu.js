@@ -36,11 +36,11 @@ export class CraftMenu extends FormApplication {
             template: CRAFT_MENU_TEMPLATE,
             title: 'Craft menu',
             dragDrop: [{
-                dropSelector: `.target-item-container, 
-        .target-item-container .target-image, 
-        .items-container .required-item-container,
-        .items-container .required-item-container .required-image,
-        .items-container .required-item-container > p`
+                dropSelector: `.sc-target-item-container, 
+        .sc-target-item-container .sc-target-image, 
+        .sc-items-container .sc-required-item-container,
+        .sc-items-container .sc-required-item-container .sc-required-image,
+        .sc-items-container .sc-required-item-container > p`
             }]
         };
         const mergedOptions = foundry.utils.mergeObject(defaults, overrides);
@@ -211,7 +211,7 @@ export class CraftMenu extends FormApplication {
                 break;
             case 'save_recipe':
                 if (!game.user.isGM) return;
-                let container = clickedElement.parents('div.recipe-card');
+                let container = clickedElement.parents('div.sc-recipe-card');
                 let editorContent = container.find('iframe.tox-edit-area__iframe');
                 let bodyElement = editorContent[0].contentDocument.body.innerHTML;
                 let updateData = {
@@ -255,7 +255,7 @@ export class CraftMenu extends FormApplication {
         const recipeID = element ? element.dataset.recipeId : null;
         let dropTargetClass = event.target.className.split(" ")[0]; //Important! DragDrop classes should always be the first class
         let dropType = "target";
-        if (dropTargetClass !== "target-item-container" && dropTargetClass !== "target-image")
+        if (dropTargetClass !== "sc-target-item-container" && dropTargetClass !== "sc-target-image")
             dropType = "ingredient";
         const item = await Item.implementation.fromDropData(data);
         switch (dropType) {

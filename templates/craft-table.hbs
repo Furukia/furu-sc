@@ -1,23 +1,21 @@
 <form>
     <h2>Recipe: {{recipe.name}}</h2>
-    <div class="recipe-card br-full br-rad15">
-        <div class="table-target-block">
-            <img src="{{recipe.target.img}}" class="table-target-image br-none br-right" />
+    <div class="sc-recipe-card sc-br-full sc-br-rad15">
+        <div class="sc-table-target-block">
+            <img src="{{recipe.target.img}}" class="sc-table-target-image sc-br-none sc-br-right sc-br-tl-rad12_5 sc-br-bl-rad12_5" />
             <div style="width:inherit;">
-                <p class="br-bottom" style="font-size: 1.5rem;
-                    border-top-right-radius: 15px;">
+                <p class="sc-br-bottom sc-br-tr-rad15">
                     {{recipe.target.name}}
                 </p>
-                <div style="width: 100%; height: 50%; display: flex; align-items: center;">
-                    <p class="br-right" style="font-size: 1.5rem;">Quantity:</p>
+                <div class="sc-table-target-quantity">
+                    <p class="sc-br-right">Quantity:</p>
                     <p style="min-width: 64px;
-                            width: max-content;                           
-                            font-size: 1.5rem;">
+                            width: max-content;">
                         {{getCorrectQuantityValue recipe.target}}
                     </p>
-                    <button type="button" title="Craft item" class="br-none br-left" data-action="craft-item" style="
-                            border-bottom-right-radius: 15px;">
-                        <i class="fas fa-hammer-crash {{#if (notGM)}}disabled{{/if}}"></i>
+                    <button type="button" title="Craft item" class="sc-br-br-rad15 sc-br-none sc-br-left"
+                        data-action="craft-item">
+                        <i class="fas fa-hammer-crash {{#if (notGM)}}sc-disabled{{/if}}"></i>
                     </button>
                 </div>
             </div>
@@ -25,43 +23,26 @@
     </div>
     {{#if (equals recipe.type "items")}}
     <h2>Required ingredients:</h2>
-    <div style="width: 100%; 
-    display: grid;
-    justify-content: space-between;
-    grid-template-columns: 22% 22% 22% 22%; 
-    max-height: 400px;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    padding-left: 10px;
-    padding-right: 10px;">
+    <div class="sc-table-ingredients-block">
         {{#each recipe.ingredients}}
-        <div class="recipe-card br-full br-rad15" style="display: flex; flex-direction: column;">
-            <img src="{{this.img}}" class="br-none br-bottom" style="border-top-left-radius: 12px;
-                border-top-right-radius: 12px;
-                filter: grayscale(100%);" />
-            <p class="br-bottom" style="height: 100%;
-                font-size: 0.8rem;
-                text-overflow: ellipsis;
-                overflow-x: hidden;
-                overflow-y: scroll;
-                max-height: 36px;">
+        <div class="sc-recipe-card sc-br-full sc-br-rad15" style="display: flex; flex-direction: column;">
+            <img src="{{this.img}}" class="sc-table-ingredients-image sc-br-none sc-br-tl-rad12_5 sc-br-tr-rad12_5" />
+            <p class="sc-table-ingredients-name sc-br-bottom sc-br-top">
                 {{this.name}}
             </p>
-            <div style="width: 100%; display: flex; align-items: center;">
-                <p class="br-right" style="width: 70%;
-                        font-size: 0.8rem;
-                        border-bottom-left-radius: 15px;">Required:</p>
-                <p style="width: 100%;                          
-                        font-size: 0.8rem;
-                        border-bottom-right-radius: 15px;">
+            <div style="display: flex;">
+                <p class="sc-br-bl-rad15 sc-br-right" style="padding-left: 10px;">
+                    Required:
+                </p>
+                <p class="sc-br-br-rad15" style="width: 100%;">
                     {{getCorrectQuantityValue this}}
                 </p>
             </div>
         </div>
         {{/each}}
     </div>
-    <div class="sc-loading-bar br-full br-rad15">
-        <div id="sc-loading-bar-fill" class="br-rad15"></div>
+    <div class="sc-loading-bar sc-br-full sc-br-rad15">
+        <div id="sc-loading-bar-fill" class="sc-br-rad15"></div>
     </div>
     {{/if}}
 </form>
