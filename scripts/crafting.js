@@ -1,6 +1,7 @@
 import { MODULE, DATA_DEFAULT_FOLDER, RECIPES, DEFAULT_RECIPES_DATA } from "./const.js"; //import the const variables
 import { CraftMenu } from "./CraftMenu.js";
-import { getCorrectQuantityPathForItem, getNestedValue, setNestedValue, processSourceId } from "./helpers.js";
+import { CraftTable } from "./CraftTable.js";
+import { getCorrectQuantityPathForItem, processSourceId, getPercentForAllIngredients } from "./helpers.js";
 
 /**
  * @typedef {Object} Recipe
@@ -189,7 +190,6 @@ export class RecipeData {
     * @param {string} options.originalItemId - The original item ID.
     * @param {boolean} options.rewrite - Whether to rewrite the item's quantity instead of adding to it.
     * @param {boolean} options.isTarget - Whether the item is a target or a recipe ingredient.
-    * @returns {Promise<void>} - A promise that resolves once the quantity has been processed.
     */
     static async ProcessQuantity(recipeId, value, options = {}) {
         const allRecipes = CraftMenu.craftMenu.object;
@@ -200,13 +200,14 @@ export class RecipeData {
         } else {
             item = allRecipes[recipeId].ingredients[originalItemId];
         }
-        const pathObject = getCorrectQuantityPathForItem(item);
+        const pathObject = getCorrectQuantityPathForItem(item.type);
         const path = pathObject.path;
-        const currentQuantity = getNestedValue(item, path);
+        const currentQuantity = foundry.utils.getProperty(item, path);
         const numericValue = Number(value);
         const numericCurrentQuantity = Number(currentQuantity);
         const updatedQuantity = rewrite ? numericValue : numericCurrentQuantity + numericValue;
-        item = await setNestedValue(item, path, Math.max(1, updatedQuantity));
+        console.log("item", item);
+        await foundry.utils.setProperty(item, path, Math.max(1, updatedQuantity));
         if (isTarget) {
             allRecipes[recipeId].target = item;
         } else {
@@ -350,5 +351,230 @@ export class RecipeData {
         if (!jsonData)
             return null;
         return jsonData;
+    }
+}
+
+/**
+ * @typedef {Object} ingredientInfo
+ * @property {string} sourceId - The unique identifier of this ingredient's source item.
+ * @property {string} name - The name of the ingredient.
+ * @property {string} img - The image URL of the ingredient.
+ * @property {string} type - A type of an original item.
+ * @property {string} quantityPath - A path to the quantity of an original item.
+ * @property {string} currentReqQuantity - A number value representing the current quantity required for this ingredient.
+ * @property {number} requiredQuantity - A number value representing the full required quantity of this ingredient to craft with.
+ * @property {number} modifier - A number value representing a bonus value we can add/substract from a quantity, to get to the required quantity.
+ */
+
+/*
+ * CraftingTableData class
+ * contains functions needed for the actual crafting process
+ */
+export class CraftingTableData {
+
+    /**
+     * Opens the craft table and sets the selected recipe.
+     */
+    static async openCraftTable(recipeID) {
+        const allRecipes = CraftMenu.craftMenu.object;
+        const recipe = allRecipes[recipeID];
+        const recipeType = recipe.type;
+
+        // Store the original recipe in the craft table
+        CraftTable.craftTable.object = { ...recipe };
+        delete CraftTable.craftTable.object.id;
+
+        CraftTable.craftTable.ingredients = {};
+
+        const userActorsObject = await CraftingTableData.getPlayerActorList();
+        if (!userActorsObject)
+            return;
+        CraftTable.craftTable.userActorsData = userActorsObject;
+        let options = {};
+        // Have some plans to add more types in the future, hence the switch/case instead of a simple ternary
+        switch (recipeType) {
+            case "text":
+                options = {
+                    height: 250
+                }
+                break;
+            case "items":
+                options = {
+                    height: 700
+                }
+                //TODO change the deep copy workflow to a new object with only the necessary for ui and checks things in it.
+                //Create an ingredientsInfo object's with the necessary information
+                CraftTable.craftTable.ingredients = await this.getIngredientInfo(recipe.ingredients);
+                await CraftingTableData.checkIngredients();
+                break;
+            default:
+                options = {
+                    height: 700
+                }
+                break;
+        }
+        CraftTable.craftTable.render(true, options);
+        console.log(`${MODULE} | CraftTable:`, CraftTable.craftTable);
+    }
+
+    /**
+     * Retrieves condensed information about ingredients.
+     *
+     * @param {Object} ingredients - The ingredients object.
+     * @return {Object} - The information about the ingredients.
+     */
+    static async getIngredientInfo(ingredients) {
+        if (!ingredients) return {};
+        let ingredientsArray = Object.values(ingredients);
+        let ingredientsInfo = {};
+        ingredientsArray.forEach(ingredient => {
+            let sourceId = processSourceId(ingredient.flags.core.sourceId);
+            const pathObject = getCorrectQuantityPathForItem(ingredient.type);
+            const path = pathObject.path;
+            const currentQuantity = foundry.utils.getProperty(ingredient, path);
+            ingredientsInfo[sourceId] = {
+                sourceId: sourceId,
+                name: ingredient.name,
+                img: ingredient.img,
+                type: ingredient.type,
+                quantityPath: path,
+                currentReqQuantity: currentQuantity,
+                requiredQuantity: currentQuantity,
+                modifier: 0
+            }
+        })
+        return ingredientsInfo;
+    }
+
+    /**
+     * Retrieves a list of player actors.
+     *
+     * @return {Object} - An object containing the current active actor and the list of owned actors.
+     */
+    static async getPlayerActorList() {
+        const userID = game.user.id;
+        let activeActor = game.user.character;
+        let actorList = game.actors;
+        let ownedActorList = {};
+        actorList.forEach(actor => {
+            let owners = actor.ownership;
+            if (owners && owners.hasOwnProperty(userID)) {
+                ownedActorList[actor.id] = actor;
+            }
+        });
+        if (!Object.keys(ownedActorList).length) {
+            ui.notifications.error('No owned actor found! You can\'t craft without crafter!');
+            return null;
+        }
+        if (!activeActor) {
+            activeActor = ownedActorList[Object.keys(ownedActorList)[0]];
+        }
+        return { selectedActor: activeActor, ownedActors: ownedActorList };
+    }
+
+    /**
+    * Checks the ingredients of the specified actor against the recipe at the craft table.
+    * Then updates the ingredients of the object accordingly.
+    * @param {Object} actor - The actor whose ingredients will be checked.
+    */
+    static async checkIngredients() {
+        const ingredientsInfo = CraftTable.craftTable.ingredients;
+        const selectedActor = CraftTable.craftTable.userActorsData.selectedActor;
+        const actorItems = selectedActor.items;
+        // Why change "length" to "size" foundry...
+        if (!actorItems.size) {
+            ui.notifications.error(`Actor "${selectedActor.name}" does not have any items!`);
+            return;
+        }
+        console.log("checkIngredients actorItems", actorItems);
+        console.log("checkIngredients ingredientsInfo", ingredientsInfo);
+        actorItems.forEach(item => {
+            console.log("checkIngredients item", item);
+            // if we don't have a source, we just use the actual item's id
+            // Because most of the system allow's creating item's directly in the actor's sheet
+            // Those item's can be considered the source if they were used while creating a recipe
+            const sourceId = item.flags?.core?.sourceId ? processSourceId(item.flags.core.sourceId) : item.id;
+            if (ingredientsInfo.hasOwnProperty(sourceId)) {
+                const pathObject = getCorrectQuantityPathForItem(item.type);
+                const currentQuantity = foundry.utils.getProperty(item, pathObject.path);
+                const requiredQuantity = ingredientsInfo[sourceId].requiredQuantity;
+                const quantityModifier = ingredientsInfo[sourceId].modifier;
+                const finalQuantity = Math.max(0, requiredQuantity - currentQuantity - quantityModifier);
+                console.log("finalQuantity", finalQuantity);
+                ingredientsInfo[sourceId].currentReqQuantity = finalQuantity;
+            }
+        })
+    }
+
+
+    /**
+     * Crafts an item based on the selected actor and recipe.
+     *
+     * @return {Promise<void>} This function does not return a value.
+     */
+    static async craftItem() {
+        const recipe = CraftTable.craftTable.object;
+
+        if (recipe.type !== "items" && getPercentForAllIngredients() !== 100)
+            return;
+
+        const selectedActor = CraftTable.craftTable.userActorsData.selectedActor;
+        let craftedItem = recipe.target;
+        const actorItems = selectedActor.items;
+        const pathObject = getCorrectQuantityPathForItem(craftedItem.type);
+        const craftedItemSourceId = processSourceId(craftedItem.flags.core.sourceId);
+
+        // Check if the actor has the craftedItem and if it has, modify it's quantity, else craft it anew
+        // if we already have that type of item in the inventory, we don't need to create it
+        // if we use the "flag" quantity handling type tho, we need to.
+        let craftNewItem = true;
+        if (pathObject.type === "system") {
+            actorItems.forEach(async function (item) {
+                if (item.type !== craftedItem.type) return;
+
+                const sourceId = item.flags?.core?.sourceId ? processSourceId(item.flags.core.sourceId) : item.id;
+                if (sourceId !== craftedItemSourceId) return;
+
+                craftNewItem = false;
+                const currentQuantity = foundry.utils.getProperty(item, pathObject.path);
+                const addQuantity = foundry.utils.getProperty(craftedItem, pathObject.path);
+                let finalQuantity = currentQuantity + addQuantity;
+                await item.update({ [pathObject.path]: finalQuantity });
+            })
+        }
+        if (craftNewItem) {
+            await getDocumentClass("Item").create(craftedItem, { parent: selectedActor });
+        }
+        ui.notifications.info(`Crafted ${craftedItem.name} !`);
+    }
+
+    /**
+     * Process the quantity of ingredients on craft.
+     *
+     * @return {Promise<void>} This function does not return a value.
+     */
+    static async processIngredientsQuantityOnCraft() {
+        const selectedActor = CraftTable.craftTable.userActorsData.selectedActor;
+        const recipe = CraftTable.craftTable.object;
+        // Get all the items that match recipe.ingredients in actor, and lower it's quantity according to recipe.ingredients quantity.
+        // If it becomes 0 delete it.
+        const actorItems = selectedActor.items.map(a => a);
+        for (let i = 0; i < actorItems.length; i++) {
+            const item = actorItems[i];
+            // if we don't have a source, we just use the actual item's id
+            // Because most of the system allow's creating item's directly in the actor's sheet
+            // Those item's can be considered the source if they were used while creating a recipe
+            const sourceId = item.flags?.core?.sourceId ? processSourceId(item.flags.core.sourceId) : item.id;
+            if (recipe.ingredients.hasOwnProperty(sourceId)) {
+                const pathObject = getCorrectQuantityPathForItem(item.type);
+                const currentQuantity = foundry.utils.getProperty(item, pathObject.path);
+                const requiredQuantity = foundry.utils.getProperty(recipe.ingredients[sourceId], pathObject.path);
+                let finalQuantity = Math.max(0, currentQuantity - requiredQuantity);
+                await item.update({ [pathObject.path]: finalQuantity });
+                if (finalQuantity === 0) {
+                    item.delete();
+                }
+            }
+        }
     }
 }

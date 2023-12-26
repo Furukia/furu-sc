@@ -1,9 +1,21 @@
 
 import { MODULE, CRAFT_TABLE_TEMPLATE, CRAFT_TABLE_ID } from "./const.js"; //import the const variables
+import { CraftingTableData } from "./crafting.js";
 /** 
  * This application works with a single recipe as it's object and handles the crafting process.
  */
 export class CraftTable extends FormApplication {
+
+    /**
+     * Activate event listeners for the provided HTML element.
+     *
+     * @param {HTMLElement} html - The HTML element to activate listeners on.
+     */
+    activateListeners(html) {
+        super.activateListeners(html);
+        html.on('click', "[data-select]", this._handleSelectClick.bind(this));
+        html.on('click', "[data-action]", this._handleButtonClick.bind(this));
+    }
 
     /**
      * Returns the default options for the App.
@@ -16,7 +28,7 @@ export class CraftTable extends FormApplication {
         const overrides = {
             closeOnSubmit: false, // do not close when submitted
             submitOnChange: true, // submit when any input changes
-            height: 600,
+            height: 700,
             width: 600,
             resizable: true,
             id: CRAFT_TABLE_ID,
@@ -36,12 +48,72 @@ export class CraftTable extends FormApplication {
     static async initialize() {
         console.log(`${MODULE} | initializing Craft Table.`);
         this.craftTable = new CraftTable({});
-        console.log("craftTable", this.craftTable);
     }
+
+    async _handleSelectClick(event) {
+        const clickedElement = event.currentTarget;
+        const action = clickedElement.dataset.select;
+        const value = clickedElement.value;
+        const { selectedActor, ownedActors } = this.userActorsData;
+
+        switch (action) {
+            case "select-actor":
+                if (selectedActor.id === value) return;
+
+                if (!ownedActors.hasOwnProperty(value)) {
+                    ui.notifications.error("Actor not found!");
+                    return;
+                }
+
+                this.userActorsData.selectedActor = ownedActors[value];
+                this.ingredients = await CraftingTableData.getIngredientInfo(this.object.ingredients);
+                await CraftingTableData.checkIngredients();
+                this.render();
+                break;
+            default:
+                console.log(`${MODULE} | Invalid action detected:`, { action });
+                break;
+        }
+    }
+
+    async _handleButtonClick(event) {
+        const clickedElement = $(event.currentTarget);
+        const action = clickedElement.data().action;
+        switch (action) {
+            case "craft_item":
+                // Process ingredients
+                await CraftingTableData.processIngredientsQuantityOnCraft();
+                // Try to craft the item with delay
+                await CraftingTableData.craftItem();
+                // Then reset ingredients
+                this.ingredients = await CraftingTableData.getIngredientInfo(this.object.ingredients);
+                await CraftingTableData.checkIngredients();
+                this.render();
+                break;
+            case "reload-window":
+                // Reset the ingredients
+                this.ingredients = await CraftingTableData.getIngredientInfo(this.object.ingredients);
+                await CraftingTableData.checkIngredients();
+                this.render();
+                ui.notifications.notify("Craft table reloaded!");
+                break;
+            case "not_enough_ingredients":
+                ui.notifications.error("Not enough ingredients to craft the item!");
+                break;
+            default:
+                console.log(`${MODULE} | Invalid action detected:`, { action });
+                break;
+        }
+    }
+
     getData() {
         let data = {
-            recipe: this.object
+            recipe: this.object,
+            ingredients: this.ingredients,
+            selectedActor: this.userActorsData.selectedActor,
+            ownedActors: this.userActorsData.ownedActors
         }
+        console.warn("uiData", data);
         return data;
     }
 }

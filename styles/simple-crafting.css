@@ -97,12 +97,15 @@
 /*
  * borders, end 
  */
-.sc-cm-button {
+
+.sc-cm-button,
+.sc-table-button {
   display: flex;
   justify-content: flex-end;
   margin-left: 5px;
 }
-.sc-cm-button button {
+.sc-cm-button button,
+.sc-table-button button {
   color: #000000;
   cursor: pointer;
   width: 32px;
@@ -174,7 +177,6 @@
 .tmce-editor-container {
   width: 100%;
 }
-
 .sc-recipe-container .tmce-editor-container .editor .tox-edit-area {
   margin-left: 10px;
   margin-right: 10px;
@@ -207,17 +209,14 @@
   width: 100%;
   overflow: hidden;
 }
-
 .sc-recipe-container .tmce-editor-container .editor .tox-tbtn {
   margin-left: 2px !important;
 }
-
 #crafting-form .sc-recipe-container .sc-edit-container .editor button {
   width: auto;
   min-width: 32px;
   margin-left: 4px;
 }
-
 /*
  * tmce editor end
  */
@@ -256,7 +255,6 @@
   min-width: 32px;
   height: 100%;
 }
-/* recipe container stuff */
 .sc-recipe-container {
   display: flex;
   flex-direction: column;
@@ -275,7 +273,6 @@
   width: 350px;
   height: 100%;
 }
-
 #crafting-form .sc-required-item > input[type="text"] {
   min-width: 10%;
   max-width: min-content;
@@ -308,25 +305,28 @@
   margin-bottom: 10px;
   max-height: 250px;
 }
-
 .sc-select-recipe-file {
   flex: 1;
 }
 .sc-search-recipe {
   flex: 2;
 }
-
+.sc-select-actor {
+  width: 100%;
+  padding-left: 5px;
+  padding-right: 5px;
+}
 .sc-select-recipe-file {
   margin-left: 5px;
 }
-
 .sc-search-recipe > input,
-.sc-select-recipe-file > select {
+.sc-select-recipe-file > select,
+.sc-select-actor > select {
   font-size: 1.4rem;
 }
-
 .sc-search-recipe > p,
-.sc-select-recipe-file > p {
+.sc-select-recipe-file > p,
+.sc-select-actor > p {
   margin: 0;
   margin-bottom: 2px;
 }
@@ -364,7 +364,7 @@
 #furu-sc-quantity-config section.window-content,
 #furu-sc-craft-menu .window-content,
 #furu-sc-craft-table .window-content {
-  background: rgba(32, 32, 32);
+  background: #202020;
   color: #deb887;
 }
 #furu-sc-quantity-config button,
@@ -373,20 +373,18 @@
   background: #deb887;
   margin: 0px;
 }
-
 #furu-sc-quantity-config button > i,
 #furu-sc-craft-table button > i,
 #crafting-form button > i {
   margin-right: 0px;
 }
-
 #furu-sc-quantity-config input[type="text"],
 #crafting-form input[type="search"] {
   color: #000000;
   background: #deb887;
   height: 100%;
 }
-#furu-sc-quantity-config header.sc-table-header {
+#furu-sc-quantity-config header.sc-quantity-config-header {
   background: #70421488;
   padding: 5px;
   border: 1px solid #9e733b;
@@ -395,7 +393,8 @@
   font-weight: bold;
   text-shadow: 1px 1px var(--color-shadow-dark);
 }
-#crafting-form select {
+#crafting-form select,
+#furu-sc-craft-table select {
   color: #000000;
   background: #deb887;
   border-color: #9e733b;
@@ -416,8 +415,8 @@
   height: 100%;
   text-align: center;
 }
-
-#furu-sc-craft-table p {
+#furu-sc-craft-table .sc-recipe-card p,
+#furu-sc-craft-table .sc-table-ingredients-block p {
   background: #deb887;
   margin: 0px;
   text-align: center;
@@ -425,31 +424,60 @@
   padding-left: 5px;
   padding-right: 5px;
 }
-
+#furu-sc-craft-table h2 {
+  color: #000000;
+  font-size: 1.5rem;
+  text-align: center;
+}
 .sc-loading-bar {
   height: 20px;
   margin-top: 10px;
   background-color: #deb887;
 }
-#sc-loading-bar-fill {
+.sc-loading-bar-fill {
   height: 100%;
   background-color: #008000;
 }
-
 .sc-table-target-block {
   width: 100%;
   display: flex;
   font-size: 1.5rem;
 }
-
 .sc-table-target-image {
   width: 64px;
+}
+.sc-table-target-name {
+  margin: 0px;
+  font-size: 1rem;
+  text-overflow: clip;
+  max-width: 300px;
+  height: 31px;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 .sc-table-target-quantity {
   width: 100%;
   height: 50%;
   display: flex;
   align-items: center;
+}
+.sc-table-header {
+  position: relative;
+  bottom: 12.5px;
+  margin-left: 75px !important;
+  margin-right: 75px !important;
+}
+.sc-table-header2 {
+  position: relative;
+  top: 3px;
+  margin-left: 75px !important;
+  margin-right: 75px !important;
+}
+.sc-table-ingredients-container {
+  background-color: #70421488;
+  padding-left: 10px;
+  padding-right: 5px;
+  margin: 0px;
 }
 .sc-table-ingredients-block {
   width: 100%;
@@ -459,15 +487,13 @@
   max-height: 400px;
   overflow-x: hidden;
   overflow-y: scroll;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding: 10px;
 }
 .sc-table-ingredients-block p {
   font-size: 0.8rem;
 }
 .sc-table-ingredients-image {
   box-shadow: inset 0px 0px 50px 10px #000000;
-  filter: grayscale(100%);
 }
 .sc-table-ingredients-name {
   height: 100%;

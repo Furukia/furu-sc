@@ -1,5 +1,6 @@
 import { MODULE, DATA_DEFAULT_FOLDER } from "./const.js"; //import the const variables
 import { RecipeData } from "./crafting.js";
+import { CraftTable } from "./CraftTable.js";
 
 
 /**
@@ -60,51 +61,21 @@ export async function getFullFilePath() {
     return path;
 }
 
-
 /**
  * Retrieves the correct quantity path for the given item.
  *
  * @param {Object} item - The item object.
- * @return {Object} - An object containing the correct quantity path and type.
+ * @return {Object} - An object containing the correct quantity path and quantity handling type.
  */
-export function getCorrectQuantityPathForItem(item) {
+export function getCorrectQuantityPathForItem(itemType) {
     let quantityPaths = game.settings.get(MODULE, `quantity-path`);
     let path = null;
     quantityPaths.forEach(_path => {
-        if (_path.type === item.type) {
+        if (_path.type === itemType) {
             path = _path.path;
         }
     })
     return path ? { path: path, type: "system" } : { path: `flags.${MODULE}.quantity`, type: "flag" };
-}
-
-/**
- * Retrieves a nested value from an object based on a provided key.
- *
- * @param {Object} obj - The object from which to retrieve the nested value.
- * @param {string} key - The key indicating the path to the nested value.
- * @return {*} - The nested value retrieved from the object.
- */
-export function getNestedValue(obj, key) {
-    return key.split(".").reduce(function (result, key) {
-        return result[key]
-    }, obj);
-}
-
-/**
- * Sets a nested value in an object.
- *
- * @param {Object} obj - The object in which to set the nested value.
- * @param {string} key - The key representing the nested value.
- * @param {*} value - The value to set.
- * @return {Object} - The modified object with the nested value set.
- */
-export function setNestedValue(obj, key, value) {
-    let keys = key.split(".");
-    let lastKey = keys.pop();
-    let nestedObj = keys.reduce((obj, key) => obj[key] ??= {}, obj);
-    nestedObj[lastKey] = value;
-    return obj;
 }
 
 /**
@@ -116,4 +87,24 @@ export function setNestedValue(obj, key, value) {
  */
 export function processSourceId(sourceId, restore = false) {
     return restore ? "Item." + sourceId : sourceId.split('.')[1];
+}
+
+/**
+ * Calculates the percentage of remaining ingredients based on the total quantity of ingredients.
+ *
+ * @return {number} The percentage of remaining ingredients.
+ */
+export function getPercentForAllIngredients() {
+    const ingredientsInfo = CraftTable.craftTable.ingredients;
+    let remainingQuantity = 0;
+    let fullQuantity = 0;
+    let fullModifier = 0;
+
+    Object.keys(ingredientsInfo).forEach(function (key) {
+        const ingredientInfo = ingredientsInfo[key];
+        remainingQuantity += ingredientInfo.currentReqQuantity;
+        fullQuantity += ingredientInfo.requiredQuantity;
+        fullModifier += ingredientInfo.modifier;
+    });
+    return ((fullQuantity - (remainingQuantity + fullModifier)) / fullQuantity) * 100;
 }

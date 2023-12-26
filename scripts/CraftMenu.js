@@ -1,7 +1,7 @@
 
 
 import { MODULE, CRAFT_MENU_TEMPLATE, CRAFT_MENU_ID } from "./const.js"; //import the const variables
-import { RecipeData } from "./crafting.js";
+import { CraftingTableData, RecipeData } from "./crafting.js";
 import { getFileNames, getFullFilePath } from "./helpers.js";
 import { CraftTable } from "./CraftTable.js";
 export class CraftMenu extends FormApplication {
@@ -29,7 +29,7 @@ export class CraftMenu extends FormApplication {
         const overrides = {
             closeOnSubmit: false, // do not close when submitted
             submitOnChange: true, // submit when any input changes
-            height: 800,
+            height: 550,
             width: 800,
             resizable: true,
             id: CRAFT_MENU_ID,
@@ -199,10 +199,7 @@ export class CraftMenu extends FormApplication {
                 this.render();
                 break;
             case 'craft_from_recipe':
-                const allRecipes = this.object;
-                const recipe = allRecipes[recipeID];
-                CraftTable.craftTable.object = { ...recipe };
-                CraftTable.craftTable.render(true);
+                await CraftingTableData.openCraftTable(recipeID);
                 break;
             case 'edit_recipe':
                 if (!game.user.isGM) return;

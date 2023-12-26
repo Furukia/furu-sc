@@ -21,7 +21,6 @@ export async function RegisterSettings() {
         default: DATA_DEFAULT_FOLDER
     });
 
-    //TODO:make this setting actually important
     game.settings.register(MODULE, 'current-file', {
         name: game.i18n.localize("FURU-SC.SETTINGS.CURRENTFILE.name"),
         hint: game.i18n.localize("FURU-SC.SETTINGS.CURRENTFILE.hint"),

@@ -1,5 +1,5 @@
 import { MODULE, MODULE_NAME } from "./const.js"; //import the const variables
-import { createFolderIfMissing, getCorrectQuantityPathForItem, getNestedValue } from "./helpers.js";
+import { createFolderIfMissing, getCorrectQuantityPathForItem, getPercentForAllIngredients } from "./helpers.js";
 import { RegisterSettings, ValidateSettings } from "./settings.js";
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";
@@ -59,13 +59,29 @@ Handlebars.registerHelper('notGM', function () {
   return !game.user.isGM;
 });
 
-Handlebars.registerHelper('getCorrectQuantityValue', function (item) {
-  let pathObject = getCorrectQuantityPathForItem(item);
-  let path = pathObject.path;
-  let currentQuantity = getNestedValue(item, path);
-  return currentQuantity;
-});
-
 Handlebars.registerHelper('getCurrentFile', function () {
   return game.settings.get(MODULE, 'current-file');
 });
+
+Handlebars.registerHelper('getCorrectQuantityValue', function (item) {
+  const pathObject = getCorrectQuantityPathForItem(item.type);
+  const path = pathObject.path;
+  const currentQuantity = foundry.utils.getProperty(item, path);
+  return currentQuantity;
+});
+
+/** 
+ * These 2 percents are different not only in the ingredient count
+ * but also in the way the percent is given. The `getPercentForItem` helper
+ * returns the bigger percent the more currentReqQuantity and requiredQuantity are equal
+ * while the `getPercentForAllIngredients` 
+ * returns the bigger percent the more currentReqQuantity and requiredQuantity are far apart
+ * basically meaning that if all `currentReqQuantity` === 0 then we get 100%
+ * TLDR: 
+ * "getPercentForItem": currentReqQuantity === requiredQuantity -> 100%
+ * "getPercentForAllIngredients": all of `currentReqQuantity` === 0 -> 100%
+ */
+Handlebars.registerHelper('getPercentForItem', function (ingredientInfo) {
+  return ((ingredientInfo.currentReqQuantity + ingredientInfo.modifier) / ingredientInfo.requiredQuantity) * 100;
+});
+Handlebars.registerHelper('getPercentForAllIngredients', getPercentForAllIngredients);
