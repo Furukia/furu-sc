@@ -50,6 +50,19 @@ export class CraftTable extends FormApplication {
         this.craftTable = new CraftTable({});
     }
 
+    /**
+     * We don't need it.
+     * Implemented just to stop the console errors.
+     *
+     */
+    async _updateObject() {
+    }
+
+    /**
+     * Handles the click event on the select element.
+     *
+     * @param {Event} event - The click event.
+     */
     async _handleSelectClick(event) {
         const clickedElement = event.currentTarget;
         const action = clickedElement.dataset.select;
@@ -74,6 +87,11 @@ export class CraftTable extends FormApplication {
         }
     }
 
+    /**
+     * Handles the click event on a button.
+     *
+     * @param {Object} event - The click event object.
+     */
     async _handleButtonClick(event) {
         const clickedElement = $(event.currentTarget);
         const action = clickedElement.data().action;
@@ -111,6 +129,7 @@ export class CraftTable extends FormApplication {
             selectedActor: this.userActorsData.selectedActor,
             ownedActors: this.userActorsData.ownedActors
         }
+        console.log(data);
         return data;
     }
 }

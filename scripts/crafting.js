@@ -197,6 +197,10 @@ export class RecipeData {
         // Adding a new ingredient
         let itemObject = { ...item.toObject(), _id: undefined, _stats: undefined, folder: undefined, ownership: undefined };
         ingredients[sourceId] = itemObject;
+        const pathObject = getCorrectQuantityPathForItem(item.type);
+        if (pathObject.type === "flag") {
+            foundry.utils.setProperty(itemObject, pathObject.path, 1);
+        }
         allRecipes[recipeID].ingredients = ingredients;
         CraftMenu.craftMenu.object = allRecipes;
         CraftMenu.craftMenu.render();
@@ -347,7 +351,6 @@ export class RecipeData {
      */
     static async saveDataToJSONFile(updateData, path = DATA_DEFAULT_FOLDER, filename = RECIPES, options = {}) {
         const { userId = game.user.id, fileInfo = { system: game.system.id, world: game.world.id } } = options;
-        console.log("fileInfo", fileInfo);
         const finalData = mergeObject({ fileInfo: fileInfo }, updateData, { insertKeys: true });
         const safeName = filename.replace(/[^ a-z0-9-_()[\]<>]/gi, '_');
         const fileName = encodeURI(`${safeName}.json`);
@@ -514,14 +517,21 @@ export class CraftingTableData {
             ui.notifications.error(`"${selectedActor.name}" - ${localize("FURU-SC.NOTIFICATIONS.ACTOR_NO_ITEMS")}`);
             return;
         }
+        let ingredientInstanceCount = {};
         actorItems.forEach(item => {
             // if we don't have a source, we just use the actual item's id
             // Because most of the system allow's creating item's directly in the actor's sheet
             // Those item's can be considered the source if they were used while creating a recipe
             const sourceId = item.flags?.core?.sourceId ? processSourceId(item.flags.core.sourceId) : item.id;
+            const pathObject = getCorrectQuantityPathForItem(item.type);
             if (ingredientsInfo.hasOwnProperty(sourceId)) {
-                const pathObject = getCorrectQuantityPathForItem(item.type);
-                const currentQuantity = foundry.utils.getProperty(item, pathObject.path);
+                if (pathObject.type === "system") {
+                    ingredientInstanceCount[sourceId] = (ingredientInstanceCount[sourceId] || 0) + foundry.utils.getProperty(item, pathObject.path);
+                }
+                else {
+                    ingredientInstanceCount[sourceId] = (ingredientInstanceCount[sourceId] || 0) + 1;
+                }
+                let currentQuantity = ingredientInstanceCount[sourceId];
                 const requiredQuantity = ingredientsInfo[sourceId].requiredQuantity;
                 const quantityModifier = ingredientsInfo[sourceId].modifier;
                 const finalQuantity = Math.max(0, requiredQuantity - currentQuantity - quantityModifier);

@@ -2,7 +2,7 @@
 
 import { MODULE, CRAFT_MENU_TEMPLATE, CRAFT_MENU_ID } from "./const.js"; //import the const variables
 import { CraftingTableData, RecipeData } from "./crafting.js";
-import { checkEditRights, getFullFilePath, localize } from "./helpers.js";
+import { checkEditRights, getCorrectQuantityPathForItem, getFullFilePath, localize } from "./helpers.js";
 import { socketSaveFile } from "./sockets.js";
 export class CraftMenu extends FormApplication {
 
@@ -352,6 +352,7 @@ export class CraftMenu extends FormApplication {
         if (dropTargetClass !== "sc-target-item-container" && dropTargetClass !== "sc-target-image")
             dropType = "ingredient";
         const item = await Item.implementation.fromDropData(data);
+        const pathObject = getCorrectQuantityPathForItem(item.type);
         switch (dropType) {
             case 'target':
                 const itemObject = { ...item.toObject(), _id: undefined, _stats: undefined, folder: undefined, ownership: undefined };
@@ -359,6 +360,8 @@ export class CraftMenu extends FormApplication {
                     target: itemObject
                 };
                 await RecipeData.updateRecipe(recipeID, updateData);
+                if (pathObject.type === "flag")
+                    await RecipeData.ProcessQuantity(recipeID, 1, { rewrite: true, isTarget: true });
                 await RecipeData.tryRecipeNameChange(recipeID, item.name);
                 this.render();
                 break;
