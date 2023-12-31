@@ -10,7 +10,7 @@
   "authors": [
     {
       "name": "Furukai",
-      "discord":"furukai",
+      "discord": "furukai",
       "email": "furukai0@gmail.com",
       "flags": {}
     }
@@ -23,6 +23,11 @@
       "lang": "en",
       "name": "English",
       "path": "languages/en.json"
+    },
+    {
+      "lang": "ru",
+      "name": "Russian",
+      "path": "languages/ru.json"
     }
   ],
   "styles": [

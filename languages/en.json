@@ -11,23 +11,15 @@
       },
       "RECIPE_FILES": {
         "name": "Recipe files",
-        "hint": "All the recipe files that are available in the world on the set path"
+        "hint": "All the recipe files that are available in the world on the set save path"
       },
       "PLAYER_CAN_EDIT": {
         "name": "Player recipe editing",
-        "hint": "Allow your player's to edit and create recipe files. GM's always have that right. If set to false, player's will only be able to craft and explore the already created recipe files."
-      },
-      "DATA_HANDLING": {
-        "name": "Data handling",
-        "hint": "Choose how the module will handle an item's data. The module can either save all of the item's data, which will allow it to create the same item's in other world's with the same system, but will also increase the size of the recipes file. Or the module can save only the id's of the item's. Which will make the recipe file not compatible with other world's but will make the file size much smaller.",
-        "types": {
-          "all": "Save all",
-          "reference": "Save ID references"
-        }
+        "hint": "Allow your player's to edit and create recipe files. GM's always have that right. If set to false, player's will only be able to explore the already created recipe files and craft with them."
       },
       "QUANTITY": {
         "name": "System quantity path",
-        "hint": "If the system provides a quantity variable in an item, you can provide a path relative to an item, for that variable. Simple Crafting will use it instead of using it's own quantity system."
+        "hint": "If the system provides an ability to track the quantity of an item, you can provide a path relative to an item, for that variable. \"Simple Crafting\" will use it instead of using it's own quantity system."
       }
     },
     "CRAFT_MENU": "Craft menu",
@@ -78,7 +70,7 @@
       "REQUIRED_INGREDIENTS": "Required ingredients:",
       "REQUIRED": "Required:"
     },
-    "QUANTITY_CONFIG_TITLE": "Item types - quantity path config",
+    "QUANTITY_CONFIG_TITLE": "Quantity path config",
     "QUANTITY_CONFIG_UI": {
       "TOOLTIPS": {
         "HELP": "Get help on how to obtain item's quantity path.",
@@ -90,12 +82,14 @@
         "FIRST": "Create some items of different types and check if they have a quantity property anywhere in the items UI.",
         "SECOND": "Open the console. Default key - \"F12\"",
         "THIRD": "Type | game.items | in the console. This will give a list of all items in that world. If you want to get a specific item - type | game.items.get(\"\") | and add an itemID between the \"\"",
-        "FOURTH": "Check all of those items properties and find the quantity of that item. Then write down the path you took to get it, relative to that item. It should look something like this - \"data.quantity\" or \"system.count\" e.t.c. The important part is to be sure it contains the necessary data in a number format.",
+        "FOURTH": "Check properties for all item type's and find the quantity. Then write down the path you took to get it, relative to that item. It should look something like this - \"data.quantity\" or \"system.count\" e.t.c. The important part is to be sure it contains the necessary data in a number format.",
         "FIFTH": "Finally write that path to the field corresponding to that item type. If your item does not contain any quantity properties. Just leave it blank."
-      }
+      },
+      "TYPE": "Type",
+      "PATH": "Path"
     },
     "NOTIFICATIONS": {
-      "NO_RIGHTS": "You don't have enough rights to perform this action",
+      "NO_RIGHTS": "You don't have enough rights to perform this action!",
       "INVALID_NUMBER": "Please enter a valid number!",
       "NO_INGREDIENTS": "This recipe has no ingredients. Please add some ingredients before crafting.",
       "NO_TARGET": "This recipe has no target item. Please add a target to craft.",
@@ -135,7 +129,8 @@
       },
       "FILE_CREATION": {
         "title": "File creation",
-        "content": "<label for=\"nameInput\">Please name a new file.</label><input name=\"nameInput\" type=\"text\" style=\"margin-top:6px; margin-bottom:6px;\" placeholder=\"Enter a name\">"
+        "content": "Please name a new file.",
+        "placeholder": "Enter a name"
       }
     }
   }

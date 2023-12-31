@@ -288,7 +288,7 @@ export class RecipeData {
         if (!fileName) {
             fileName = await Dialog.prompt({
                 title: localize("FURU-SC.DIALOGS.FILE_CREATION.title"),
-                content: localize("FURU-SC.DIALOGS.FILE_CREATION.content"),
+                content: `<label for="nameInput">${localize("FURU-SC.DIALOGS.FILE_CREATION.content")}</label><input name="nameInput" type="text" style="margin-top:6px; margin-bottom:6px;" placeholder="${localize("FURU-SC.DIALOGS.FILE_CREATION.placeholder")}">`,
                 callback: (html) => html.find('input').val()
             })
             if (!fileName)
