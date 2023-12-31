@@ -2,8 +2,8 @@
 
 import { MODULE, CRAFT_MENU_TEMPLATE, CRAFT_MENU_ID } from "./const.js"; //import the const variables
 import { CraftingTableData, RecipeData } from "./crafting.js";
-import { getFileNames, getFullFilePath } from "./helpers.js";
-import { CraftTable } from "./CraftTable.js";
+import { checkEditRights, getFullFilePath, localize } from "./helpers.js";
+import { socketSaveFile } from "./sockets.js";
 export class CraftMenu extends FormApplication {
 
     /**
@@ -29,18 +29,20 @@ export class CraftMenu extends FormApplication {
         const overrides = {
             closeOnSubmit: false, // do not close when submitted
             submitOnChange: true, // submit when any input changes
-            height: 550,
+            height: 600,
             width: 800,
-            resizable: true,
+            resizable: false,
             id: CRAFT_MENU_ID,
             template: CRAFT_MENU_TEMPLATE,
-            title: 'Craft menu',
+            title: localize("FURU-SC.CRAFT_MENU"),
+            scrollY: [".sc-recipe-container"],
             dragDrop: [{
                 dropSelector: `.sc-target-item-container, 
         .sc-target-item-container .sc-target-image, 
         .sc-items-container .sc-required-item-container,
         .sc-items-container .sc-required-item-container .sc-required-image,
-        .sc-items-container .sc-required-item-container > p`
+        .sc-items-container .sc-required-item-container > p`,
+                permissions: { drop: this._canDragDrop }
             }]
         };
         const mergedOptions = foundry.utils.mergeObject(defaults, overrides);
@@ -80,6 +82,9 @@ export class CraftMenu extends FormApplication {
      * @return {Promise} a promise that resolves when the object is updated
      */
     async _updateObject(event, formData) {
+        // This prevents _updateObject interrupting selectors
+        if (event?.target?.tagName?.toLowerCase() === "select") return;
+
         const expandedData = foundry.utils.expandObject(formData);
         const searchInput = document.getElementById('sc-search');
         // Handle search
@@ -100,28 +105,37 @@ export class CraftMenu extends FormApplication {
         const action = input.dataset.input;
         const value = input.value;
         const recipeID = $(input).parents('[data-recipe-id]').data('recipeId');
+        const allowedActions = [
+            "search-recipe"
+        ];
+        if (!allowedActions.includes(action)) {
+            if (!checkEditRights()) {
+                ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.NO_RIGHTS"));;
+                return;
+            }
+        }
         switch (action) {
-            case 'search_recipe':
+            case 'search-recipe':
                 await RecipeData.searchRecipe(value);
                 this.render();
                 break;
-            case `change_quantity_target`:
+            case `change-quantity-target`:
                 if (isNaN(value)) {
-                    ui.notifications.error("Please enter a valid number");
+                    ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.INVALID_NUMBER"));
                     return;
                 }
                 RecipeData.ProcessQuantity(recipeID, value, { rewrite: true, isTarget: true });
                 break;
-            case 'change_quantity':
+            case 'change-quantity':
                 const itemID = $(input).parents('[data-item-id]').data('itemId');
                 if (isNaN(value)) {
-                    ui.notifications.error("Please enter a valid number");
+                    ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.INVALID_NUMBER"));
                     return;
                 }
                 RecipeData.ProcessQuantity(recipeID, value, { originalItemId: itemID, rewrite: true, isTarget: false });
                 break;
             default:
-                console.log(`${MODULE} | Invalid action detected:`, { action, value });
+                console.warn(`${MODULE} | Invalid action detected:`, { action, value });
                 break;
         }
     }
@@ -135,12 +149,33 @@ export class CraftMenu extends FormApplication {
         const clickedElement = event.currentTarget;
         const action = clickedElement.dataset.select;
         const value = clickedElement.value;
+        const recipeID = $(event.currentTarget).parents('[data-recipe-id]').data('recipeId');
+        const allowedActions = [
+            "select-file"
+        ];
+        if (!allowedActions.includes(action)) {
+            if (!checkEditRights()) {
+                ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.NO_RIGHTS"));
+                return;
+            }
+        }
         switch (action) {
-            case 'select_file':
+            case 'select-file':
+                const currentFolder = game.settings.get(MODULE, 'save-path');
                 const currentFile = game.settings.get(MODULE, 'current-file');
                 if (currentFile === value) return;
-                // Save the data of the current file
-                await RecipeData.saveDataToFile(true);
+                // Saving preparations
+                if (checkEditRights()) {
+                    await RecipeData.resetRecipesMode();
+                    const saveData = {
+                        folder: currentFolder,
+                        file: currentFile,
+                        saveData: this.object,
+                        fileInfo: this.fileInfo
+                    }
+                    // Saving the previous file
+                    socketSaveFile(game.user.id, saveData);
+                }
                 // Change settings and load the data for the chosen file
                 game.settings.set(MODULE, 'current-file', value);
                 const dataPath = await getFullFilePath();
@@ -151,8 +186,13 @@ export class CraftMenu extends FormApplication {
                 this.object = data;
                 this.render();
                 break;
+            case "select_recipe_type":
+                if (this.object[recipeID].type === value) return;
+                this.object[recipeID].type = value;
+                this.render();
+                break;
             default:
-                console.log(`${MODULE} | Invalid action detected:`, { action, value });
+                console.warn(`${MODULE} | Invalid action detected:`, { action, value });
                 break;
         }
     }
@@ -165,29 +205,50 @@ export class CraftMenu extends FormApplication {
     async _handleButtonClick(event) {
         const clickedElement = $(event.currentTarget);
         const action = clickedElement.data().action;
+        const allowedActions = [
+            "craft-from-recipe",
+            "reload-window"
+        ];
+        if (!allowedActions.includes(action)) {
+            if (!checkEditRights()) {
+                ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.NO_RIGHTS"));
+                return;
+            }
+        }
         const recipeID = clickedElement.parents('[data-recipe-id]')?.data()?.recipeId;
         let itemID;
         switch (action) {
-            case 'add_recipe':
+            case 'add-recipe':
                 await RecipeData.createRecipe(this);
                 this.render();
                 break;
-            case 'add_quantity_target':
+            case 'add-quantity-target':
                 RecipeData.ProcessQuantity(recipeID, 1, { isTarget: true });
                 break;
-            case 'substract_quantity_target':
+            case 'substract-quantity-target':
                 RecipeData.ProcessQuantity(recipeID, -1, { isTarget: true });
                 break;
-            case 'add_quantity':
+            case 'add-quantity':
                 itemID = clickedElement.closest('[data-item-id]')?.data()?.itemId;
                 RecipeData.ProcessQuantity(recipeID, 1, { originalItemId: itemID, isTarget: false });
                 break;
-            case 'substract_quantity':
+            case 'substract-quantity':
                 itemID = clickedElement.closest('[data-item-id]')?.data()?.itemId;
                 RecipeData.ProcessQuantity(recipeID, -1, { originalItemId: itemID, isTarget: false });
                 break;
             case 'save-recipe-file':
-                await RecipeData.saveDataToFile();
+                const currentFolder = game.settings.get(MODULE, 'save-path');
+                const currentFile = game.settings.get(MODULE, 'current-file');
+                // Saving preparations
+                await RecipeData.resetRecipesMode();
+                const saveData = {
+                    folder: currentFolder,
+                    file: currentFile,
+                    saveData: this.object,
+                    fileInfo: this.fileInfo
+                }
+                // Save the data of the current file
+                socketSaveFile(game.user.id, saveData);
                 this.render();
                 break;
             case 'create-recipe-file':
@@ -198,19 +259,26 @@ export class CraftMenu extends FormApplication {
                 await RecipeData.clearAllRecipes();
                 this.render();
                 break;
-            case 'craft_from_recipe':
+            case 'craft-from-recipe':
+                if (this.object[recipeID].type === "items")
+                    if (!this.object[recipeID].ingredients || Object.keys(this.object[recipeID].ingredients).length === 0) {
+                        ui.notifications.warn(localize("FURU-SC.NOTIFICATIONS.NO_INGREDIENTS"));
+                        return;
+                    }
+                if (!this.object[recipeID].target) {
+                    ui.notifications.warn(localize("FURU-SC.NOTIFICATIONS.NO_TARGET"));
+                    return;
+                }
                 await CraftingTableData.openCraftTable(recipeID);
                 break;
-            case 'edit_recipe':
-                if (!game.user.isGM) return;
-                await RecipeData.editRecipe(recipeID);
+            case 'edit-description':
+                await RecipeData.toggleEditMode(recipeID);
                 this.render();
                 break;
-            case 'save_recipe':
-                if (!game.user.isGM) return;
+            case 'save-description':
                 let container = clickedElement.parents('div.sc-recipe-card');
                 let editorContent = container.find('iframe.tox-edit-area__iframe');
-                let bodyElement = editorContent[0].contentDocument.body.innerHTML;
+                let bodyElement = await TextEditor.enrichHTML(editorContent[0].contentDocument.body.innerHTML);
                 let updateData = {
                     description: bodyElement,
                     editMode: false
@@ -218,27 +286,55 @@ export class CraftMenu extends FormApplication {
                 await RecipeData.updateRecipe(recipeID, updateData);
                 this.render();
                 break;
-            case 'delete_recipe':
-                if (!game.user.isGM) return;
+            case 'delete-recipe':
                 const confirmedDeletion = await Dialog.confirm({
-                    title: 'Confirm Deletion',
-                    content: 'Are you sure you want to delete this recipe? This action cannot be undone.'
+                    title: localize("FURU-SC.DIALOGS.DELETE_CONFIRM.title"),
+                    content: localize("FURU-SC.DIALOGS.DELETE_CONFIRM.content")
                 });
                 if (confirmedDeletion) {
                     await RecipeData.deleteRecipe(recipeID);
                     this.render();
                 }
                 break;
-            case 'delete_item':
-                if (!game.user.isGM) return;
+            case 'delete-item':
                 itemID = clickedElement.closest('[data-item-id]')?.data()?.itemId;
                 await RecipeData.deleteIngredient(recipeID, itemID);
                 this.render();
                 break;
+            case 'reload-window':
+                const dataPath = await getFullFilePath();
+                let data = await RecipeData.loadDataFromJSONFile(dataPath);
+                let fileInfo = {
+                    system: game.system.id,
+                    world: game.world.id
+                };
+                if (!data) {
+                    console.warn(`${MODULE} | Failed to load data for the Craft Menu! The file is probably empty.`);
+                    data = {};
+                }
+                else {
+                    fileInfo = data.fileInfo;
+                    delete data["fileInfo"];
+                }
+                this.object = data;
+                this.fileInfo = fileInfo;
+                this.searchQuery = null;
+                this.render();
+                ui.notifications.notify(localize("FURU-SC.NOTIFICATIONS.FILE_RELOADED"));
+                break;
             default:
-                console.log(`${MODULE} | Invalid action detected:`, { action, recipeID });
+                console.warn(`${MODULE} | Invalid action detected:`, { action, recipeID });
                 break;
         }
+    }
+
+    /**
+     * Check if the user can perform drop actions.
+     *
+     * @return {boolean} Returns true if the user has edit rights, false otherwise.
+     */
+    _canDragDrop() {
+        return checkEditRights();
     }
 
     /**
@@ -248,16 +344,17 @@ export class CraftMenu extends FormApplication {
      */
     async _onDrop(event) {
         const data = TextEditor.getDragEventData(event);
+        if (data.type !== "Item") return ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.ITEMS_ONLY"));
         const element = event.target.closest("[data-recipe-id]");
         const recipeID = element ? element.dataset.recipeId : null;
-        let dropTargetClass = event.target.className.split(" ")[0]; //Important! DragDrop classes should always be the first class
+        let dropTargetClass = event.target.className.split(" ")[0];
         let dropType = "target";
         if (dropTargetClass !== "sc-target-item-container" && dropTargetClass !== "sc-target-image")
             dropType = "ingredient";
         const item = await Item.implementation.fromDropData(data);
         switch (dropType) {
             case 'target':
-                const itemObject = { ...item.toObject(), _id: undefined };
+                const itemObject = { ...item.toObject(), _id: undefined, _stats: undefined, folder: undefined, ownership: undefined };
                 const updateData = {
                     target: itemObject
                 };
@@ -271,9 +368,8 @@ export class CraftMenu extends FormApplication {
                 const targetItem = this.object[recipeID].target;
                 if (targetItem && (targetItem.name === itemName || targetItem.flags.core.sourceId === itemSourceID)) {
                     const confirmation = await Dialog.confirm({
-                        title: 'Warning!',
-                        content: `<p>Target item and your dragged item have the same name or source item! It's not very logical to craft the item from itself.</p>
-                        <p>Are you sure?</p>`,
+                        title: localize("FURU-SC.DIALOGS.INGREDIENT_EQUALS_TARGET.title"),
+                        content: localize("FURU-SC.DIALOGS.INGREDIENT_EQUALS_TARGET.content"),
                     });
                     if (!confirmation)
                         return;
@@ -289,12 +385,25 @@ export class CraftMenu extends FormApplication {
     * This code get's called on the Craft Menu closing.
     */
     async close() {
+        if (!checkEditRights()) {
+            super.close();
+            return;
+        }
         let confirmation = await Dialog.confirm({
-            title: 'Save',
-            content: `<p>Save your progress?</p>`,
+            title: localize("FURU-SC.DIALOGS.SAVE_PROGRESS.title"),
+            content: localize("FURU-SC.DIALOGS.SAVE_PROGRESS.content"),
         });
-        if (confirmation)
-            RecipeData.saveDataToFile();
+        if (confirmation) {
+            const currentFolder = game.settings.get(MODULE, 'save-path');
+            const currentFile = game.settings.get(MODULE, 'current-file');
+            const saveData = {
+                folder: currentFolder,
+                file: currentFile,
+                saveData: CraftMenu.craftMenu.object,
+                fileInfo: CraftMenu.craftMenu.fileInfo
+            };
+            socketSaveFile(game.user.id, saveData);
+        }
         super.close();
     }
 
@@ -306,7 +415,7 @@ export class CraftMenu extends FormApplication {
             system: game.system.id,
             world: game.world.id
         }
-        const fileNames = await getFileNames();
+        const fileNames = game.settings.get(MODULE, 'recipe-files');
         return {
             searchQuery: this.searchQuery,
             recipes: this.object,

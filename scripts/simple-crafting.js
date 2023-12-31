@@ -1,8 +1,9 @@
 import { MODULE, MODULE_NAME } from "./const.js"; //import the const variables
-import { createFolderIfMissing, getCorrectQuantityPathForItem, getPercentForAllIngredients } from "./helpers.js";
+import { checkEditRights, createFolderIfMissing, getCorrectQuantityPathForItem, getPercentForAllIngredients, localize } from "./helpers.js";
 import { RegisterSettings, ValidateSettings } from "./settings.js";
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";
+import { handleSocketEvent } from "./sockets.js";
 
 /**
  * Adds a button to open a Craft Menu
@@ -12,7 +13,7 @@ function addButton(controls) {
   let buttonControls = controls.find(control => control.name === 'notes');
   buttonControls.tools.push({
     name: 'craftmenu',
-    title: 'Craft menu',
+    title: localize("FURU-SC.CRAFT_MENU"),
     icon: 'fas fa-hammer-crash',
     visible: true,
     onClick: openMenu,
@@ -31,16 +32,17 @@ function openMenu() {
  * Initialization(Hooks)
  */
 
-Hooks.once("init", async function () {
-  //TODO - V Не забудь убрать это в конце работы над модулем
-  // CONFIG.debug.hooks = true 
+Hooks.once("init", function () {
   console.log(`${MODULE} | initializing ${MODULE_NAME} module.`);
-  createFolderIfMissing();
-  await RegisterSettings();
+  RegisterSettings();
 });
 
 Hooks.once("ready", async function () {
-  console.log(`${MODULE} | Setting up settings and initializing craft menu.`);
+  game.socket.on(`module.${MODULE}`, request => {
+    handleSocketEvent(request)
+  });
+  console.log(`${MODULE} | Setting up...`);
+  await createFolderIfMissing(game.settings.get(MODULE, 'save-path'));
   await ValidateSettings();
   CraftMenu.initialize();
   CraftTable.initialize();
@@ -55,9 +57,6 @@ Handlebars.registerHelper('equals', function (a, b) {
   return a === b;
 });
 
-Handlebars.registerHelper('notGM', function () {
-  return !game.user.isGM;
-});
 
 Handlebars.registerHelper('getCurrentFile', function () {
   return game.settings.get(MODULE, 'current-file');
@@ -83,5 +82,9 @@ Handlebars.registerHelper('getCorrectQuantityValue', function (item) {
  */
 Handlebars.registerHelper('getPercentForItem', function (ingredientInfo) {
   return ((ingredientInfo.currentReqQuantity + ingredientInfo.modifier) / ingredientInfo.requiredQuantity) * 100;
+});
+Handlebars.registerHelper('checkEditRights', checkEditRights);
+Handlebars.registerHelper('noEditRights', function () {
+  return !checkEditRights();
 });
 Handlebars.registerHelper('getPercentForAllIngredients', getPercentForAllIngredients);

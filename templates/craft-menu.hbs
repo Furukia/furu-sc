@@ -3,24 +3,23 @@
         <ul style="display: contents; list-style-type: none;">
             {{#if (equals fileInfo.system worldInfo.system)}}
             {{else}}
-            <li class="notification error">This recipes file was made in another game system. Item's probably won't be
-                compatible at all!</li>
+            <li class="notification error">{{localize "FURU-SC.CRAFT_MENU_UI.NOTIFICATIONS.WRONG_SYSTEM"}}</li>
             {{/if}}
             {{#if (equals fileInfo.world worldInfo.world)}}
             {{else}}
-            <li class="notification error">This recipes file was made in another world. There is a possibility of item
-                conflicts!</li>
+            <li class="notification error">{{localize "FURU-SC.CRAFT_MENU_UI.NOTIFICATIONS.WRONG_WORLD"}}</li>
             {{/if}}
         </ul>
         <div class="sc-control-container">
             <div class="sc-search-recipe">
-                <p>Search recipes:</p>
-                <input type="search" title="Search for a recipe" id="sc-search" class="sc-br-none"
-                    data-input="search_recipe" placeholder="Search..." value="{{searchQuery}}" />
+                <p>{{localize "FURU-SC.CRAFT_MENU_UI.SEARCH_RECIPES"}}</p>
+                <input type="search" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.SEARCH"}}" id="sc-search"
+                    class="sc-br-none" data-input="search-recipe" 
+                    placeholder="{{localize "FURU-SC.CRAFT_MENU_UI.SEARCH_PLACEHOLDER"}}" value="{{searchQuery}}" />
             </div>
             <div class="sc-select-recipe-file">
-                <p>Current file:</p>
-                <select data-select="select_file" title="Select file with the recipes">
+                <p>{{localize "FURU-SC.CRAFT_MENU_UI.CURRENT_FILE"}}</p>
+                <select data-select="select-file" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.SELECT_FILE"}}">
                     {{#select (getCurrentFile)}}
                     {{#each fileNames}}
                     <option value="{{this}}">{{this}}</option>
@@ -28,65 +27,87 @@
                     {{/select}}
                 </select>
             </div>
+            {{#if (checkEditRights)}}
             <div class="sc-cm-button">
-                <button type="button" title="Clear all recipes from selected file" class="sc-br-none sc-br-rad10"
-                    data-action="clear-recipe-file">
-                    <i class="fas fa-eraser {{#if (notGM)}}sc-disabled{{/if}}"></i>
+                <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.CLEAR_RECIPES"}}"
+                    class="sc-br-none sc-br-rad10" data-action="clear-recipe-file">
+                    <i class="fas fa-eraser "></i>
                 </button>
             </div>
             <div class="sc-cm-button">
-                <button type="button" title="Create a new recipe file" class="sc-br-none sc-br-rad10"
-                    data-action="create-recipe-file">
-                    <i class="fas fa-file {{#if (notGM)}}sc-disabled{{/if}}"></i>
+                <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.CREATE_FILE"}}"
+                    class="sc-br-none sc-br-rad10" data-action="create-recipe-file">
+                    <i class="fas fa-file "></i>
+                </button>
+            </div>
+            {{/if}}
+            <div class="sc-cm-button">
+                <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.RELOAD_FILE"}}"
+                    class="sc-br-none sc-br-rad10" data-action="reload-window">
+                    <i class="fas fa-rotate"></i>
+                </button>
+            </div>
+            {{#if (checkEditRights)}}
+            <div class="sc-cm-button">
+                <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.SAVE_FILE"}}"
+                    class="sc-br-none sc-br-rad10" data-action="save-recipe-file">
+                    <i class="fas fa-floppy-disk "></i>
                 </button>
             </div>
             <div class="sc-cm-button">
-                <button type="button" title="Save recipe file" class="sc-br-none sc-br-rad10" data-action="save-recipe-file">
-                    <i class="fas fa-floppy-disk {{#if (notGM)}}sc-disabled{{/if}}"></i>
+                <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.CREATE_RECIPE"}}"
+                    class="sc-br-none sc-br-rad10" data-action="add-recipe">
+                    <i class="fas fa-plus"></i>
                 </button>
             </div>
-            <div class="sc-cm-button">
-                <button type="button" title="Create a new recipe" class="sc-br-none sc-br-rad10" data-action="add_recipe">
-                    <i class="fas fa-plus {{#if (notGM)}}sc-disabled{{/if}}"></i>
-                </button>
-            </div>
+            {{/if}}
         </div>
         <div class="sc-recipe-container">
             {{#each recipes}}
             {{#if isVisible}}
-            <div class="sc-recipe-card sc-br-full sc-br-rad15">
+            <div class="sc-recipe-card sc-br-full sc-br-rad15" data-recipe-id="{{id}}">
                 <div class="sc-edit-container">
                     <div class="sc-edit-name">
-                        <p>Recipe name:</p>
-                        <input type="text" class="sc-br-none" name="{{id}}.name" value="{{name}}" data-dtype="String">
+                        <p>{{localize "FURU-SC.CRAFT_MENU_UI.RECIPE_NAME"}}</p>
+                        <input type="text" class="sc-br-none" name="{{id}}.name" {{#if (noEditRights)}}readonly{{/if}}
+                            value="{{name}}" data-dtype="String">
                     </div>
                     <div class="sc-edit-type">
-                        <p>Recipe type:</p>
-                        <select name="{{id}}.type">
+                        <p>{{localize "FURU-SC.CRAFT_MENU_UI.RECIPE_TYPE"}}</p>
+                        {{#if (checkEditRights)}}
+                        <select data-select="select_recipe_type" {{#if (noEditRights)}}readonly{{/if}}
+                            name="{{id}}.type">
                             {{#select type}}
-                            <option value="text">Text</option>
-                            <option value="items">Items</option>
+                            <option value="text">{{localize "FURU-SC.CRAFT_MENU_UI.TYPES.TEXT"}}</option>
+                            <option value="items">{{localize "FURU-SC.CRAFT_MENU_UI.TYPES.ITEMS"}}</option>
                             {{/select}}
                         </select>
+                        {{else}}
+                        <input type="text" class="sc-br-none" readonly value="{{type}}">
+                        {{/if}}
                     </div>
-                    <div class="sc-edit-buttons" data-recipe-id="{{id}}">
-                        <button type="button" title="Delete recipe" class="sc-br-none sc-br-rad10"
-                            data-action="delete_recipe">
-                            <i class="fas fa-minus {{#if (notGM)}}sc-disabled{{/if}}"></i>
+                    <div class="sc-edit-buttons">
+                        {{#if (checkEditRights)}}
+                        <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.DELETE_RECIPE"}}"
+                            class="sc-br-none sc-br-rad10" data-action="delete-recipe">
+                            <i class="fas fa-minus"></i>
                         </button>
                         {{#if (equals type "text")}}
                         {{#if editMode}}
-                        <button type="button" title="Save recipe" class="sc-br-none sc-br-rad10" data-action="save_recipe">
-                            <i class="fas fa-floppy-disk {{#if (notGM)}}sc-disabled{{/if}}"></i>
+                        <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.SAVE_DESCRIPTION"}}"
+                            class="sc-br-none sc-br-rad10" data-action="save-description">
+                            <i class="fas fa-floppy-disk"></i>
                         </button>
                         {{else}}
-                        <button type="button" title="Edit recipe" class="sc-br-none sc-br-rad10" data-action="edit_recipe">
-                            <i class="fas fa-edit {{#if (notGM)}}sc-disabled{{/if}}"></i>
+                        <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.EDIT_DESCRIPTION"}}"
+                            class="sc-br-none sc-br-rad10" data-action="edit-description">
+                            <i class="fas fa-edit "></i>
                         </button>
                         {{/if}}
                         {{/if}}
-                        <button type="button" title="Craft from recipe" class="sc-br-none sc-br-rad10"
-                            data-action="craft_from_recipe">
+                        {{/if}}
+                        <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.CRAFT_FROM_RECIPE"}}"
+                            class="sc-br-none sc-br-rad10" data-action="craft-from-recipe">
                             <i class="fas fa-hammer-crash"></i>
                         </button>
                     </div>
@@ -94,27 +115,31 @@
                 <div class="sc-items-container sc-br-full sc-br-rad15" data-recipe-id="{{id}}">
                     <div class="sc-target-item-container sc-br-right sc-br-tl-rad15 sc-br-bl-rad15">
                         {{#if target}}
-                        <h2 class="sc-br-bottom" style="margin:0px;">Target item:</h2>
+                        <h2 class="sc-br-bottom" style="margin:0px;">{{localize "FURU-SC.CRAFT_MENU_UI.TARGET_ITEM"}}
+                        </h2>
                         <img src="{{target.img}}" class="sc-target-image sc-br-none sc-br-bottom" />
                         <div class="sc-br-bottom">
-                            <button type="button" title="Subtract quantity" class="sc-item_button"
-                                data-action="substract_quantity_target">
-                                <i class="fas fa-angle-left {{#if (notGM)}}sc-disabled{{/if}}"></i>
+                            {{#if (checkEditRights)}}
+                            <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.SUBSTRACT_QUANTITY"}}" 
+                                class="sc-item_button"
+                                data-action="substract-quantity-target">
+                                <i class="fas fa-angle-left "></i>
                             </button>
-                            <input type="text" title="Quantity" data-input="change_quantity_target"
-                                class="sc-quantity-input sc-br-none sc-br-rad0 sc-br-left sc-br-right"
-                                value="{{getCorrectQuantityValue target}}" />
-                            <button type="button" title="Add quantity" class="sc-item_button"
-                                data-action="add_quantity_target">
-                                <i class="fas fa-angle-right {{#if (notGM)}}sc-disabled{{/if}}"></i>
+                            {{/if}}
+                            <input type="text" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.ITEM_QUANTITY"}}"
+                                data-input="change-quantity-target"
+                                class="sc-quantity-input sc-br-none sc-br-rad0 {{#if (checkEditRights)}}sc-br-left sc-br-right{{/if}}"
+                                {{#if (noEditRights)}}readonly{{/if}} value="{{getCorrectQuantityValue target}}" />
+                            {{#if (checkEditRights)}}
+                            <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.ADD_QUANTITY"}}"
+                                class="sc-item_button" data-action="add-quantity-target">
+                                <i class="fas fa-angle-right"></i>
                             </button>
+                            {{/if}}
                         </div>
                         <p>{{target.name}}</p>
                         {{else}}
-                        <i class="fas fa-circle-down" style="
-                        width: 64px;
-                        padding: 10px;
-                        padding-left: 50%;"></i>
+                        <i class="fas fa-circle-down sc-drop-zone-marker"></i>
                         {{/if}}
                     </div>
                     {{#if (equals type "text")}}
@@ -130,43 +155,50 @@
                     </div>
                     {{else}}
                     <div class="sc-description-text-container">
-                        <h2 class="sc-br-bottom">Description:</h2>
-                        <div class="sc-description-height-limiter">
+                        <h2 class="sc-br-bottom">{{localize "FURU-SC.CRAFT_MENU_UI.DESCRIPTION"}}</h2>
+                        <div class="sc-description-text">
                             {{{description}}}
                         </div>
                     </div>
                     {{/if}}
                     {{else}}
                     <div class="sc-required-item-container sc-br-none">
-                        <h2 class="sc-br-bottom">Required items:</h2>
+                        <h2 class="sc-br-bottom">{{localize "FURU-SC.CRAFT_MENU_UI.REQUIRED_ITEMS"}}</h2>
                         {{#if ingredients}}
                         <div class="sc-required-items">
                             {{#each ingredients}}
                             <div class="sc-required-item sc-br-rad15 sc-br-full" data-item-id="{{@key}}">
-                                <img src="{{this.img}}" class="sc-required-image sc-br-none sc-br-right sc-br-tl-rad12_5 sc-br-bl-rad12_5" />
-                                <p>{{this.name}}</p>
-                                <button type="button" title="Subtract quantity" class="sc-item_button sc-br-rad0 sc-br-left"
-                                    data-action="substract_quantity">
-                                    <i class="fas fa-angle-left {{#if (notGM)}}sc-disabled{{/if}}"></i>
+                                <img src="{{this.img}}"
+                                    class="sc-required-image sc-br-none sc-br-right sc-br-tl-rad12_5 sc-br-bl-rad12_5" />
+                                <p {{#if (noEditRights)}}style="width:500px;" {{/if}}>{{this.name}}</p>
+                                {{#if (checkEditRights)}}
+                                <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.SUBSTRACT_QUANTITY"}}"
+                                    class="sc-item_button sc-br-rad0 sc-br-left" data-action="substract-quantity">
+                                    <i class="fas fa-angle-left "></i>
                                 </button>
-                                <input type="text" title="Quantity" data-input="change_quantity"
-                                    class="sc-quantity-input  sc-br-none sc-br-rad0 sc-br-left sc-br-right"
-                                    value="{{getCorrectQuantityValue this}}" />
-                                <button type="button" title="Add quantity" class="sc-item_button"
-                                    data-action="add_quantity">
-                                    <i class="fas fa-angle-right {{#if (notGM)}}sc-disabled{{/if}}"></i>
+                                {{/if}}
+                                <input type="text" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.ITEM_QUANTITY"}}"
+                                    data-input="change-quantity" class="sc-quantity-input  sc-br-none sc-br-rad0 
+                                    {{#if (checkEditRights)}}sc-br-left sc-br-right{{/if}} 
+                                    {{#if (noEditRights)}}sc-br-left sc-br-tr-rad12_5 sc-br-br-rad12_5{{/if}}" {{#if
+                                    (noEditRights)}}readonly{{/if}} value="{{getCorrectQuantityValue this}}" />
+                                {{#if (checkEditRights)}}
+                                <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.ADD_QUANTITY"}}" 
+                                    class="sc-item_button"
+                                    data-action="add-quantity">
+                                    <i class="fas fa-angle-right"></i>
                                 </button>
-                                <button type="button" title="Delete item" class="sc-delete-item-button sc-br-left sc-br-rad0 sc-br-tr-rad12_5 sc-br-br-rad12_5"
-                                    data-action="delete_item">
-                                    <i class="fas fa-minus {{#if (notGM)}}sc-disabled{{/if}}"></i>
+                                <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.DELETE_INGREDIENT"}}"
+                                    class="sc-delete-item-button sc-br-left sc-br-rad0 sc-br-tr-rad12_5 sc-br-br-rad12_5"
+                                    data-action="delete-item">
+                                    <i class="fas fa-minus"></i>
                                 </button>
+                                {{/if}}
                             </div>
                             {{/each}}
                         </div>
                         {{else}}
-                        <i class="fas fa-circle-down" style="
-                        width: 64px;
-                        padding-left: 50%;"></i>
+                        <i class="fas fa-circle-down sc-drop-zone-marker"></i>
                         {{/if}}
                     </div>
                     {{/if}}

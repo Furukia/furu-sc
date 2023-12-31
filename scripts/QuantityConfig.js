@@ -1,4 +1,5 @@
 import { MODULE, QUANTITY_CONFIG, QUANTITY_CONFIG_TEMPLATE } from "./const.js"; //import the const variables
+import { localize } from "./helpers.js";
 
 export class QuantityConfig extends FormApplication {
     static get defaultOptions() {
@@ -7,10 +8,13 @@ export class QuantityConfig extends FormApplication {
         options.template = QUANTITY_CONFIG_TEMPLATE;
         options.height = "auto";
         options.width = 550;
-        options.title = "Item types quantity path config";
+        options.title = localize("FURU-SC.QUANTITY_CONFIG_TITLE");
         return options;
     }
 
+    /**
+     * Returns the data for the GUI of the Quantity Config.
+     */
     getData() {
         let context = super.getData();
         context = game.settings.get(MODULE, `quantity-path`);

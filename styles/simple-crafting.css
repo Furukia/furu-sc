@@ -144,6 +144,7 @@
   margin-right: 10px;
 }
 .sc-recipe-card .sc-edit-name > input,
+.sc-recipe-card .sc-edit-type > input,
 .sc-recipe-card .sc-edit-type > select {
   background: #deb887;
   font-size: 1.4rem;
@@ -256,8 +257,12 @@
   height: 100%;
 }
 .sc-recipe-container {
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  padding-right: 5px;
+  top: 10px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  height: 450px;
 }
 .sc-required-image {
   max-height: 64px;
@@ -301,6 +306,7 @@
 .sc-required-items {
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
   overflow-y: scroll;
   margin-bottom: 10px;
   max-height: 250px;
@@ -352,14 +358,22 @@
   flex-direction: row;
   max-height: 100px;
 }
-.sc-description-height-limiter {
+.sc-description-text {
   max-height: 250px;
   padding-left: 10px;
   overflow-y: scroll;
+  overflow-x: hidden;
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 .sc-item-type-text {
   padding-left: 20px;
   width: 50%;
+}
+.sc-drop-zone-marker {
+  width: 64px;
+  padding: 10px;
+  padding-left: 50%;
 }
 #furu-sc-quantity-config section.window-content,
 #furu-sc-craft-menu .window-content,
@@ -414,6 +428,7 @@
   background: #deb887;
   height: 100%;
   text-align: center;
+  font-size: 1.4rem;
 }
 #furu-sc-craft-table .sc-recipe-card p,
 #furu-sc-craft-table .sc-table-ingredients-block p {
@@ -501,4 +516,9 @@
   overflow-x: hidden;
   overflow-y: scroll;
   max-height: 36px;
+}
+.sc-table-required-text {
+  padding-left: 10px !important;
+  max-width: 75%;
+  overflow-wrap: break-word;
 }

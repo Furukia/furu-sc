@@ -1,7 +1,8 @@
 import { MODULE, DATA_DEFAULT_FOLDER, RECIPES, DEFAULT_RECIPES_DATA } from "./const.js"; //import the const variables
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";
-import { getCorrectQuantityPathForItem, processSourceId, getPercentForAllIngredients } from "./helpers.js";
+import { getCorrectQuantityPathForItem, processSourceId, getPercentForAllIngredients, localize } from "./helpers.js";
+import { socketNotification, socketSaveFile } from "./sockets.js";
 
 /**
  * @typedef {Object} Recipe
@@ -27,8 +28,8 @@ export class RecipeData {
     static async createRecipe() {
         const newRecipe = {
             id: foundry.utils.randomID(16),
-            name: "New recipe",
-            description: "Fill me in!",
+            name: localize("FURU-SC.NEW_RECIPE"),
+            description: localize("FURU-SC.DEFAULT_DESCRIPTION"),
             type: "text",
             isVisible: true,
             editMode: false,
@@ -72,7 +73,7 @@ export class RecipeData {
             Object.values(allRecipes).forEach(recipe => {
                 recipe.isVisible = true;
             });
-            ui.notifications.notify("Found no recipes for the search query");
+            ui.notifications.notify(localize("FURU-SC.NOTIFICATIONS.FOUND_NO_RECIPES"));
         }
 
         CraftMenu.craftMenu.searchQuery = searchQuery;
@@ -130,7 +131,7 @@ export class RecipeData {
         // get all existing recipes
         const allRecipes = CraftMenu.craftMenu.object;
         let currentName = allRecipes[recipeID].name;
-        if (currentName !== "New recipe" && !!currentName) {
+        if (currentName !== localize("FURU-SC.NEW_RECIPE") && !!currentName) {
             return;
         }
         const updateData = {
@@ -140,11 +141,11 @@ export class RecipeData {
     }
 
     /**
-     * Edits a recipe by toggling its edit mode on or off.
+     * Toggle's recipe edit mode on or off.
      *
      * @param {number} recipeID - The ID of the recipe to edit.
      */
-    static async editRecipe(recipeID) {
+    static async toggleEditMode(recipeID) {
         // get all existing recipes
         const allRecipes = CraftMenu.craftMenu.object;
         // turn the edit mode on/off
@@ -153,6 +154,25 @@ export class RecipeData {
             editMode: _editMode
         }
         await this.updateRecipe(recipeID, updateData);
+    }
+
+    /**
+     * Resets the recipes mode.
+     *
+     * This function iterates through all recipes in the craft menu and updates their properties to disable edit mode and make them visible.
+     * It calls the `updateRecipe` function for each recipe to perform the update.
+     *
+     * @return {Promise} A promise that resolves when all the recipes have been updated.
+     */
+    static async resetRecipesMode() {
+        const recipes = CraftMenu.craftMenu.object;
+        for (const recipeID in recipes) {
+            const updateData = {
+                editMode: false,
+                isVisible: true
+            };
+            await this.updateRecipe(recipeID, updateData, { allRecipes: recipes });
+        }
     }
 
     /**
@@ -175,7 +195,7 @@ export class RecipeData {
             return; //And leave
         }
         // Adding a new ingredient
-        let itemObject = { ...item.toObject(), _id: undefined };
+        let itemObject = { ...item.toObject(), _id: undefined, _stats: undefined, folder: undefined, ownership: undefined };
         ingredients[sourceId] = itemObject;
         allRecipes[recipeID].ingredients = ingredients;
         CraftMenu.craftMenu.object = allRecipes;
@@ -206,7 +226,6 @@ export class RecipeData {
         const numericValue = Number(value);
         const numericCurrentQuantity = Number(currentQuantity);
         const updatedQuantity = rewrite ? numericValue : numericCurrentQuantity + numericValue;
-        console.log("item", item);
         await foundry.utils.setProperty(item, path, Math.max(1, updatedQuantity));
         if (isTarget) {
             allRecipes[recipeId].target = item;
@@ -247,14 +266,15 @@ export class RecipeData {
      */
     static async clearAllRecipes() {
         const shouldDeleteData = await Dialog.confirm({
-            title: 'Confirm',
-            content: `<p>This will delete all the data from the file. Are you sure?</p>`,
+            title: localize("FURU-SC.DIALOGS.CLEAR_FILE.title"),
+            content: localize("FURU-SC.DIALOGS.CLEAR_FILE.content"),
         });
         if (!shouldDeleteData)
             return;
-
+        const currentFolder = game.settings.get(MODULE, 'save-path');
+        const currentFile = game.settings.get(MODULE, 'current-file');
         CraftMenu.craftMenu.object = {};
-        this.saveDataToFile();
+        socketSaveFile(game.user.id, { folder: currentFolder, file: currentFile, saveData: {}, fileInfo: {} });
     }
 
     /**
@@ -267,44 +287,53 @@ export class RecipeData {
         let jsonPath = !path ? DATA_DEFAULT_FOLDER : path;
         if (!fileName) {
             fileName = await Dialog.prompt({
-                title: 'File creation',
-                content: `<p>Please name a new file.</p>
-            <input type="text" style="margin-top:6px; margin-bottom:6px;">`,
+                title: localize("FURU-SC.DIALOGS.FILE_CREATION.title"),
+                content: localize("FURU-SC.DIALOGS.FILE_CREATION.content"),
                 callback: (html) => html.find('input').val()
             })
             if (!fileName)
                 return;
         }
-        RecipeData.saveDataToJSONFile({}, jsonPath, fileName);
+        await RecipeData.saveDataToJSONFile({}, jsonPath, fileName);
         game.settings.set(MODULE, 'current-file', fileName);
-        if (CraftMenu.craftMenu)
+        let allFiles = game.settings.get(MODULE, 'recipe-files');
+        allFiles.push(fileName);
+        game.settings.set(MODULE, 'recipe-files', allFiles);
+        if (CraftMenu.craftMenu) {
             CraftMenu.craftMenu.object = {};
+            CraftMenu.craftMenu.fileInfo = { system: game.system.id, world: game.world.id };
+        }
     }
 
     /**
-     * Saves data to a file.
+     * Saves data to a file after validating it.
      *
-     * @param {boolean} isQuiet - indicates whether to display notifications or not (default: false)
+     * @param {string} folder - The folder where the file will be saved.
+     * @param {string} file - The name of the file.
+     * @param {object} recipes - The data to be saved.
+     * @param {object} options - Additional options.
+     * @param {string} options.userId - The user making the saving request.
+     * @param {object} options.fileInfo - Information about the file.
      */
-    static async saveDataToFile(isQuiet = false) {
-        const folder = game.settings.get(MODULE, 'save-path');
-        const file = game.settings.get(MODULE, 'current-file');
-
+    static async saveDataToFile(folder, file, recipes, options = {}) {
+        const { userId = game.user.id, fileInfo = { system: game.system.id, world: game.world.id } } = options;
         if (!folder || !file) {
-            ui.notification.error(`Can't get the current folder and/or file. | FolderPath = ${folder} | FilePath = ${file} |`);
+            const notificationData = {
+                type: "error",
+                message: `${localize("FURU-SC.NOTIFICATIONS.NO_FOLDER_OR_FILE")} | FolderPath = "${folder}" | FilePath = "${file}" |`
+            }
+            socketNotification(userId, notificationData);
             return;
         }
-
-        const recipes = CraftMenu.craftMenu.object;
-        for (const recipeID in recipes) {
-            const updateData = {
-                editMode: false,
-                isVisible: true
-            };
-            await RecipeData.updateRecipe(recipeID, updateData);
+        if (!recipes) {
+            const notificationData = {
+                type: "error",
+                message: localize("FURU-SC.NOTIFICATIONS.NO_DATA")
+            }
+            socketNotification(userId, notificationData);
+            return;
         }
-
-        await RecipeData.saveDataToJSONFile(recipes, folder, file, isQuiet, CraftMenu.craftMenu.fileInfo);
+        await RecipeData.saveDataToJSONFile(recipes, folder, file, { userId: userId, fileInfo: fileInfo });
     }
 
     /**
@@ -313,10 +342,12 @@ export class RecipeData {
      * @param {Object} updateData - the data to be saved
      * @param {string} [path=DATA_DEFAULT_FOLDER] - the path of the JSON file
      * @param {string} [filename=RECIPES] - the name of the JSON file
-     * @param {boolean} [isQuiet=false] - indicates whether to display notifications
      * @param {Object} [fileInfo={ system: game.system.id, world: game.world.id }] - additional information to be included in the saved data
+     * @return {Promise<bool>} This function return's true if saving was successfull.
      */
-    static async saveDataToJSONFile(updateData, path = DATA_DEFAULT_FOLDER, filename = RECIPES, isQuiet = false, fileInfo = { system: game.system.id, world: game.world.id }) {
+    static async saveDataToJSONFile(updateData, path = DATA_DEFAULT_FOLDER, filename = RECIPES, options = {}) {
+        const { userId = game.user.id, fileInfo = { system: game.system.id, world: game.world.id } } = options;
+        console.log("fileInfo", fileInfo);
         const finalData = mergeObject({ fileInfo: fileInfo }, updateData, { insertKeys: true });
         const safeName = filename.replace(/[^ a-z0-9-_()[\]<>]/gi, '_');
         const fileName = encodeURI(`${safeName}.json`);
@@ -326,9 +357,12 @@ export class RecipeData {
             console.error(`Could not create recipes JSON: ${safeName}.json\nReason: ${response}`);
             throw new Error('Could not upload recipes data to the server!');
         }
-        if (!isQuiet) {
-            ui.notifications.notify(`Successfully saved file: "${path}/${fileName}"`);
+        const message = `${localize("FURU-SC.NOTIFICATIONS.SUCCESSFULL_SAVE")} "${path}/${filename}"`;
+        const notificationData = {
+            type: "info",
+            message: message
         }
+        socketNotification(userId, notificationData);
     }
 
     /**
@@ -342,15 +376,14 @@ export class RecipeData {
         let response;
         try {
             response = await foundry.utils.fetchJsonWithTimeout(jsonPath);
-            if (response.error) return ui.notifications.error(response.error);
+            if (response.error) return ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.FAILED_LOAD") + " " + response.error);
         }
         catch (e) {
             return ui.notifications.error(e);
         }
-        let jsonData = response;
-        if (!jsonData)
+        if (!response)
             return null;
-        return jsonData;
+        return response;
     }
 }
 
@@ -379,19 +412,16 @@ export class CraftingTableData {
         const allRecipes = CraftMenu.craftMenu.object;
         const recipe = allRecipes[recipeID];
         const recipeType = recipe.type;
-
         // Store the original recipe in the craft table
         CraftTable.craftTable.object = { ...recipe };
         delete CraftTable.craftTable.object.id;
-
         CraftTable.craftTable.ingredients = {};
-
         const userActorsObject = await CraftingTableData.getPlayerActorList();
         if (!userActorsObject)
             return;
         CraftTable.craftTable.userActorsData = userActorsObject;
         let options = {};
-        // Have some plans to add more types in the future, hence the switch/case instead of a simple ternary
+        // Have some plans to add more types in the future, hence the switch/case instead of a simple ternary/if
         switch (recipeType) {
             case "text":
                 options = {
@@ -402,7 +432,6 @@ export class CraftingTableData {
                 options = {
                     height: 700
                 }
-                //TODO change the deep copy workflow to a new object with only the necessary for ui and checks things in it.
                 //Create an ingredientsInfo object's with the necessary information
                 CraftTable.craftTable.ingredients = await this.getIngredientInfo(recipe.ingredients);
                 await CraftingTableData.checkIngredients();
@@ -414,7 +443,6 @@ export class CraftingTableData {
                 break;
         }
         CraftTable.craftTable.render(true, options);
-        console.log(`${MODULE} | CraftTable:`, CraftTable.craftTable);
     }
 
     /**
@@ -463,7 +491,7 @@ export class CraftingTableData {
             }
         });
         if (!Object.keys(ownedActorList).length) {
-            ui.notifications.error('No owned actor found! You can\'t craft without crafter!');
+            ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.NO_OWNED_ACTOR"));
             return null;
         }
         if (!activeActor) {
@@ -483,13 +511,10 @@ export class CraftingTableData {
         const actorItems = selectedActor.items;
         // Why change "length" to "size" foundry...
         if (!actorItems.size) {
-            ui.notifications.error(`Actor "${selectedActor.name}" does not have any items!`);
+            ui.notifications.error(`"${selectedActor.name}" - ${localize("FURU-SC.NOTIFICATIONS.ACTOR_NO_ITEMS")}`);
             return;
         }
-        console.log("checkIngredients actorItems", actorItems);
-        console.log("checkIngredients ingredientsInfo", ingredientsInfo);
         actorItems.forEach(item => {
-            console.log("checkIngredients item", item);
             // if we don't have a source, we just use the actual item's id
             // Because most of the system allow's creating item's directly in the actor's sheet
             // Those item's can be considered the source if they were used while creating a recipe
@@ -500,7 +525,6 @@ export class CraftingTableData {
                 const requiredQuantity = ingredientsInfo[sourceId].requiredQuantity;
                 const quantityModifier = ingredientsInfo[sourceId].modifier;
                 const finalQuantity = Math.max(0, requiredQuantity - currentQuantity - quantityModifier);
-                console.log("finalQuantity", finalQuantity);
                 ingredientsInfo[sourceId].currentReqQuantity = finalQuantity;
             }
         })
@@ -514,16 +538,13 @@ export class CraftingTableData {
      */
     static async craftItem() {
         const recipe = CraftTable.craftTable.object;
-
         if (recipe.type !== "items" && getPercentForAllIngredients() !== 100)
             return;
-
         const selectedActor = CraftTable.craftTable.userActorsData.selectedActor;
         let craftedItem = recipe.target;
         const actorItems = selectedActor.items;
         const pathObject = getCorrectQuantityPathForItem(craftedItem.type);
         const craftedItemSourceId = processSourceId(craftedItem.flags.core.sourceId);
-
         // Check if the actor has the craftedItem and if it has, modify it's quantity, else craft it anew
         // if we already have that type of item in the inventory, we don't need to create it
         // if we use the "flag" quantity handling type tho, we need to.
@@ -531,10 +552,8 @@ export class CraftingTableData {
         if (pathObject.type === "system") {
             actorItems.forEach(async function (item) {
                 if (item.type !== craftedItem.type) return;
-
                 const sourceId = item.flags?.core?.sourceId ? processSourceId(item.flags.core.sourceId) : item.id;
                 if (sourceId !== craftedItemSourceId) return;
-
                 craftNewItem = false;
                 const currentQuantity = foundry.utils.getProperty(item, pathObject.path);
                 const addQuantity = foundry.utils.getProperty(craftedItem, pathObject.path);
@@ -545,7 +564,7 @@ export class CraftingTableData {
         if (craftNewItem) {
             await getDocumentClass("Item").create(craftedItem, { parent: selectedActor });
         }
-        ui.notifications.info(`Crafted ${craftedItem.name} !`);
+        ui.notifications.info(`${localize("FURU-SC.NOTIFICATIONS.CRAFTED")} ${craftedItem.name}!`);
     }
 
     /**

@@ -1,31 +1,27 @@
 <form>
-    <button type="button" title="Get help on getting the path's value's" data-action="open_help" style="width:100%;">
-        <i class="fas fa-circle-info"></i> Help
+    <button type="button" title="{{localize "FURU-SC.QUANTITY_CONFIG_UI.TOOLTIPS.HELP"}}" data-action="open_help"
+        style="width:100%;">
+        <i class="fas fa-circle-info"></i> {{localize "FURU-SC.QUANTITY_CONFIG_UI.HELP"}}
     </button>
     {{#if showHelp}}
     <h3 style="padding-top:10px;">
-        Steps to get to that quantity path
+        {{localize "FURU-SC.QUANTITY_CONFIG_UI.STEPS.HEADER"}}
     </h3>
     <ol>
         <li>
-            Create some items of different types and check if they have a quantity property anywhere
+            {{localize "FURU-SC.QUANTITY_CONFIG_UI.STEPS.FIRST"}}
         </li>
         <li>
-            Open the console. Default key - "F12"
+            {{localize "FURU-SC.QUANTITY_CONFIG_UI.STEPS.SECOND"}}
         </li>
         <li>
-            Type | game.items | in the console. This will give a list of all items in that world.
-            If you want to get a specific item - type | game.items.get("") | and add an itemID between the ""
+            {{localize "FURU-SC.QUANTITY_CONFIG_UI.STEPS.THIRD"}}
         </li>
         <li>
-            Check all of those items properties and find the quantity of that item. Then write down the path you took to
-            get it, relevant to that item.
-            It should look something like this - "data.quantity" or "system.count" or even just "quantity" e.t.c. The
-            important part is to be sure it contains the necessary data.
+            {{localize "FURU-SC.QUANTITY_CONFIG_UI.STEPS.FOURTH"}}
         </li>
         <li>
-            Finally write that path to the field corresponding to that item type. If your item does not contain any
-            quantity properties. Just leave it blank.
+            {{localize "FURU-SC.QUANTITY_CONFIG_UI.STEPS.FIFTH"}}
         </li>
     </ol>
     {{/if}}
@@ -38,13 +34,15 @@
         {{#each paths}}
         <li class="action form-group">
             <div class="sc-item-type-text">{{type}}</div>
-            <input name="{{type}}.path" class="path-text" type="text" value="{{path}}" />
+            <input name="{{type}}.path" class="path-text" type="text" 
+            title="{{localize "FURU-SC.QUANTITY_CONFIG_UI.TOOLTIPS.QUANTITY_PATH"}}" 
+            value="{{path}}" />
         </li>
         {{/each}}
     </ul>
     <div class="form-group">
         <button type="submit">
-            <i class="fas fa-save"></i> "Save"
+            <i class="fas fa-save"></i>
         </button>
     </div>
 </form>

@@ -1,6 +1,7 @@
 
 import { MODULE, CRAFT_TABLE_TEMPLATE, CRAFT_TABLE_ID } from "./const.js"; //import the const variables
 import { CraftingTableData } from "./crafting.js";
+import { localize } from "./helpers.js";
 /** 
  * This application works with a single recipe as it's object and handles the crafting process.
  */
@@ -33,8 +34,7 @@ export class CraftTable extends FormApplication {
             resizable: true,
             id: CRAFT_TABLE_ID,
             template: CRAFT_TABLE_TEMPLATE,
-            title: 'Craft table'//,
-            //dragDrop: [{}]
+            title: localize("FURU-SC.CRAFT_TABLE"),
         };
 
         const mergedOptions = foundry.utils.mergeObject(defaults, overrides);
@@ -59,19 +59,17 @@ export class CraftTable extends FormApplication {
         switch (action) {
             case "select-actor":
                 if (selectedActor.id === value) return;
-
                 if (!ownedActors.hasOwnProperty(value)) {
-                    ui.notifications.error("Actor not found!");
+                    ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.ACTOR_NOT_FOUND"));
                     return;
                 }
-
                 this.userActorsData.selectedActor = ownedActors[value];
                 this.ingredients = await CraftingTableData.getIngredientInfo(this.object.ingredients);
                 await CraftingTableData.checkIngredients();
                 this.render();
                 break;
             default:
-                console.log(`${MODULE} | Invalid action detected:`, { action });
+                console.warn(`${MODULE} | Invalid action detected:`, { action });
                 break;
         }
     }
@@ -80,10 +78,10 @@ export class CraftTable extends FormApplication {
         const clickedElement = $(event.currentTarget);
         const action = clickedElement.data().action;
         switch (action) {
-            case "craft_item":
+            case "craft-item":
                 // Process ingredients
                 await CraftingTableData.processIngredientsQuantityOnCraft();
-                // Try to craft the item with delay
+                // Try to craft the item
                 await CraftingTableData.craftItem();
                 // Then reset ingredients
                 this.ingredients = await CraftingTableData.getIngredientInfo(this.object.ingredients);
@@ -95,13 +93,13 @@ export class CraftTable extends FormApplication {
                 this.ingredients = await CraftingTableData.getIngredientInfo(this.object.ingredients);
                 await CraftingTableData.checkIngredients();
                 this.render();
-                ui.notifications.notify("Craft table reloaded!");
+                ui.notifications.notify(localize("FURU-SC.NOTIFICATIONS.CRAFT_TABLE_RELOADED"));
                 break;
-            case "not_enough_ingredients":
-                ui.notifications.error("Not enough ingredients to craft the item!");
+            case "not-enough-ingredients":
+                ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.NOT_ENOUGH_INGREDIENTS"));
                 break;
             default:
-                console.log(`${MODULE} | Invalid action detected:`, { action });
+                console.warn(`${MODULE} | Invalid action detected:`, { action });
                 break;
         }
     }
@@ -113,7 +111,6 @@ export class CraftTable extends FormApplication {
             selectedActor: this.userActorsData.selectedActor,
             ownedActors: this.userActorsData.ownedActors
         }
-        console.warn("uiData", data);
         return data;
     }
 }

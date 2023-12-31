@@ -1,15 +1,23 @@
 {
   "FURU-SC": {
     "SETTINGS": {
-      "SAVEPATH": {
+      "SAVE_PATH": {
         "name": "Save path",
         "hint": "The default path where you want to save your recipe files. Path should be relevant to your data folder. You can also use it to sort different recipe files between different worlds by folders! Note: Don't use folders with other json files!"
       },
-      "CURRENTFILE": {
+      "CURRENT_FILE": {
         "name": "Current file name",
         "hint": "The name of a loaded file with recipes, that we are changing right now."
       },
-      "DATAHANDLING": {
+      "RECIPE_FILES": {
+        "name": "Recipe files",
+        "hint": "All the recipe files that are available in the world on the set path"
+      },
+      "PLAYER_CAN_EDIT": {
+        "name": "Player recipe editing",
+        "hint": "Allow your player's to edit and create recipe files. GM's always have that right. If set to false, player's will only be able to craft and explore the already created recipe files."
+      },
+      "DATA_HANDLING": {
         "name": "Data handling",
         "hint": "Choose how the module will handle an item's data. The module can either save all of the item's data, which will allow it to create the same item's in other world's with the same system, but will also increase the size of the recipes file. Or the module can save only the id's of the item's. Which will make the recipe file not compatible with other world's but will make the file size much smaller.",
         "types": {
@@ -20,6 +28,114 @@
       "QUANTITY": {
         "name": "System quantity path",
         "hint": "If the system provides a quantity variable in an item, you can provide a path relative to an item, for that variable. Simple Crafting will use it instead of using it's own quantity system."
+      }
+    },
+    "CRAFT_MENU": "Craft menu",
+    "CRAFT_MENU_UI": {
+      "NOTIFICATIONS": {
+        "WRONG_SYSTEM": "This recipes file was made in another game system. Item's probably won't be compatible at all!",
+        "WRONG_WORLD": "This recipes file was made in another world. Item's probably won't be compatible at all!"
+      },
+      "TOOLTIPS": {
+        "SEARCH": "Search for a recipe",
+        "SELECT_FILE": "Select file with the recipes",
+        "CLEAR_RECIPES": "Clear all recipes from selected file",
+        "CREATE_FILE": "Create a new recipe file",
+        "RELOAD_FILE": "Reload current file",
+        "SAVE_FILE": "Save recipe file",
+        "CREATE_RECIPE": "Create a new recipe",
+        "DELETE_RECIPE": "Delete this recipe",
+        "SAVE_DESCRIPTION": "Save description",
+        "EDIT_DESCRIPTION": "Edit description",
+        "CRAFT_FROM_RECIPE": "Craft from recipe",
+        "SUBSTRACT_QUANTITY": "Substract quantity",
+        "ITEM_QUANTITY": "Quantity of that item",
+        "ADD_QUANTITY": "Add quantity",
+        "DELETE_INGREDIENT": "Delete ingredient"
+      },
+      "SEARCH_RECIPES": "Search recipes:",
+      "SEARCH_PLACEHOLDER": "Search...",
+      "CURRENT_FILE": "Current file:",
+      "RECIPE_NAME": "Recipe name:",
+      "RECIPE_TYPE": "Recipe type:",
+      "TYPES": {
+        "TEXT": "Text",
+        "ITEMS": "Items"
+      },
+      "TARGET_ITEM": "Target item:",
+      "DESCRIPTION": "Description:",
+      "REQUIRED_ITEMS": "Required items:"
+    },
+    "CRAFT_TABLE": "Craft table",
+    "CRAFT_TABLE_UI": {
+      "TOOLTIPS": {
+        "SELECT_ACTOR": "Select an actor that crafts this item",
+        "RELOAD_CRAFT_TABLE": "Reload craft table",
+        "CRAFT_ITEM": "Craft item"
+      },
+      "ACTOR_SELECTION": "Actor selection:",
+      "QUANTITY": "Quantity:",
+      "REQUIRED_INGREDIENTS": "Required ingredients:",
+      "REQUIRED": "Required:"
+    },
+    "QUANTITY_CONFIG_TITLE": "Item types - quantity path config",
+    "QUANTITY_CONFIG_UI": {
+      "TOOLTIPS": {
+        "HELP": "Get help on how to obtain item's quantity path.",
+        "QUANTITY_PATH": "Write quantity path here"
+      },
+      "HELP": "Help",
+      "STEPS": {
+        "HEADER": "Steps to obtain that quantity path",
+        "FIRST": "Create some items of different types and check if they have a quantity property anywhere in the items UI.",
+        "SECOND": "Open the console. Default key - \"F12\"",
+        "THIRD": "Type | game.items | in the console. This will give a list of all items in that world. If you want to get a specific item - type | game.items.get(\"\") | and add an itemID between the \"\"",
+        "FOURTH": "Check all of those items properties and find the quantity of that item. Then write down the path you took to get it, relative to that item. It should look something like this - \"data.quantity\" or \"system.count\" e.t.c. The important part is to be sure it contains the necessary data in a number format.",
+        "FIFTH": "Finally write that path to the field corresponding to that item type. If your item does not contain any quantity properties. Just leave it blank."
+      }
+    },
+    "NOTIFICATIONS": {
+      "NO_RIGHTS": "You don't have enough rights to perform this action",
+      "INVALID_NUMBER": "Please enter a valid number!",
+      "NO_INGREDIENTS": "This recipe has no ingredients. Please add some ingredients before crafting.",
+      "NO_TARGET": "This recipe has no target item. Please add a target to craft.",
+      "FILE_RELOADED": "Selected file reloaded!",
+      "ITEMS_ONLY": "Only items can be dropped in a craft menu!",
+      "ACTOR_NOT_FOUND": "Actor not found!",
+      "CRAFT_TABLE_RELOADED": "Craft table reloaded!",
+      "NOT_ENOUGH_INGREDIENTS": "Not enough ingredients to craft the item!",
+      "NO_FOLDER_OR_FILE": "Can't get the current folder and/or file.",
+      "FOUND_NO_RECIPES": "Found no recipes for the search query",
+      "NO_DATA": "No data to save!",
+      "SUCCESSFULL_SAVE": "Successfully saved file:",
+      "FAILED_LOAD": "Failed to load recipes data. Error:",
+      "NO_OWNED_ACTOR": "No owned actor found! You can't craft without crafter!",
+      "ACTOR_NO_ITEMS": "Actor does not have any items!",
+      "CRAFTED": "Crafted:",
+      "INVALID_MESSAGE": "Invalid message!"
+    },
+    "NEW_RECIPE": "New recipe",
+    "DEFAULT_DESCRIPTION": "Fill me in!",
+    "DIALOGS": {
+      "DELETE_CONFIRM": {
+        "title": "Confirm deletion",
+        "content": "<p>Are you sure you want to delete this recipe? This action cannot be undone.</p>"
+      },
+      "INGREDIENT_EQUALS_TARGET": {
+        "title": "Warning!",
+        "content": "<p>Target item and your dragged item have the same name or source item! It's not very logical to craft the item from itself.</p><p>Are you sure?</p>"
+      },
+      "SAVE_PROGRESS": {
+        "title": "Save progress",
+        "content": "<p>Save your progress?</p>"
+      },
+      "CLEAR_FILE": {
+        "title": "Confirm clearing the file",
+        "content": "<p>This will irreversibly delete all the data from the file. Are you sure?</p>"
+      },
+      "FILE_CREATION": {
+        "title": "File creation",
+        "content": "<label for=\"nameInput\">Please name a new file.</label><input name=\"nameInput\" type=\"text\" style=\"margin-top:6px; margin-bottom:6px;\" placeholder=\"Enter a name\">"
       }
     }
   }

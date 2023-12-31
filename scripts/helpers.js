@@ -1,5 +1,4 @@
 import { MODULE, DATA_DEFAULT_FOLDER } from "./const.js"; //import the const variables
-import { RecipeData } from "./crafting.js";
 import { CraftTable } from "./CraftTable.js";
 
 
@@ -9,6 +8,7 @@ import { CraftTable } from "./CraftTable.js";
  * @param {string} path - The path where the folder should be created. If not provided, the default path will be used.
  */
 export async function createFolderIfMissing(path) {
+    if (!game.user.isGM) return;
     let jsonPath = path === undefined ? DATA_DEFAULT_FOLDER : path;
     await FilePicker.browse("data", jsonPath)
         .catch(async _ => {
@@ -35,13 +35,6 @@ export async function getFileNames() {
         let fileName = path.split("/").pop().split(".").slice(0, -1).join(".");
         fileNames.push(fileName);
     });
-    if (!fileNames.length) {
-        console.log(MODULE, " | ", "No files in the directory!");
-        console.log(MODULE, " | ", `Creating a new file: ${game.world.id}.json`);
-        await RecipeData.createRecipeFile(folderPath, game.world.id);
-        fileNames.push(game.world.id);
-        game.settings.set(MODULE, 'current-file', game.world.id);
-    }
     return fileNames;
 };
 
@@ -54,7 +47,7 @@ export async function getFullFilePath() {
     const folder = game.settings.get(MODULE, 'save-path');
     const file = game.settings.get(MODULE, 'current-file');
     if (!folder || !file) {
-        ui.notification.error(`Can't get the current folder and/or file. | FolderPath = ${folder} | FilePath = ${file} |`);
+        ui.notification.error(`${localize("FURU-SC.NOTIFICATIONS.NO_FOLDER_OR_FILE")} | FolderPath = ${folder} | FilePath = ${file} |`);
         return;
     }
     const path = folder + `/` + file + `.json`;
@@ -107,4 +100,25 @@ export function getPercentForAllIngredients() {
         fullModifier += ingredientInfo.modifier;
     });
     return ((fullQuantity - (remainingQuantity + fullModifier)) / fullQuantity) * 100;
+}
+
+/**
+ * A function to check if the user has the rights to edit recipes and files.
+ *
+ * @return {boolean} Returns true if the user has edit rights, otherwise false.
+ */
+export function checkEditRights() {
+    if (game.user.isGM || game.settings.get(MODULE, 'allow-player-edit'))
+        return true;
+    return false;
+}
+
+/**
+ * Helper to shorten localization syntax.
+ *
+ * @param {string} key - The key to be localized.
+ * @return {string} The localized value of the key.
+ */
+export function localize(key) {
+    return game.i18n.localize(key);
 }

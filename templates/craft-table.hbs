@@ -2,8 +2,8 @@
 
     <div class="sc-control-container">
         <div class="sc-select-actor">
-            <p>Actor selection:</p>
-            <select data-select="select-actor" title="Select an actor that crafts this item">
+            <p>{{localize "FURU-SC.CRAFT_TABLE_UI.ACTOR_SELECTION"}}</p>
+            <select data-select="select-actor" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.SELECT_ACTOR"}}">
                 {{#select selectedActor.id}}
                 {{#each ownedActors}}
                 <option value="{{this.id}}">{{this.name}}</option>
@@ -12,8 +12,9 @@
             </select>
         </div>
         <div class="sc-table-button">
-            <button type="button" title="Reload craft table" class="sc-br-none sc-br-rad10" data-action="reload-window">
-                <i class="fas fa-rotate {{#if (notGM)}}sc-disabled{{/if}}"></i>
+            <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.RELOAD_CRAFT_TABLE"}}"
+                class="sc-br-none sc-br-rad10" data-action="reload-window">
+                <i class="fas fa-rotate"></i>
             </button>
         </div>
     </div>
@@ -28,27 +29,27 @@
                         {{recipe.target.name}}
                     </p>
                     <div class="sc-table-target-quantity">
-                        <p class="sc-br-right">Quantity:</p>
+                        <p class="sc-br-right">{{localize "FURU-SC.CRAFT_TABLE_UI.QUANTITY"}}</p>
                         <p style="min-width: 64px; width: 100%">
                             {{getCorrectQuantityValue recipe.target}}
                         </p>
                     </div>
                 </div>
                 {{#if (equals recipe.type "text")}}
-                <button type="button" title="Craft item" class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left"
-                    data-action="craft_item">
+                <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                    class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="craft-item">
                     <i class="fas fa-hammer-crash "></i>
                 </button>
                 {{/if}}
                 {{#if (equals recipe.type "items")}}
                 {{#if (equals (getPercentForAllIngredients) 100)}}
-                <button type="button" title="Craft item" class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left"
-                    data-action="craft_item">
+                <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                    class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="craft-item">
                     <i class="fas fa-hammer-crash"></i>
                 </button>
                 {{else}}
-                <button type="button" title="Craft item" class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left"
-                    data-action="not_enough_ingredients">
+                <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                    class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="not-enough-ingredients">
                     <i class="fas fa-hammer-crash sc-disabled"></i>
                 </button>
                 {{/if}}
@@ -58,11 +59,14 @@
         {{#if (equals recipe.type "items")}}
         {{#if (equals (getPercentForAllIngredients) 100)}}
         {{else}}
-        <p class="sc-table-header2 sc-br-full sc-br-tr-rad15 sc-br-tl-rad15">Required ingredients:</p>
+        <p class="sc-table-header2 sc-br-full sc-br-tr-rad15 sc-br-tl-rad15">
+            {{localize "FURU-SC.CRAFT_TABLE_UI.REQUIRED_INGREDIENTS"}}
+        </p>
         <div class="sc-table-ingredients-container sc-br-rad15 sc-br-full">
             <div class="sc-table-ingredients-block ">
-                {{!--We are using ingredients as a separate Object with condensed information about the source item,--}}
-                {{!-- and to prevent rewriting the quantity values of a recipe object--}}
+                {{!-- We are using ingredients as a separate Object --}}
+                {{!-- with condensed information about the source item --}}
+                {{!-- and to prevent rewriting the quantity values of a recipe object --}}
                 {{#each ingredients}}
                 <div class="sc-recipe-card sc-br-full sc-br-rad15" style="display: flex; flex-direction: column;">
                     <img src="{{this.img}}" style="filter: grayscale({{getPercentForItem this}}%);"
@@ -76,8 +80,8 @@
                             <i class="fas fa-check"></i>
                         </p>
                         {{else}}
-                        <p class="sc-br-bl-rad15 sc-br-right" style="padding-left: 10px;">
-                            Required:
+                        <p class="sc-table-required-text sc-br-bl-rad15 sc-br-right">
+                            {{localize "FURU-SC.CRAFT_TABLE_UI.REQUIRED"}}
                         </p>
                         <p class="sc-br-br-rad15" style="width: 100%;">
                             {{this.currentReqQuantity}}
