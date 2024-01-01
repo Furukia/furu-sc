@@ -588,15 +588,22 @@ export class CraftingTableData {
         // Get all the items that match recipe.ingredients in actor, and lower it's quantity according to recipe.ingredients quantity.
         // If it becomes 0 delete it.
         const actorItems = selectedActor.items.map(a => a);
+        let ingredientInstanceCount = {};
         for (let i = 0; i < actorItems.length; i++) {
             const item = actorItems[i];
             // if we don't have a source, we just use the actual item's id
             // Because most of the system allow's creating item's directly in the actor's sheet
             // Those item's can be considered the source if they were used while creating a recipe
             const sourceId = item.flags?.core?.sourceId ? processSourceId(item.flags.core.sourceId) : item.id;
+            const pathObject = getCorrectQuantityPathForItem(item.type);
             if (recipe.ingredients.hasOwnProperty(sourceId)) {
-                const pathObject = getCorrectQuantityPathForItem(item.type);
-                const currentQuantity = foundry.utils.getProperty(item, pathObject.path);
+                if (pathObject.type === "system") {
+                    ingredientInstanceCount[sourceId] = (ingredientInstanceCount[sourceId] || 0) + foundry.utils.getProperty(item, pathObject.path);
+                }
+                else {
+                    ingredientInstanceCount[sourceId] = (ingredientInstanceCount[sourceId] || 0) + 1;
+                }
+                const currentQuantity = ingredientInstanceCount[sourceId];
                 const requiredQuantity = foundry.utils.getProperty(recipe.ingredients[sourceId], pathObject.path);
                 let finalQuantity = Math.max(0, currentQuantity - requiredQuantity);
                 await item.update({ [pathObject.path]: finalQuantity });
