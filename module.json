@@ -36,5 +36,7 @@
   ],
   "socket": true,
   "readme": "https://github.com/Furukia/furu-sc/blob/main/README.md",
+  "manifest": "https://github.com/Furukia/furu-sc/blob/main/module.json",
+  "url": "https://github.com/Furukia/furu-sc",
   "bugs": "https://github.com/Furukia/furu-sc/issues"
 }
