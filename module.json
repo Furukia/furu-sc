@@ -11,6 +11,7 @@
     {
       "name": "Furukai",
       "discord": "furukai",
+      "url": "https://github.com/Furukia",
       "email": "furukai0@gmail.com",
       "flags": {}
     }
@@ -33,5 +34,7 @@
   "styles": [
     "styles/simple-crafting.css"
   ],
-  "socket": true
+  "socket": true,
+  "readme": "https://github.com/Furukia/furu-sc/blob/main/README.md",
+  "bugs": "https://github.com/Furukia/furu-sc/issues"
 }
