@@ -3,7 +3,9 @@
 *A Foundry VTT system independent module that provides a simple way to create crafting recipes and to craft items from them.*
 
 ## Installation
-    TODO
+Manifest url to download the latest release. Paste it into Foundry's Manifest URL field on install module screen.
+
+    https://github.com/Furukia/furu-sc/releases/latest/download/module.json
 ## About
 
 This module allows you to create 2 types of recipes(currently):
