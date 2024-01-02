@@ -1,7 +1,7 @@
 
 import { MODULE, CRAFT_TABLE_TEMPLATE, CRAFT_TABLE_ID } from "./const.js"; //import the const variables
 import { CraftingTableData } from "./crafting.js";
-import { localize } from "./helpers.js";
+import { getPercentForAllIngredients, localize } from "./helpers.js";
 /** 
  * This application works with a single recipe as it's object and handles the crafting process.
  */
@@ -98,7 +98,8 @@ export class CraftTable extends FormApplication {
         switch (action) {
             case "craft-item":
                 // Process ingredients
-                await CraftingTableData.processIngredientsQuantityOnCraft();
+                if (this.object.type === "items" && getPercentForAllIngredients() === 100)
+                    await CraftingTableData.processIngredientsQuantityOnCraft();
                 // Try to craft the item
                 await CraftingTableData.craftItem();
                 // Then reset ingredients
@@ -129,7 +130,6 @@ export class CraftTable extends FormApplication {
             selectedActor: this.userActorsData.selectedActor,
             ownedActors: this.userActorsData.ownedActors
         }
-        console.log(data);
         return data;
     }
 }

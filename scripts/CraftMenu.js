@@ -252,7 +252,8 @@ export class CraftMenu extends FormApplication {
                 this.render();
                 break;
             case 'create-recipe-file':
-                await RecipeData.createRecipeFile();
+                const path = game.settings.get(MODULE, 'save-path');
+                await RecipeData.createRecipeFile(path);
                 this.render();
                 break;
             case 'clear-recipe-file':

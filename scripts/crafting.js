@@ -1,7 +1,7 @@
 import { MODULE, DATA_DEFAULT_FOLDER, RECIPES, DEFAULT_RECIPES_DATA } from "./const.js"; //import the const variables
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";
-import { getCorrectQuantityPathForItem, processSourceId, getPercentForAllIngredients, localize } from "./helpers.js";
+import { getCorrectQuantityPathForItem, processSourceId, localize } from "./helpers.js";
 import { socketNotification, socketSaveFile } from "./sockets.js";
 
 /**
@@ -548,33 +548,55 @@ export class CraftingTableData {
      */
     static async craftItem() {
         const recipe = CraftTable.craftTable.object;
-        if (recipe.type !== "items" && getPercentForAllIngredients() !== 100)
-            return;
-        const selectedActor = CraftTable.craftTable.userActorsData.selectedActor;
         let craftedItem = recipe.target;
-        const actorItems = selectedActor.items;
         const pathObject = getCorrectQuantityPathForItem(craftedItem.type);
-        const craftedItemSourceId = processSourceId(craftedItem.flags.core.sourceId);
-        // Check if the actor has the craftedItem and if it has, modify it's quantity, else craft it anew
-        // if we already have that type of item in the inventory, we don't need to create it
-        // if we use the "flag" quantity handling type tho, we need to.
-        let craftNewItem = true;
+        const selectedActor = CraftTable.craftTable.userActorsData.selectedActor;
         if (pathObject.type === "system") {
-            actorItems.forEach(async function (item) {
-                if (item.type !== craftedItem.type) return;
-                const sourceId = item.flags?.core?.sourceId ? processSourceId(item.flags.core.sourceId) : item.id;
-                if (sourceId !== craftedItemSourceId) return;
-                craftNewItem = false;
-                const currentQuantity = foundry.utils.getProperty(item, pathObject.path);
-                const addQuantity = foundry.utils.getProperty(craftedItem, pathObject.path);
-                let finalQuantity = currentQuantity + addQuantity;
-                await item.update({ [pathObject.path]: finalQuantity });
-            })
+            let quantityUpdated = await this.tryUpdateActorItemQuantity(selectedActor, craftedItem, pathObject);
+            console.log("quantityUpdated", quantityUpdated);
+            if (!quantityUpdated) {
+                await getDocumentClass("Item").create(craftedItem, { parent: selectedActor });
+            }
         }
-        if (craftNewItem) {
-            await getDocumentClass("Item").create(craftedItem, { parent: selectedActor });
+        else {
+            const currentQuantity = foundry.utils.getProperty(craftedItem, pathObject.path);
+            for (let i = 0; i < currentQuantity; i++) {
+                await getDocumentClass("Item").create(craftedItem, { parent: selectedActor });
+            }
         }
         ui.notifications.info(`${localize("FURU-SC.NOTIFICATIONS.CRAFTED")} ${craftedItem.name}!`);
+    }
+
+    /**
+     * Try to update the quantity of an item in the actor's inventory.
+     *
+     * @param {Array} actorItems - The array of items in the actor's inventory.
+     * @param {Object} craftedItem - The item that was crafted.
+     * @param {Object} [pathObject=null] - The path object for the quantity property.
+     * @return {boolean} - Returns false if the item was not found, true otherwise.
+     */
+    static async tryUpdateActorItemQuantity(selectedActor, craftedItem, pathObject = null) {
+        const actorItems = selectedActor.items;
+        if (!pathObject)
+            pathObject = getCorrectQuantityPathForItem(craftedItem.type);
+        const craftedItemSourceId = processSourceId(craftedItem.flags.core.sourceId);
+        for (const item of actorItems) {
+            if (item.type !== craftedItem.type)
+                continue;
+
+            const sourceId = item.flags?.core?.sourceId ? processSourceId(item.flags.core.sourceId) : item.id;
+
+            if (sourceId !== craftedItemSourceId)
+                continue;
+
+            const currentQuantity = foundry.utils.getProperty(item, pathObject.path);
+            const addQuantity = foundry.utils.getProperty(craftedItem, pathObject.path);
+            const finalQuantity = currentQuantity + addQuantity;
+
+            await item.update({ [pathObject.path]: finalQuantity });
+            return true
+        }
+        return false;
     }
 
     /**
