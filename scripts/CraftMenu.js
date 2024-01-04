@@ -35,7 +35,7 @@ export class CraftMenu extends FormApplication {
             id: CRAFT_MENU_ID,
             template: CRAFT_MENU_TEMPLATE,
             title: localize("FURU-SC.CRAFT_MENU"),
-            scrollY: [".sc-recipe-container"],
+            scrollY: [".sc-recipe-container", ".sc-required-items"],
             dragDrop: [{
                 dropSelector: `.sc-target-item-container, 
         .sc-target-item-container .sc-target-image, 

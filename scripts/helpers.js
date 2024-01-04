@@ -32,7 +32,7 @@ export async function getFileNames() {
         let ext = re.exec(path)[1];
         if (ext !== "json")
             return;
-        let fileName = path.split("/").pop().split(".").slice(0, -1).join(".");
+        let fileName = decodeURI(path.split("/").pop().split(".").slice(0, -1).join("."));
         fileNames.push(fileName);
     });
     return fileNames;

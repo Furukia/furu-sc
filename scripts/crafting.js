@@ -352,15 +352,14 @@ export class RecipeData {
     static async saveDataToJSONFile(updateData, path = DATA_DEFAULT_FOLDER, filename = RECIPES, options = {}) {
         const { userId = game.user.id, fileInfo = { system: game.system.id, world: game.world.id } } = options;
         const finalData = mergeObject({ fileInfo: fileInfo }, updateData, { insertKeys: true });
-        const safeName = filename.replace(/[^ a-z0-9-_()[\]<>]/gi, '_');
-        const fileName = encodeURI(`${safeName}.json`);
-        const file = new File([JSON.stringify(finalData, null, ' ')], fileName, { type: 'application/json' });
+        const safeName = filename.replace(/[\\\/ .,:*?"<>|+\-\%!@]/gi, '_') +".json";
+        const file = new File([JSON.stringify(finalData, null, ' ')], safeName, { type: 'application/json' });
         const response = await FilePicker.upload("data", path, file, {}, { notify: false });
         if (!response.path) {
             console.error(`Could not create recipes JSON: ${safeName}.json\nReason: ${response}`);
             throw new Error('Could not upload recipes data to the server!');
         }
-        const message = `${localize("FURU-SC.NOTIFICATIONS.SUCCESSFULL_SAVE")} "${path}/${filename}"`;
+        const message = `${localize("FURU-SC.NOTIFICATIONS.SUCCESSFULL_SAVE")} "${path}/${safeName}"`;
         const notificationData = {
             type: "info",
             message: message
