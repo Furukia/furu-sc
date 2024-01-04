@@ -1,3 +1,13 @@
+:root {
+  --sc-color-background-dark: #202020;
+  --sc-color-main-light: #deb887;
+  --sc-color-main-dark: #704214;
+  --sc-color-main-dark-opaque: #70421488;
+  --sc-color-secondary-light: #bb8b54;
+  --sc-color-secondary-dark: #9e733b;
+  --sc-color-loading-bar: #008000;
+}
+
 /*
  *borders
  */
@@ -6,23 +16,23 @@
 }
 
 .sc-br-left {
-  border-left: 3px solid #704214 !important;
+  border-left: 3px solid var(--sc-color-main-dark) !important;
 }
 
 .sc-br-right {
-  border-right: 3px solid #704214 !important;
+  border-right: 3px solid var(--sc-color-main-dark) !important;
 }
 
 .sc-br-top {
-  border-top: 3px solid #704214 !important;
+  border-top: 3px solid var(--sc-color-main-dark) !important;
 }
 
 .sc-br-bottom {
-  border-bottom: 3px solid #704214 !important;
+  border-bottom: 3px solid var(--sc-color-main-dark) !important;
 }
 
 .sc-br-full {
-  border: 3px solid #704214 !important;
+  border: 3px solid var(--sc-color-main-dark) !important;
 }
 
 .sc-br-rad0 {
@@ -106,7 +116,7 @@
 }
 .sc-cm-button button,
 .sc-table-button button {
-  color: #000000;
+  color: black;
   cursor: pointer;
   width: 32px;
   height: 32px;
@@ -146,7 +156,7 @@
 .sc-recipe-card .sc-edit-name > input,
 .sc-recipe-card .sc-edit-type > input,
 .sc-recipe-card .sc-edit-type > select {
-  background: #deb887;
+  background: var(--sc-color-main-light);
   font-size: 1.4rem;
   height: 31px;
 }
@@ -158,15 +168,15 @@
 }
 
 .sc-recipe-card {
-  background: #9e733b;
+  background: var(--sc-color-secondary-dark);
   margin-top: 10px;
   margin-bottom: 10px;
 }
 .sc-recipe-container .sc-description-container,
 .sc-recipe-container .sc-items-container,
 .sc-recipe-container .sc-target-container {
-  background: #deb887;
-  color: #000000;
+  background: var(--sc-color-main-light);
+  color: black;
   margin: 10px;
   padding-top: 10px;
   padding-left: 10px;
@@ -183,8 +193,8 @@
   margin-right: 10px;
 }
 .sc-recipe-container .tmce-editor-container .editor .tox-editor-header {
-  background: #bb8b54;
-  border-color: #704214;
+  background: var(--sc-color-secondary-light);
+  border-color: var(--sc-color-main-dark);
   border-width: medium;
   border-style: hidden;
   border-bottom-style: solid;
@@ -205,7 +215,7 @@
   border-bottom-right-radius: 0px;
 }
 .sc-recipe-container .tmce-editor-container .editor {
-  color: #000000;
+  color: black;
   height: 300px;
   width: 100%;
   overflow: hidden;
@@ -225,7 +235,7 @@
   display: flex;
   flex-direction: row;
   align-items: flex-end;
-  color: #000000;
+  color: black;
   border: none;
   cursor: pointer;
   margin-top: 10px;
@@ -240,7 +250,7 @@
   padding-left: 0px;
 }
 .sc-recipe-container button {
-  color: #000000;
+  color: black;
   border: none;
   cursor: pointer;
   width: 32px;
@@ -286,7 +296,7 @@
   font-size: 16px;
 }
 .sc-required-item {
-  background: #9e733b;
+  background: var(--sc-color-secondary-dark);
   display: flex;
   max-width: 100%;
   width: fit-content;
@@ -378,13 +388,13 @@
 #furu-sc-quantity-config section.window-content,
 #furu-sc-craft-menu .window-content,
 #furu-sc-craft-table .window-content {
-  background: #202020;
-  color: #deb887;
+  background: var(--sc-color-background-dark);
+  color: var(--sc-color-main-light);
 }
 #furu-sc-quantity-config button,
 #furu-sc-craft-table button,
 #crafting-form button {
-  background: #deb887;
+  background: var(--sc-color-main-light);
   margin: 0px;
 }
 #furu-sc-quantity-config button > i,
@@ -394,14 +404,14 @@
 }
 #furu-sc-quantity-config input[type="text"],
 #crafting-form input[type="search"] {
-  color: #000000;
-  background: #deb887;
+  color: black;
+  background: var(--sc-color-main-light);
   height: 100%;
 }
 #furu-sc-quantity-config header.sc-quantity-config-header {
-  background: #70421488;
+  background: var(--sc-color-main-dark-opaque);
   padding: 5px;
-  border: 1px solid #9e733b;
+  border: 1px solid var(--sc-color-secondary-dark);
   text-align: center;
   color: var(--color-text-light-highlight);
   font-weight: bold;
@@ -409,14 +419,14 @@
 }
 #crafting-form select,
 #furu-sc-craft-table select {
-  color: #000000;
-  background: #deb887;
-  border-color: #9e733b;
+  color: black;
+  background: var(--sc-color-main-light);
+  border-color: var(--sc-color-secondary-dark);
   height: 100%;
   width: 100%;
 }
 #crafting-form {
-  color: #deb887;
+  color: var(--sc-color-main-light);
   padding: 10px;
 }
 #furu-sc-quantity-config .window-content ol {
@@ -425,14 +435,14 @@
   padding: 0 0 0 1.5em;
 }
 #crafting-form input[type="text"].sc-quantity-input {
-  background: #deb887;
+  background: var(--sc-color-main-light);
   height: 100%;
   text-align: center;
   font-size: 1.4rem;
 }
 #furu-sc-craft-table .sc-recipe-card p,
 #furu-sc-craft-table .sc-table-ingredients-block p {
-  background: #deb887;
+  background: var(--sc-color-main-light);
   margin: 0px;
   text-align: center;
   color: black;
@@ -440,18 +450,18 @@
   padding-right: 5px;
 }
 #furu-sc-craft-table h2 {
-  color: #000000;
+  color: black;
   font-size: 1.5rem;
   text-align: center;
 }
 .sc-loading-bar {
   height: 20px;
   margin-top: 10px;
-  background-color: #deb887;
+  background-color: var(--sc-color-main-light);
 }
 .sc-loading-bar-fill {
   height: 100%;
-  background-color: #008000;
+  background-color: var(--sc-color-loading-bar);
 }
 .sc-table-target-block {
   width: 100%;
@@ -489,7 +499,7 @@
   margin-right: 75px !important;
 }
 .sc-table-ingredients-container {
-  background-color: #70421488;
+  background-color: var(--sc-color-main-dark-opaque);
   padding-left: 10px;
   padding-right: 5px;
   margin: 0px;
@@ -508,7 +518,7 @@
   font-size: 0.8rem;
 }
 .sc-table-ingredients-image {
-  box-shadow: inset 0px 0px 50px 10px #000000;
+  box-shadow: inset 0px 0px 50px 10px black;
 }
 .sc-table-ingredients-name {
   height: 100%;
