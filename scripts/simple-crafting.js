@@ -1,8 +1,9 @@
 import { MODULE, MODULE_NAME } from "./const.js"; //import the const variables
-import { checkEditRights, createFolderIfMissing, getCorrectQuantityPathForItem, getPercentForAllIngredients, localize } from "./helpers.js";
+import { checkEditRights, checkTagsPresence, createFolderIfMissing, getCorrectQuantityPathForItem, getPercentForAllIngredients, localize } from "./helpers.js";
 import { RegisterSettings, ValidateSettings } from "./settings.js";
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";
+import { CraftTagsEditor } from "./CraftTagsEditor.js";
 import { handleSocketEvent } from "./sockets.js";
 
 /**
@@ -50,13 +51,37 @@ Hooks.once("ready", async function () {
 
 Hooks.on('getSceneControlButtons', addButton);
 
+
+Hooks.on(`getItemSheetHeaderButtons`, function (app, buttons) {
+  // If user can edit
+  if (!checkEditRights()) return;
+
+  // If app has document
+  if (!app?.document) return;
+
+  const appsItem = app.document;
+
+  let hasTags = checkTagsPresence(appsItem);
+
+  buttons.unshift({
+    label: localize("FURU-SC.CRAFT_TAGS"),
+    class: `sc-craft-tags-button${hasTags ? '-active' : ''}`,
+    get icon() {
+      return `fas fa-tags`;
+    },
+    onclick: () => {
+      new CraftTagsEditor(appsItem).render(true);
+    }
+  });
+
+});
+
 /*
  * Handlebars helpers
  */
 Handlebars.registerHelper('equals', function (a, b) {
   return a === b;
 });
-
 
 Handlebars.registerHelper('getCurrentFile', function () {
   return game.settings.get(MODULE, 'current-file');

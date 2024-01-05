@@ -1,10 +1,10 @@
-import { MODULE, QUANTITY_CONFIG, QUANTITY_CONFIG_TEMPLATE } from "./const.js"; //import the const variables
+import { MODULE, QUANTITY_CONFIG_ID, QUANTITY_CONFIG_TEMPLATE } from "./const.js"; //import the const variables
 import { localize } from "./helpers.js";
 
 export class QuantityConfig extends FormApplication {
     static get defaultOptions() {
         const options = super.defaultOptions;
-        options.id = QUANTITY_CONFIG;
+        options.id = QUANTITY_CONFIG_ID;
         options.template = QUANTITY_CONFIG_TEMPLATE;
         options.height = "auto";
         options.width = 550;

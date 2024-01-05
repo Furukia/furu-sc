@@ -1,7 +1,7 @@
 import { MODULE, DATA_DEFAULT_FOLDER, RECIPES, DEFAULT_RECIPES_DATA } from "./const.js"; //import the const variables
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";
-import { getCorrectQuantityPathForItem, processSourceId, localize } from "./helpers.js";
+import { getCorrectQuantityPathForItem, processSourceId, localize, checkTagVisibility } from "./helpers.js";
 import { socketNotification, socketSaveFile } from "./sockets.js";
 
 /**
@@ -352,7 +352,7 @@ export class RecipeData {
     static async saveDataToJSONFile(updateData, path = DATA_DEFAULT_FOLDER, filename = RECIPES, options = {}) {
         const { userId = game.user.id, fileInfo = { system: game.system.id, world: game.world.id } } = options;
         const finalData = mergeObject({ fileInfo: fileInfo }, updateData, { insertKeys: true });
-        const safeName = filename.replace(/[\\\/ .,:*?"<>|+\-\%!@]/gi, '_') +".json";
+        const safeName = filename.replace(/[\\\/ .,:*?"<>|+\-\%!@]/gi, '_') + ".json";
         const file = new File([JSON.stringify(finalData, null, ' ')], safeName, { type: 'application/json' });
         const response = await FilePicker.upload("data", path, file, {}, { notify: false });
         if (!response.path) {
@@ -633,5 +633,18 @@ export class CraftingTableData {
                 }
             }
         }
+    }
+}
+
+/*
+ * TagData class.
+ * Used to quickly create and check the tag data for the ui.
+ */
+export class TagData {
+
+    constructor(tag, quantity, query) {
+        this.tag = tag;
+        this.quantity = quantity;
+        this.visible = checkTagVisibility(tag, query);
     }
 }

@@ -106,7 +106,8 @@
       "NO_OWNED_ACTOR": "No owned actor found! You can't craft without crafter!",
       "ACTOR_NO_ITEMS": "Actor does not have any items!",
       "CRAFTED": "Crafted:",
-      "INVALID_MESSAGE": "Invalid message!"
+      "INVALID_MESSAGE": "Invalid message!",
+      "TAG_EXISTS": "This tag is already assigned!"
     },
     "NEW_RECIPE": "New recipe",
     "DEFAULT_DESCRIPTION": "Fill me in!",
@@ -131,7 +132,31 @@
         "title": "File creation",
         "content": "Please name a new file.",
         "placeholder": "Enter a name"
+      },
+      "TAG_CREATION": {
+        "title": "Tag creation",
+        "content": "Please enter a new tag. Note that tags are case-sensitive.",
+        "placeholder": "Tag"
+      },
+      "CLEAR_TAGS":{
+        "title": "Clear tags",
+        "content": "<p>Are you sure you want to clear all the tags from this item?</p>"
       }
+    },
+    "CRAFT_TAGS": "Craft tags",
+    "TAGS_EDITOR_TITLE": "Tags editor",
+    "TAGS_EDITOR_UI": {
+      "TOOLTIPS": {
+        "SEARCH_TAGS": "Search tags",
+        "CLEAR_TAGS": "Clear all tags",
+        "RELOAD_WINDOW": "Reload tag editor",
+        "ADD_TAG": "Add new tag",
+        "TAG_QUANTITY": "Quantity for this tag",
+        "CHANGE_TAG": "Change this tag",
+        "REMOVE_TAG": "Remove this tag"
+      },
+      "SEARCH_TAGS": "Search tags:",
+      "SEARCH_PLACEHOLDER": "Search..."
     }
   }
 }

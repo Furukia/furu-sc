@@ -122,3 +122,24 @@ export function checkEditRights() {
 export function localize(key) {
     return game.i18n.localize(key);
 }
+
+/**
+ * Checks if the specified item has the craftTags flag set.
+ *
+ * @param {type} item - The item to check.
+ * @return {type} Returns true if the craftTags flag is set, false otherwise.
+ */
+export function checkTagsPresence(item) {
+    return !!item.getFlag(MODULE, "craftTags");
+}
+
+/**
+ * Checks if a given tag is visible based on a query.
+ *
+ * @param {string} tag - The tag to check visibility for.
+ * @param {string} query - The query to match against the tag.
+ * @return {boolean} Returns true if the tag matches the query, false otherwise.
+ */
+export function checkTagVisibility(tag, query) {
+    return query ? tag.toLowerCase().includes(query.toLowerCase()) : true;
+}
