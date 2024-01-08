@@ -105,6 +105,7 @@ export class CraftMenu extends FormApplication {
         const action = input.dataset.input;
         const value = input.value;
         const recipeID = $(input).parents('[data-recipe-id]').data('recipeId');
+        const selectedTag = $(input).parents('[data-tag]')?.data()?.tag;
         const allowedActions = [
             "search-recipe"
         ];
@@ -133,6 +134,18 @@ export class CraftMenu extends FormApplication {
                     return;
                 }
                 RecipeData.ProcessQuantity(recipeID, value, { originalItemId: itemID, rewrite: true, isTarget: false });
+                break;
+            case "change-tag":
+                if (!selectedTag) return;
+                RecipeData.changeTag(recipeID, selectedTag, value);
+                break;
+            case "change-tag-quantity":
+                if (isNaN(value)) {
+                    ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.INVALID_NUMBER"));
+                    return;
+                }
+                if (!selectedTag) return;
+                RecipeData.changeTagQuantity(recipeID, selectedTag, { quantity: value, overwrite: true });
                 break;
             default:
                 console.warn(`${MODULE} | Invalid action detected:`, { action, value });
@@ -216,6 +229,7 @@ export class CraftMenu extends FormApplication {
             }
         }
         const recipeID = clickedElement.parents('[data-recipe-id]')?.data()?.recipeId;
+        const selectedTag = clickedElement.parents('[data-tag]')?.data()?.tag;
         let itemID;
         switch (action) {
             case 'add-recipe':
@@ -323,6 +337,24 @@ export class CraftMenu extends FormApplication {
                 this.render();
                 ui.notifications.notify(localize("FURU-SC.NOTIFICATIONS.FILE_RELOADED"));
                 break;
+            case "add-tag":
+                let tag = await Dialog.prompt({
+                    title: localize("FURU-SC.DIALOGS.TAG_CREATION.title"),
+                    content: `<label for="nameInput">${localize("FURU-SC.DIALOGS.TAG_CREATION.content")}</label>
+                <input name="nameInput" type="text" 
+                style="margin-top:6px; margin-bottom:6px;" 
+                placeholder="${localize("FURU-SC.DIALOGS.TAG_CREATION.placeholder")}">`,
+                    callback: (html) => html.find('input').val()
+                });
+                if (!tag) return;
+                await RecipeData.addTag(recipeID, tag);
+                this.render();
+                break;
+            case "remove-tag":
+                if (!selectedTag) return;
+                await RecipeData.removeTag(recipeID, selectedTag);
+                this.render()
+                break;
             default:
                 console.warn(`${MODULE} | Invalid action detected:`, { action, recipeID });
                 break;
@@ -429,5 +461,3 @@ export class CraftMenu extends FormApplication {
         };
     }
 }
-
-

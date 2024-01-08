@@ -43,7 +43,11 @@
         "SUBSTRACT_QUANTITY": "Уменьшить количество",
         "ITEM_QUANTITY": "Количество для этого предмета",
         "ADD_QUANTITY": "Увеличить количество",
-        "DELETE_INGREDIENT": "Удалить ингредиент"
+        "DELETE_INGREDIENT": "Удалить ингредиент",
+        "ADD_TAG": "Добавить новый тег",
+        "TAG_QUANTITY": "Количество для этого тега",
+        "CHANGE_TAG": "Изменить тег",
+        "REMOVE_TAG": "Удалить тег"
       },
       "SEARCH_RECIPES": "Поиск рецептов:",
       "SEARCH_PLACEHOLDER": "Поиск...",
@@ -52,11 +56,13 @@
       "RECIPE_TYPE": "Тип рецепта:",
       "TYPES": {
         "TEXT": "Текст",
-        "ITEMS": "Предметы"
+        "ITEMS": "Предметы",
+        "TAGS": "Теги"
       },
       "TARGET_ITEM": "Целевой предмет:",
       "DESCRIPTION": "Описание:",
-      "REQUIRED_ITEMS": "Требуемые предметы:"
+      "REQUIRED_ITEMS": "Требуемые предметы:",
+      "REQUIRED_TAGS": "Требуемые теги:"
     },
     "CRAFT_TABLE": "Ремесленный стол",
     "CRAFT_TABLE_UI": {
@@ -134,7 +140,7 @@
         "placeholder": "Введите имя"
       },
       "TAG_CREATION": {
-        "title": "Создания тега",
+        "title": "Создание тега",
         "content": "Пожалуйста введите новый тег. Учтите, что теги - чувствительны к регистру.",
         "placeholder": "Тег"
       },

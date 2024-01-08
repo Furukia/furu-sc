@@ -80,6 +80,7 @@
                             {{#select type}}
                             <option value="text">{{localize "FURU-SC.CRAFT_MENU_UI.TYPES.TEXT"}}</option>
                             <option value="items">{{localize "FURU-SC.CRAFT_MENU_UI.TYPES.ITEMS"}}</option>
+                            <option value="tags">{{localize "FURU-SC.CRAFT_MENU_UI.TYPES.TAGS"}}</option>
                             {{/select}}
                         </select>
                         {{else}}
@@ -88,10 +89,12 @@
                     </div>
                     <div class="sc-edit-buttons">
                         {{#if (checkEditRights)}}
+                        {{!--Delete Recipe button--}}
                         <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.DELETE_RECIPE"}}"
                             class="sc-br-none sc-br-rad10" data-action="delete-recipe">
                             <i class="fas fa-minus"></i>
                         </button>
+                        {{!--Edit Text description button--}}
                         {{#if (equals type "text")}}
                         {{#if editMode}}
                         <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.SAVE_DESCRIPTION"}}"
@@ -104,6 +107,13 @@
                             <i class="fas fa-edit "></i>
                         </button>
                         {{/if}}
+                        {{/if}}
+                        {{!--Add tag button--}}
+                        {{#if (equals type "tags")}}
+                        <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.ADD_TAG"}}"
+                            class="sc-br-none sc-br-rad10" data-action="add-tag">
+                            <i class="fas fa-plus "></i>
+                        </button>
                         {{/if}}
                         {{/if}}
                         <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.CRAFT_FROM_RECIPE"}}"
@@ -161,7 +171,8 @@
                         </div>
                     </div>
                     {{/if}}
-                    {{else}}
+                    {{/if}}
+                    {{#if (equals type "items")}}
                     <div class="sc-required-item-container sc-br-none">
                         <h2 class="sc-br-bottom">{{localize "FURU-SC.CRAFT_MENU_UI.REQUIRED_ITEMS"}}</h2>
                         {{#if ingredients}}
@@ -180,8 +191,8 @@
                                 <input type="text" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.ITEM_QUANTITY"}}"
                                     data-input="change-quantity" class="sc-quantity-input  sc-br-none sc-br-rad0 
                                     {{#if (checkEditRights)}}sc-br-left sc-br-right{{/if}} 
-                                    {{#if (noEditRights)}}sc-br-left sc-br-tr-rad12_5 sc-br-br-rad12_5{{/if}}" {{#if
-                                    (noEditRights)}}readonly{{/if}} value="{{getCorrectQuantityValue this}}" />
+                                    {{#if (noEditRights)}}sc-br-left sc-br-tr-rad12_5 sc-br-br-rad12_5{{/if}}" 
+                                    {{#if (noEditRights)}}readonly{{/if}} value="{{getCorrectQuantityValue this}}" />
                                 {{#if (checkEditRights)}}
                                 <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.ADD_QUANTITY"}}" 
                                     class="sc-item_button"
@@ -199,6 +210,30 @@
                         </div>
                         {{else}}
                         <i class="fas fa-circle-down sc-drop-zone-marker"></i>
+                        {{/if}}
+                    </div>
+                    {{/if}}
+                    {{#if (equals type "tags")}}
+                    <div class="sc-required-tags-container sc-br-none">
+                        <h2 class="sc-br-bottom">{{localize "FURU-SC.CRAFT_MENU_UI.REQUIRED_TAGS"}}</h2>
+                        {{#if tags}}
+                        <div class="sc-required-tags">
+                        {{#each tags}}
+                            <div class="sc-tags-container sc-br-none sc-tag-corners-cut" data-tag="{{@key}}">
+                                <input type="text" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.TAG_QUANTITY"}}" 
+                                class="sc-tag-quantity sc-br-none sc-br-rad0 sc-br-bl-rad15 
+                                    sc-br-tl-rad15 sc-br-left sc-br-top sc-br-bottom"{{#if (noEditRights)}}readonly{{/if}}
+                                    data-input="change-tag-quantity" value="{{this}}" />
+                                <input type="text" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.CHANGE_TAG"}}" data-input="change-tag"
+                                    class="sc-tag sc-br-none sc-br-rad0 sc-br-left sc-br-top sc-br-bottom" {{#if (noEditRights)}}readonly{{/if}}
+                                    value="{{@key}}" />
+                                <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.REMOVE_TAG"}}"
+                                    class="sc-tag-remove-button sc-br-none sc-br-rad0 sc-br-left" data-action="remove-tag">
+                                    <i class="fas fa-xmark"></i>
+                                </button>
+                            </div>
+                        {{/each}}
+                        </div>
                         {{/if}}
                     </div>
                     {{/if}}

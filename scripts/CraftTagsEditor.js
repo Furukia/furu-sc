@@ -59,6 +59,10 @@ export class CraftTagsEditor extends FormApplication {
                 break;
             case "change-tag":
                 if (value === selectedTag) return;
+                if (currentTags[value]) {
+                    ui.notifications.warn(localize("FURU-SC.NOTIFICATIONS.TAG_EXISTS"));
+                    return;
+                }
                 Object.defineProperty(currentTags, value, Object.getOwnPropertyDescriptor(currentTags, selectedTag));
                 delete currentTags[selectedTag];
                 await this.object.unsetFlag(MODULE, "craftTags");
@@ -80,7 +84,7 @@ export class CraftTagsEditor extends FormApplication {
                 break;
         }
     }
-    
+
     /**
      * Handles saving the value for the tag input field to change the tag later.
      * Note to myself: This is a strange and probably a bad way to do it. 
@@ -158,6 +162,10 @@ export class CraftTagsEditor extends FormApplication {
         const value = this.tagChangeValue;
         const selectedTag = this.tagToChangeOnUpdate;
         if (value !== selectedTag) {
+            if (currentTags[value]) {
+                await this.render();
+                return;
+            }
             Object.defineProperty(currentTags, value, Object.getOwnPropertyDescriptor(currentTags, selectedTag));
             delete currentTags[selectedTag];
             await this.object.unsetFlag(MODULE, "craftTags");
@@ -190,5 +198,4 @@ export class CraftTagsEditor extends FormApplication {
             tags: tagObjectArrayVisible.length ? tagObjectArrayVisible : tagObjectArray
         }
     }
-
 }

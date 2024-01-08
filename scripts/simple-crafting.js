@@ -108,8 +108,8 @@ Handlebars.registerHelper('getCorrectQuantityValue', function (item) {
 Handlebars.registerHelper('getPercentForItem', function (ingredientInfo) {
   return ((ingredientInfo.currentReqQuantity + ingredientInfo.modifier) / ingredientInfo.requiredQuantity) * 100;
 });
+Handlebars.registerHelper('getPercentForAllIngredients', getPercentForAllIngredients);
 Handlebars.registerHelper('checkEditRights', checkEditRights);
 Handlebars.registerHelper('noEditRights', function () {
   return !checkEditRights();
 });
-Handlebars.registerHelper('getPercentForAllIngredients', getPercentForAllIngredients);

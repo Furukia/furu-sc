@@ -9,11 +9,12 @@ import { socketNotification, socketSaveFile } from "./sockets.js";
  * @property {string} id - The unique identifier for the recipe.
  * @property {string} name - The name of the recipe.
  * @property {string} description - The description of the recipe.
- * @property {string} type - A type of a recipe
+ * @property {string} type - A type of a recipe. (text, items, tags)
  * @property {bool} isVisible - Is a recipe visible right now?
  * @property {bool} editMode - Are we editing this recipe text or not?
  * @property {Object} target - The object that we want to craft.
- * @property {Array<Object>} ingredients - The list of objects we use to craft the target.
+ * @property {Object} ingredients - The list of key/value id/ingredient objects we use to craft the target.(Items recipe type) 
+ * @property {Object} tags - The list of key/value tags/quantity pairs we use to craft the target.(Tags recipe type) 
  */
 
 /*
@@ -34,7 +35,8 @@ export class RecipeData {
             isVisible: true,
             editMode: false,
             target: undefined,
-            ingredients: undefined
+            ingredients: undefined,
+            tags: undefined
         };
         let allRecipes = CraftMenu.craftMenu.object || {};
         allRecipes[newRecipe.id] = newRecipe;
@@ -104,7 +106,6 @@ export class RecipeData {
             });
             allRecipes[recipeID] = updatedRecipe;
         }
-
         CraftMenu.craftMenu.object = allRecipes;
     }
 
@@ -252,6 +253,80 @@ export class RecipeData {
         delete ingredients[itemID];
         allRecipes[recipeID].ingredients = ingredients;
         CraftMenu.craftMenu.object = allRecipes;
+    }
+
+    /**
+     * Adds a new tag to a recipe.
+     *
+     * @param {number} recipeID - The ID of the recipe.
+     * @param {string} tag - The tag to be added.
+     * @param {string} quantity - The tag to be added.
+     */
+    static async addTag(recipeID, tag) {
+        const allRecipes = CraftMenu.craftMenu.object;
+        const tags = allRecipes[recipeID].tags ?? {};
+        if (tags[tag]) {
+            ui.notifications.warn(localize("FURU-SC.NOTIFICATIONS.TAG_EXISTS"));
+            return;
+        }
+        const tagObject = { [tag]: 1 };
+        const finalData = mergeObject(tags, tagObject, { insertKeys: true });
+        this.updateRecipe(recipeID, { tags: finalData });
+    }
+
+    /**
+     * Removes a tag from a recipe.
+     *
+     * @param {string} recipeID - The ID of the recipe.
+     * @param {string} tag - The tag to be removed.
+     */
+    static async removeTag(recipeID, tag) {
+        const allRecipes = CraftMenu.craftMenu.object;
+        const tags = allRecipes[recipeID].tags;
+        delete tags[tag];
+        allRecipes[recipeID].tags = tags;
+        CraftMenu.craftMenu.object = allRecipes;
+    }
+
+    /**
+     * Change the tag of a recipe.
+     *
+     * @param {string} recipeID - The ID of the recipe.
+     * @param {string} tag - The new tag for the recipe.
+     */
+    static async changeTag(recipeID, tag, value) {
+        const allRecipes = CraftMenu.craftMenu.object;
+        const tags = allRecipes[recipeID].tags;
+        const tagQuantity = tags[tag];
+        delete tags[tag];
+        const tagObject = { [value]: tagQuantity };
+        const finalData = mergeObject(tags, tagObject, { insertKeys: true });
+        this.updateRecipe(recipeID, { tags: finalData });
+    }
+
+    /**
+     * Changes the quantity of a recipe tag for a given recipe ID.
+     *
+     * @param {string} recipeID - The ID of the recipe.
+     * @param {string} tag - The tag which quantity we are changing.
+     * @param {Object} options - The options for changing the quantity.
+     * @param {number} [options.quantity=1] - The quantity to add or overwrite the recipe tag with.
+     * @param {boolean} [options.overwrite=false] - Whether to overwrite the existing quantity or not.
+     */
+    static async changeTagQuantity(recipeID, tag, options) {
+        const { quantity = 1, overwrite = false } = options;
+        const allRecipes = CraftMenu.craftMenu.object;
+        const tags = allRecipes[recipeID].tags;
+        let finalQuantity;
+        if (overwrite) {
+            finalQuantity = quantity;
+        } else {
+            const currentQuantity = tags[tag];
+            finalQuantity = currentQuantity + quantity;
+        }
+        const tagObject = { [tag]: Number(finalQuantity) };
+        const finalData = mergeObject(tags, tagObject, { overwrite: true });
+        this.updateRecipe(recipeID, { tags: finalData });
     }
 
     /**

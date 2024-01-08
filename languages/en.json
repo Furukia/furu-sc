@@ -43,7 +43,11 @@
         "SUBSTRACT_QUANTITY": "Substract quantity",
         "ITEM_QUANTITY": "Quantity of that item",
         "ADD_QUANTITY": "Add quantity",
-        "DELETE_INGREDIENT": "Delete ingredient"
+        "DELETE_INGREDIENT": "Delete ingredient",
+        "ADD_TAG": "Add a new tag",
+        "TAG_QUANTITY": "Quantity for this tag",
+        "CHANGE_TAG": "Change this tag",
+        "REMOVE_TAG": "Remove this tag"
       },
       "SEARCH_RECIPES": "Search recipes:",
       "SEARCH_PLACEHOLDER": "Search...",
@@ -52,11 +56,13 @@
       "RECIPE_TYPE": "Recipe type:",
       "TYPES": {
         "TEXT": "Text",
-        "ITEMS": "Items"
+        "ITEMS": "Items",
+        "TAGS": "Tags"
       },
       "TARGET_ITEM": "Target item:",
       "DESCRIPTION": "Description:",
-      "REQUIRED_ITEMS": "Required items:"
+      "REQUIRED_ITEMS": "Required items:",
+      "REQUIRED_TAGS": "Required tags:"
     },
     "CRAFT_TABLE": "Craft table",
     "CRAFT_TABLE_UI": {
@@ -138,7 +144,7 @@
         "content": "Please enter a new tag. Note that tags are case-sensitive.",
         "placeholder": "Tag"
       },
-      "CLEAR_TAGS":{
+      "CLEAR_TAGS": {
         "title": "Clear tags",
         "content": "<p>Are you sure you want to clear all the tags from this item?</p>"
       }
