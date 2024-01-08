@@ -37,6 +37,7 @@ export class CraftTagsEditor extends FormApplication {
         super.activateListeners(html);
         html.on('click', "[data-action]", this._handleButtonClick.bind(this));
         html.on('keydown', "[data-input]", this._handleInputEnter.bind(this));
+        html.find('.sc-tag-editor-tag').keyup(this._handleInputKeyUp.bind(this));
     }
 
     /**
@@ -51,7 +52,6 @@ export class CraftTagsEditor extends FormApplication {
         const value = input.value;
         let currentTags = this.object.getFlag(MODULE, "craftTags");
         const selectedTag = $(input).parents('[data-tag]')?.data()?.tag;
-        console.log(value);
         switch (action) {
             case 'search-tags':
                 this.searchQuery = value;
@@ -79,6 +79,17 @@ export class CraftTagsEditor extends FormApplication {
                 console.warn(`${MODULE} | Invalid action detected:`, { action, value });
                 break;
         }
+    }
+    
+    /**
+     * Handles saving the value for the tag input field to change the tag later.
+     * Note to myself: This is a strange and probably a bad way to do it. 
+     * TODO: Later i should refactor it... 
+     */
+    async _handleInputKeyUp(event) {
+        const input = event.currentTarget;
+        this.tagChangeValue = input.value;
+        this.tagToChangeOnUpdate = $(input).parents('[data-tag]')?.data()?.tag;
     }
     /**
      * Handles the click event on a button.
@@ -138,9 +149,21 @@ export class CraftTagsEditor extends FormApplication {
     }
 
     /*
+    * Updates the tag if it's value changed on de-focus.
     * Updates the searchQuery on de-focus from search input.
     */
     async _updateObject(event, formData) {
+        // Set tags
+        let currentTags = this.object.getFlag(MODULE, "craftTags");
+        const value = this.tagChangeValue;
+        const selectedTag = this.tagToChangeOnUpdate;
+        if (value !== selectedTag) {
+            Object.defineProperty(currentTags, value, Object.getOwnPropertyDescriptor(currentTags, selectedTag));
+            delete currentTags[selectedTag];
+            await this.object.unsetFlag(MODULE, "craftTags");
+            await this.object.setFlag(MODULE, "craftTags", currentTags);
+        }
+        // Set search query
         const searchInput = document.getElementById('sc-search-tags');
         this.searchQuery = searchInput.value;
         await this.render();
