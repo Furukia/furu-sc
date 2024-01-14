@@ -1,11 +1,12 @@
 import { CRAFT_TAGS_EDITOR_TEMPLATE, CRAFT_TAGS_EDITOR_ID, MODULE } from "./const.js";
-import { TagData } from "./crafting.js";
+import { TagUiData, TagsData } from "./crafting.js";
 import { checkTagsPresence, localize } from "./helpers.js";
 
 export class CraftTagsEditor extends FormApplication {
     constructor(object, options) {
         super(object, options);
         this.object.apps[this.appId] = this;
+        this.searchQuery = '';
     }
 
     /**
@@ -36,65 +37,21 @@ export class CraftTagsEditor extends FormApplication {
     activateListeners(html) {
         super.activateListeners(html);
         html.on('click', "[data-action]", this._handleButtonClick.bind(this));
-        html.on('keydown', "[data-input]", this._handleInputEnter.bind(this));
-        html.find('.sc-tag-editor-tag').keyup(this._handleInputKeyUp.bind(this));
+        html.on('keydown', "input", this._handleInputEnter.bind(this));
+        //html.find('.sc-tag-editor-tag').keyup(this._handleInputKeyUp.bind(this));
     }
 
     /**
-     * Handles the event when the Enter key is pressed in the input field.
+     * Submit's the form when enter is pressed in an input field.
      *
-     * @param {Event} event - The event object representing the key press event.
+     * @param {Event} event - The event object with the key press event.
      */
     async _handleInputEnter(event) {
         if (event.key !== "Enter") return;
-        const input = event.currentTarget;
-        const action = input.dataset.input;
-        const value = input.value;
-        let currentTags = this.object.getFlag(MODULE, "craftTags");
-        const selectedTag = $(input).parents('[data-tag]')?.data()?.tag;
-        switch (action) {
-            case 'search-tags':
-                this.searchQuery = value;
-                this.render();
-                break;
-            case "change-tag":
-                if (value === selectedTag) return;
-                if (currentTags[value]) {
-                    ui.notifications.warn(localize("FURU-SC.NOTIFICATIONS.TAG_EXISTS"));
-                    return;
-                }
-                Object.defineProperty(currentTags, value, Object.getOwnPropertyDescriptor(currentTags, selectedTag));
-                delete currentTags[selectedTag];
-                await this.object.unsetFlag(MODULE, "craftTags");
-                await this.object.setFlag(MODULE, "craftTags", currentTags);
-                this.render();
-                break;
-            case "change-tag-quantity":
-                if (isNaN(value)) {
-                    ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.INVALID_NUMBER"));
-                    return;
-                }
-                currentTags[selectedTag] = value;
-                await this.object.unsetFlag(MODULE, "craftTags");
-                await this.object.setFlag(MODULE, "craftTags", currentTags);
-                this.render();
-                break;
-            default:
-                console.warn(`${MODULE} | Invalid action detected:`, { action, value });
-                break;
-        }
+        this.submit();
+        return;
     }
 
-    /**
-     * Handles saving the value for the tag input field to change the tag later.
-     * Note to myself: This is a strange and probably a bad way to do it. 
-     * TODO: Later i should refactor it... 
-     */
-    async _handleInputKeyUp(event) {
-        const input = event.currentTarget;
-        this.tagChangeValue = input.value;
-        this.tagToChangeOnUpdate = $(input).parents('[data-tag]')?.data()?.tag;
-    }
     /**
      * Handles the click event on a button.
      *
@@ -108,25 +65,10 @@ export class CraftTagsEditor extends FormApplication {
         if (!currentTags) currentTags = {};
         switch (action) {
             case "add-tag":
-                let tag = await Dialog.prompt({
-                    title: localize("FURU-SC.DIALOGS.TAG_CREATION.title"),
-                    content: `<label for="nameInput">${localize("FURU-SC.DIALOGS.TAG_CREATION.content")}</label>
-                    <input name="nameInput" type="text" 
-                    style="margin-top:6px; margin-bottom:6px;" 
-                    placeholder="${localize("FURU-SC.DIALOGS.TAG_CREATION.placeholder")}">`,
-                    callback: (html) => html.find('input').val()
-                });
-                if (!tag) return;
-                if (currentTags[tag]) {
-                    ui.notifications.warn(localize("FURU-SC.NOTIFICATIONS.TAG_EXISTS"));
-                    return;
-                }
-                currentTags[tag] = 1;
+                const newTag = await TagsData.tryAddTag(currentTags);
+                if(!newTag) return;
+                currentTags[newTag] = 1;
                 this.object.setFlag(MODULE, "craftTags", currentTags);
-                this.render()
-                break;
-            case "reload-window":
-                delete this["searchQuery"];
                 this.render()
                 break;
             case "remove-tag":
@@ -152,29 +94,36 @@ export class CraftTagsEditor extends FormApplication {
         }
     }
 
-    /*
-    * Updates the tag if it's value changed on de-focus.
-    * Updates the searchQuery on de-focus from search input.
-    */
+    /**
+     * Update an object with the provided form data.
+     *
+     * @param {Event} event - the event object
+     * @param {Object} formData - the form data to update the object with
+     * @return {void}
+     */
     async _updateObject(event, formData) {
-        // Set tags
-        let currentTags = this.object.getFlag(MODULE, "craftTags");
-        const value = this.tagChangeValue;
-        const selectedTag = this.tagToChangeOnUpdate;
-        if (value !== selectedTag) {
-            if (currentTags[value]) {
-                await this.render();
-                return;
-            }
-            Object.defineProperty(currentTags, value, Object.getOwnPropertyDescriptor(currentTags, selectedTag));
-            delete currentTags[selectedTag];
-            await this.object.unsetFlag(MODULE, "craftTags");
-            await this.object.setFlag(MODULE, "craftTags", currentTags);
+        const expandedData = foundry.utils.expandObject(formData);
+        const searchQuery = expandedData.searchQuery;
+        delete expandedData.searchQuery;
+        // If we are performing search we don't need to update tags.
+        if (this.searchQuery !== searchQuery) {
+            this.searchQuery = searchQuery;
+            this.render();
+            return;
         }
-        // Set search query
-        const searchInput = document.getElementById('sc-search-tags');
-        this.searchQuery = searchInput.value;
-        await this.render();
+
+        const updateObject = await TagsData.tryReformatTagsData(expandedData.tags);
+        if (!updateObject) {
+            this.render();
+            return;
+        }
+
+        await this.object.unsetFlag(MODULE, "craftTags");
+        await this.object.setFlag(MODULE, "craftTags", updateObject);
+
+        // Clear the search query if we updated tags, to correctly show them all
+        this.searchQuery = '';
+        this.render();
     }
 
     /**
@@ -184,18 +133,19 @@ export class CraftTagsEditor extends FormApplication {
         let tags = checkTagsPresence(this.object) ? this.object.getFlag(MODULE, "craftTags") : {};
         let tagObjectArray = [];
         let tagObjectArrayVisible = [];
-        //TagData creation here also handle's the search
+        //TagUiData creation here also handle's the search
         for (const [key, value] of Object.entries(tags)) {
-            const tagObject = new TagData(key, value, this.searchQuery);
+            const tagObject = new TagUiData(key, value, this.searchQuery);
             tagObjectArray.push(tagObject);
             if (!tagObject.visible)
                 continue;
+            tagObject.visible = true;
             tagObjectArrayVisible.push(tagObject);
         }
         return {
             searchQuery: this.searchQuery ?? "",
             item: this.object,
-            tags: tagObjectArrayVisible.length ? tagObjectArrayVisible : tagObjectArray
+            tags: tagObjectArrayVisible.length ? tagObjectArray : tagObjectArrayVisible
         }
     }
 }

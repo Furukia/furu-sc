@@ -12,3 +12,4 @@ export const CRAFT_MENU_ID = `${MODULE}-craft-menu`;
 export const CRAFT_TABLE_ID = `${MODULE}-craft-table`;
 export const QUANTITY_CONFIG_ID = `${MODULE}-quantity-config`;
 export const CRAFT_TAGS_EDITOR_ID = `${MODULE}-craft-tags-editor`;
+export const SPECIAL_SYMBOLS_REGEX = /[\\\/ .,:*?"<>|+\-\%!@]/gi;

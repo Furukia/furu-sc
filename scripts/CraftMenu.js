@@ -1,7 +1,7 @@
 
 
 import { MODULE, CRAFT_MENU_TEMPLATE, CRAFT_MENU_ID } from "./const.js"; //import the const variables
-import { CraftingTableData, RecipeData } from "./crafting.js";
+import { CraftingTableData, RecipeData, TagsData } from "./crafting.js";
 import { checkEditRights, getCorrectQuantityPathForItem, getFullFilePath, localize } from "./helpers.js";
 import { socketSaveFile } from "./sockets.js";
 export class CraftMenu extends FormApplication {
@@ -15,7 +15,7 @@ export class CraftMenu extends FormApplication {
         super.activateListeners(html);
         html.on('click', "[data-select]", this._handleSelectClick.bind(this));
         html.on('click', "[data-action]", this._handleButtonClick.bind(this));
-        html.on('keydown', "[data-input]", this._handleInputEnter.bind(this));
+        html.on('keydown', "input", this._handleInputEnter.bind(this));
     }
 
     /**
@@ -71,7 +71,7 @@ export class CraftMenu extends FormApplication {
         }
         this.craftMenu = new CraftMenu(data);
         this.craftMenu.fileInfo = fileInfo;
-        this.craftMenu.searchQuery = null;
+        this.craftMenu.searchQuery = '';
     }
 
     /**
@@ -86,71 +86,70 @@ export class CraftMenu extends FormApplication {
         if (event?.target?.tagName?.toLowerCase() === "select") return;
 
         const expandedData = foundry.utils.expandObject(formData);
-        const searchInput = document.getElementById('sc-search');
+        const searchQuery = expandedData.searchQuery;
+        delete expandedData.searchQuery;
+
         // Handle search
-        if (this.searchQuery !== searchInput.value)
-            await RecipeData.searchRecipe(searchInput.value);
-        await RecipeData.updateRecipes(expandedData);
+        if (this.searchQuery !== searchQuery) {
+            await RecipeData.searchRecipe(searchQuery);
+            await this.render();
+            return;
+        }
+        //Handle other fields
+        const recipeIds = Object.keys(expandedData);
+        const updateData = {};
+        for (const recipeId of recipeIds) {
+            let recipeData = expandedData[recipeId];
+            updateData[recipeId] = {
+                name: recipeData.name,
+                type: recipeData.type
+            };
+            // Handle tags
+            if (recipeData.tags) {
+                const finalTags = await TagsData.tryReformatTagsData(recipeData.tags);
+                if (!finalTags) {
+                    this.render();
+                    return;
+                }
+                this.object[recipeId].tags = finalTags;
+            }
+            // Handle target quantity
+            if (recipeData.target?.quantity) {
+                updateData[recipeId].target = {
+                    ...this.object[recipeId].target
+                };
+                const type = updateData[recipeId].target?.type;
+                const path = getCorrectQuantityPathForItem(type).path;
+                foundry.utils.setProperty(updateData[recipeId].target, path, recipeData.target.quantity);
+            }
+            // Handle ingredients quantities
+            if (recipeData.ingredients) {
+                const ingredientsKeys = Object.keys(recipeData.ingredients);
+                updateData[recipeId].ingredients = {
+                    ...this.object[recipeId].ingredients
+                }
+                for (const ingredientId of ingredientsKeys) {
+                    if (recipeData.ingredients[ingredientId]?.quantity) {
+                        const type = updateData[recipeId].ingredients[ingredientId].type;
+                        const path = getCorrectQuantityPathForItem(type).path;
+                        foundry.utils.setProperty(updateData[recipeId].ingredients[ingredientId], path, recipeData.ingredients[ingredientId].quantity);
+                    }
+                }
+            }
+        }
+        await RecipeData.updateRecipes(updateData);
         await this.render();
     }
 
     /**
-     * Handles the event when the Enter key is pressed in the input field.
+     * Submits the form when the Enter key is pressed in the input field.
      *
-     * @param {Event} event - The event object representing the key press event.
+     * @param {Event} event - The event object with the key press event.
      */
     async _handleInputEnter(event) {
         if (event.key !== "Enter") return;
-        const input = event.currentTarget;
-        const action = input.dataset.input;
-        const value = input.value;
-        const recipeID = $(input).parents('[data-recipe-id]').data('recipeId');
-        const selectedTag = $(input).parents('[data-tag]')?.data()?.tag;
-        const allowedActions = [
-            "search-recipe"
-        ];
-        if (!allowedActions.includes(action)) {
-            if (!checkEditRights()) {
-                ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.NO_RIGHTS"));;
-                return;
-            }
-        }
-        switch (action) {
-            case 'search-recipe':
-                await RecipeData.searchRecipe(value);
-                this.render();
-                break;
-            case `change-quantity-target`:
-                if (isNaN(value)) {
-                    ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.INVALID_NUMBER"));
-                    return;
-                }
-                RecipeData.ProcessQuantity(recipeID, value, { rewrite: true, isTarget: true });
-                break;
-            case 'change-quantity':
-                const itemID = $(input).parents('[data-item-id]').data('itemId');
-                if (isNaN(value)) {
-                    ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.INVALID_NUMBER"));
-                    return;
-                }
-                RecipeData.ProcessQuantity(recipeID, value, { originalItemId: itemID, rewrite: true, isTarget: false });
-                break;
-            case "change-tag":
-                if (!selectedTag) return;
-                RecipeData.changeTag(recipeID, selectedTag, value);
-                break;
-            case "change-tag-quantity":
-                if (isNaN(value)) {
-                    ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.INVALID_NUMBER"));
-                    return;
-                }
-                if (!selectedTag) return;
-                RecipeData.changeTagQuantity(recipeID, selectedTag, { quantity: value, overwrite: true });
-                break;
-            default:
-                console.warn(`${MODULE} | Invalid action detected:`, { action, value });
-                break;
-        }
+        this.submit();
+        return;
     }
 
     /**
@@ -280,6 +279,11 @@ export class CraftMenu extends FormApplication {
                         ui.notifications.warn(localize("FURU-SC.NOTIFICATIONS.NO_INGREDIENTS"));
                         return;
                     }
+                if (this.object[recipeID].type === "tags")
+                    if (!this.object[recipeID].tags || Object.keys(this.object[recipeID].tags).length === 0) {
+                        ui.notifications.warn(localize("FURU-SC.NOTIFICATIONS.NO_TAGS"));
+                        return;
+                    }
                 if (!this.object[recipeID].target) {
                     ui.notifications.warn(localize("FURU-SC.NOTIFICATIONS.NO_TARGET"));
                     return;
@@ -338,16 +342,9 @@ export class CraftMenu extends FormApplication {
                 ui.notifications.notify(localize("FURU-SC.NOTIFICATIONS.FILE_RELOADED"));
                 break;
             case "add-tag":
-                let tag = await Dialog.prompt({
-                    title: localize("FURU-SC.DIALOGS.TAG_CREATION.title"),
-                    content: `<label for="nameInput">${localize("FURU-SC.DIALOGS.TAG_CREATION.content")}</label>
-                <input name="nameInput" type="text" 
-                style="margin-top:6px; margin-bottom:6px;" 
-                placeholder="${localize("FURU-SC.DIALOGS.TAG_CREATION.placeholder")}">`,
-                    callback: (html) => html.find('input').val()
-                });
-                if (!tag) return;
-                await RecipeData.addTag(recipeID, tag);
+                const newTag = await TagsData.tryAddTag(this.object[recipeID].tags);
+                if (!newTag) return;
+                await RecipeData.addRecipeTag(recipeID, newTag);
                 this.render();
                 break;
             case "remove-tag":

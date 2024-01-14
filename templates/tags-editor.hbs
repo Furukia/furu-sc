@@ -3,7 +3,8 @@
         <div class="sc-search-tags">
             <p>{{localize "FURU-SC.TAGS_EDITOR_UI.SEARCH_TAGS"}}</p>
             <input type="search" title="{{localize "FURU-SC.TAGS_EDITOR_UI.TOOLTIPS.SEARCH_TAGS"}}" id="sc-search-tags"
-                class="sc-br-none" data-input="search-tags" 
+                name="searchQuery"
+                class="sc-br-none"
                 placeholder="{{localize "FURU-SC.TAGS_EDITOR_UI.SEARCH_PLACEHOLDER"}}" 
                 value="{{searchQuery}}" />
         </div>        
@@ -11,12 +12,6 @@
             <button type="button" title="{{localize "FURU-SC.TAGS_EDITOR_UI.TOOLTIPS.CLEAR_TAGS"}}" 
             class="sc-br-none sc-br-rad10" data-action="clear-tags">
                 <i class="fas fa-eraser"></i>
-            </button>
-        </div>
-        <div class="sc-tags-button">
-            <button type="button" title="{{localize "FURU-SC.TAGS_EDITOR_UI.TOOLTIPS.RELOAD_WINDOW"}}" 
-            class="sc-br-none sc-br-rad10" data-action="reload-window">
-                <i class="fas fa-rotate"></i>
             </button>
         </div>
         <div class="sc-tags-button">
@@ -36,10 +31,12 @@
             {{#if this.visible}}
             <div class="sc-tag-editor-tags-container sc-br-none sc-tag-corners-cut" data-tag="{{this.tag}}">
                 <input type="text" title="{{localize "FURU-SC.TAGS_EDITOR_UI.TOOLTIPS.TAG_QUANTITY"}}" 
-                class="sc-tag-editor-tag-quantity sc-br-none sc-br-rad0 sc-br-bl-rad15 
-                    sc-br-tl-rad15 sc-br-left sc-br-top sc-br-bottom" 
-                    data-input="change-tag-quantity" value="{{this.quantity}}" />
-                <input type="text" title="{{localize "FURU-SC.TAGS_EDITOR_UI.TOOLTIPS.CHANGE_TAG"}}" data-input="change-tag"
+                    name="tags.{{this.tag}}.quantity"
+                    class="sc-tag-editor-tag-quantity sc-br-none sc-br-rad0 sc-br-bl-rad15 
+                    sc-br-tl-rad15 sc-br-left sc-br-top sc-br-bottom"
+                    value="{{this.quantity}}" />
+                <input type="text" title="{{localize "FURU-SC.TAGS_EDITOR_UI.TOOLTIPS.CHANGE_TAG"}}" 
+                    name="tags.{{this.tag}}.tag"
                     class="sc-tag-editor-tag sc-br-none sc-br-rad0 sc-br-left sc-br-top sc-br-bottom"
                     value="{{this.tag}}" />
                 <button type="button" title="{{localize "FURU-SC.TAGS_EDITOR_UI.TOOLTIPS.REMOVE_TAG"}}"
@@ -50,6 +47,10 @@
             {{/if}}
             {{/each}}
         </div>
+        {{else}}
+        <ul style="display: contents; list-style-type: none;">
+            <li class="notification info">{{localize "FURU-SC.TAGS_EDITOR_UI.NOTIFICATIONS.NO_TAGS"}}</li>
+        </ul>
         {{/if}}
     </div>
 </form>

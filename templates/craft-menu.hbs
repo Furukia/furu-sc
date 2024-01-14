@@ -13,8 +13,9 @@
         <div class="sc-control-container">
             <div class="sc-search-recipe">
                 <p>{{localize "FURU-SC.CRAFT_MENU_UI.SEARCH_RECIPES"}}</p>
-                <input type="search" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.SEARCH"}}" id="sc-search"
-                    class="sc-br-none" data-input="search-recipe" 
+                <input type="search" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.SEARCH"}}" 
+                    name="searchQuery"
+                    class="sc-br-none"
                     placeholder="{{localize "FURU-SC.CRAFT_MENU_UI.SEARCH_PLACEHOLDER"}}" value="{{searchQuery}}" />
             </div>
             <div class="sc-select-recipe-file">
@@ -137,7 +138,7 @@
                             </button>
                             {{/if}}
                             <input type="text" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.ITEM_QUANTITY"}}"
-                                data-input="change-quantity-target"
+                                name="{{id}}.target.quantity"
                                 class="sc-quantity-input sc-br-none sc-br-rad0 {{#if (checkEditRights)}}sc-br-left sc-br-right{{/if}}"
                                 {{#if (noEditRights)}}readonly{{/if}} value="{{getCorrectQuantityValue target}}" />
                             {{#if (checkEditRights)}}
@@ -189,7 +190,8 @@
                                 </button>
                                 {{/if}}
                                 <input type="text" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.ITEM_QUANTITY"}}"
-                                    data-input="change-quantity" class="sc-quantity-input  sc-br-none sc-br-rad0 
+                                    name="{{../id}}.ingredients.{{@key}}.quantity"
+                                    class="sc-quantity-input  sc-br-none sc-br-rad0 
                                     {{#if (checkEditRights)}}sc-br-left sc-br-right{{/if}} 
                                     {{#if (noEditRights)}}sc-br-left sc-br-tr-rad12_5 sc-br-br-rad12_5{{/if}}" 
                                     {{#if (noEditRights)}}readonly{{/if}} value="{{getCorrectQuantityValue this}}" />
@@ -220,11 +222,14 @@
                         <div class="sc-required-tags">
                         {{#each tags}}
                             <div class="sc-tags-container sc-br-none sc-tag-corners-cut" data-tag="{{@key}}">
-                                <input type="text" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.TAG_QUANTITY"}}" 
-                                class="sc-tag-quantity sc-br-none sc-br-rad0 sc-br-bl-rad15 
+                                <input type="text" 
+                                    name="{{../id}}.tags.{{@key}}.quantity"
+                                    title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.TAG_QUANTITY"}}" 
+                                    class="sc-tag-quantity sc-br-none sc-br-rad0 sc-br-bl-rad15 
                                     sc-br-tl-rad15 sc-br-left sc-br-top sc-br-bottom"{{#if (noEditRights)}}readonly{{/if}}
-                                    data-input="change-tag-quantity" value="{{this}}" />
-                                <input type="text" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.CHANGE_TAG"}}" data-input="change-tag"
+                                    value="{{this}}" />
+                                <input type="text" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.CHANGE_TAG"}}" 
+                                    name="{{../id}}.tags.{{@key}}.tag"
                                     class="sc-tag sc-br-none sc-br-rad0 sc-br-left sc-br-top sc-br-bottom" {{#if (noEditRights)}}readonly{{/if}}
                                     value="{{@key}}" />
                                 <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.REMOVE_TAG"}}"
