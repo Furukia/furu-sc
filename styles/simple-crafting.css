@@ -636,7 +636,7 @@
 .sc-tag-editor-main-block {
   background: var(--sc-color-main-light);
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: wrap;
   margin-left: 10px;
   margin-right: 10px;
@@ -649,7 +649,7 @@
   background: var(--sc-color-main-light);
   margin: 0px;
   position: relative;
-  bottom: 12.5px;
+  bottom: 13px;
   margin-left: 75px !important;
   margin-right: 75px !important;
   color: black;
@@ -676,8 +676,10 @@
 }
 
 .sc-tag,
-.sc-tag-quantity {
-  height: 100% !important;
+.sc-tag-quantity,
+.sc-tag-editor-tag,
+.sc-tag-editor-tag-quantity {
+  height: 28px !important;
 }
 
 .sc-tag,
