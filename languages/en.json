@@ -69,12 +69,19 @@
       "TOOLTIPS": {
         "SELECT_ACTOR": "Select an actor that crafts this item",
         "RELOAD_CRAFT_TABLE": "Reload craft table",
-        "CRAFT_ITEM": "Craft item"
+        "CRAFT_ITEM": "Craft item",
+        "EXPAND_ITEM": "Expand item info",
+        "ITEM_NAME": "Item's name",
+        "TAG_QUANTITY": "Quantity for this tag",
+        "SUBSTRACT_QUANTITY": "Substract quantity",
+        "ITEM_QUANTITY": "Quantity of that item to use in crafting",
+        "ADD_QUANTITY": "Add quantity"
       },
       "ACTOR_SELECTION": "Actor selection:",
       "QUANTITY": "Quantity:",
       "REQUIRED_INGREDIENTS": "Required ingredients:",
-      "REQUIRED": "Required:"
+      "REQUIRED": "Required:",
+      "SUITABLE_INGREDIENTS": "Suitable ingredients:"
     },
     "QUANTITY_CONFIG_TITLE": "Quantity path config",
     "QUANTITY_CONFIG_UI": {
@@ -115,7 +122,10 @@
       "INVALID_MESSAGE": "Invalid message!",
       "TAG_EXISTS": "This tag is already assigned!",
       "NO_TAGS": "This recipe has no tags assigned! Please add some tags before crafting.",
-      "SPECIAL_SYMBOLS": "Don't use any special symbols in this input field!"
+      "SPECIAL_SYMBOLS": "Don't use any special symbols in this input field!",
+      "INSUFFICIENT_ITEM_QUANTITY": "You already selected the maximum possible amount of this item!",
+      "ENOUGH_TAGS": "You already provided enough tags to craft an item!",
+      "NOT_ENOUGH_TAGS": "You don't have enough tags to craft this item!"
     },
     "NEW_RECIPE": "New recipe",
     "DEFAULT_DESCRIPTION": "Fill me in!",

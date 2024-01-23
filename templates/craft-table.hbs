@@ -1,5 +1,4 @@
 <form>
-
     <div class="sc-control-container">
         <div class="sc-select-actor">
             <p>{{localize "FURU-SC.CRAFT_TABLE_UI.ACTOR_SELECTION"}}</p>
@@ -44,7 +43,7 @@
                 {{/if}}
                 {{!--Items craft button--}}
                 {{#if (equals recipe.type "items")}}
-                {{#if (equals (getPercentForAllIngredients) 100)}}
+                {{#if (equals completionPercent 100)}}
                 <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
                     class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="craft-item">
                     <i class="fas fa-hammer-crash"></i>
@@ -57,10 +56,24 @@
                 {{/if}}
                 {{/if}}
                 {{!--Tags craft button--}}
+                {{#if (equals recipe.type "tags")}}
+                {{#if (equals completionPercent 100)}}
+                <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                    class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="craft-item">
+                    <i class="fas fa-hammer-crash"></i>
+                </button>
+                {{else}}
+                <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                    class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="not-enough-tags">
+                    <i class="fas fa-hammer-crash sc-disabled"></i>
+                </button>
+                {{/if}}
+                {{/if}}
             </div>
         </div>
+        {{!--Ingredients--}}
         {{#if (equals recipe.type "items")}}
-        {{#if (equals (getPercentForAllIngredients) 100)}}
+        {{#if (equals completionPercent 100)}}
         {{else}}
         <p class="sc-table-header2 sc-br-full sc-br-tr-rad15 sc-br-tl-rad15">
             {{localize "FURU-SC.CRAFT_TABLE_UI.REQUIRED_INGREDIENTS"}}
@@ -97,7 +110,72 @@
         </div>
         {{/if}}
         <div class="sc-loading-bar sc-br-full sc-br-rad15">
-            <div class="sc-loading-bar-fill sc-br-rad15" style="width: {{getPercentForAllIngredients}}%;"></div>
+            <div class="sc-loading-bar-fill sc-br-rad15" style="width: {{completionPercent}}%;"></div>
+        </div>
+        {{/if}}
+        {{!--Tags--}}
+        {{#if (equals recipe.type "tags")}}
+        <p class="sc-table-header2 sc-br-full sc-br-tr-rad15 sc-br-tl-rad15">
+            {{localize "FURU-SC.CRAFT_TABLE_UI.SUITABLE_INGREDIENTS"}}
+        </p>
+        <div class="sc-table-tags-container sc-br-rad15 sc-br-full">
+            <div class="sc-table-tags-block">
+                {{!-- When we work with tags we are using ingredients differently --}}
+                {{!-- each "ingredient" is an object, with 3 properties --}}
+                {{!-- selected: Bool, consumeQuantity: Number, ingredient: Object --}}
+                    {{!--TODO: WIP--}}
+                {{#each ingredients}}
+                <div class="sc-table-recipe-card {{#if selected}}sc-selected{{/if}} sc-br-full sc-br-rad15"
+                data-ingredient-id="{{@key}}">
+                    <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.EXPAND_ITEM"}}" 
+                        class="sc-table-button sc-br-none sc-br-tl-rad12_5 sc-br-bl-rad12_5 sc-br-right"
+                        data-action="select-item">
+                        <i class="fas {{#if selected}}fa-caret-down{{else}}fa-caret-right{{/if}} "></i>
+                    </button>
+                    <div class="sc-table-dynamic-bg-image sc-br-none sc-br-right" 
+                    style="background-image:url({{this.ingredient.img}});"></div>
+                    <input type="text" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.ITEM_NAME"}}"
+                        class="sc-table-tag-item-name sc-br-none sc-br-right"
+                        readonly
+                        value="{{this.ingredient.name}}" />
+                    <div class="sc-table-dynamic-tag-container sc-br-right">
+                        {{#each this.ingredient.flags.furu-sc.craftTags}}
+                            <div class="sc-table-item-tags-container sc-br-none sc-tag-corners-cut" data-tag="{{@key}}">
+                            <input type="text" 
+                                title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.TAG_QUANTITY"}}"
+                                class="sc-tag-quantity sc-br-none sc-br-rad0 sc-br-bl-rad15 
+                                sc-br-tl-rad15 sc-br-left sc-br-top sc-br-bottom" 
+                                readonly
+                                value="{{this}}" />
+                            <input type="text"
+                                class="sc-tag sc-br-none sc-br-rad0 sc-br-left sc-br-top sc-br-bottom" readonly
+                                value="{{@key}}" />
+                            <p class="sc-tag-remove-button sc-br-none sc-br-rad0 sc-br-left" style="min-width: 64px;">
+                            </p>
+                        </div>
+                        {{/each}}
+                    </div>
+                    <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.SUBSTRACT_QUANTITY"}}" 
+                        class="sc-table-quantity-button sc-br-none sc-br-right sc-br-rad0"
+                        data-action="substract-quantity-tagItem">
+                        <i class="fas fa-angle-left "></i>
+                    </button>
+                    <input type="text" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.ITEM_QUANTITY"}}"
+                        name="{{@key}}.consumeQuantity"
+                        class="sc-table-tag-quantity sc-br-none sc-br-br-rad12_5 sc-br-tr-rad12_5"
+                        {{#if (equals ../completionPercent 100)}}readonly{{/if}}
+                        value="{{this.consumeQuantity}}" />
+                    <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.ADD_QUANTITY"}}"
+                        class="sc-table-quantity-button sc-br-none sc-br-left sc-br-rad0 sc-br-br-rad12_5 sc-br-tr-rad12_5"
+                        data-action="{{#if (equals ../completionPercent 100)}}enough-tags{{else}}add-quantity-tagItem{{/if}}">
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+        <div class="sc-loading-bar sc-br-full sc-br-rad15">
+            <div class="sc-loading-bar-fill sc-br-rad15" style="width: {{completionPercent}}%;"></div>
         </div>
         {{/if}}
     </div>

@@ -155,7 +155,7 @@
   overflow-y: hidden;
   overflow-x: scroll;
   text-align: center;
-  font-size: large; 
+  font-size: large;
 }
 
 .sc-recipe-card .sc-edit-buttons {
@@ -558,7 +558,6 @@
   margin: 0px;
   font-size: 1rem;
   text-overflow: clip;
-  max-width: 300px;
   height: 31px;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -585,7 +584,8 @@
   margin-right: 75px !important;
 }
 
-.sc-table-ingredients-container {
+.sc-table-ingredients-container,
+.sc-table-tags-container {
   background-color: var(--sc-color-main-dark-opaque);
   padding-left: 10px;
   padding-right: 5px;
@@ -614,9 +614,30 @@
 .sc-table-ingredients-name {
   height: 100%;
   text-overflow: ellipsis;
+  overflow-wrap: break-word;
   overflow-x: hidden;
   overflow-y: scroll;
   max-height: 36px;
+}
+
+input.sc-table-tag-item-name {
+  background-color: var(--sc-color-main-light);
+  text-overflow: ellipsis;
+  text-align: center;
+  font-size: 1.2rem;
+  overflow-wrap: break-word;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  min-width: 100px;
+  width: 400px;
+  height: auto;
+}
+
+.sc-table-recipe-card.sc-selected .sc-table-tag-item-name {
+  max-height: 100%;
+  font-size: 1rem;
+  width: 100px;
+  overflow-y: scroll;
 }
 
 .sc-table-required-text {
@@ -625,8 +646,87 @@
   overflow-wrap: break-word;
 }
 
-.sc-craft-tags-button-active {
-  color: var(--sc-color-green);
+.sc-table-tags-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  max-height: 230px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  padding: 10px;
+  transition: 0.3s;
+}
+
+.sc-table-recipe-card {
+  display: flex;
+  flex-direction: row;
+  position: sticky;
+  background: var(--sc-color-secondary-dark);
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+
+.sc-table-dynamic-bg-image {
+  background-color: var(--sc-color-main-light);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  min-width: 32px;
+  width: 32px;
+  height: auto;
+  transition: 0.1s;
+}
+
+.sc-table-recipe-card.sc-selected .sc-table-dynamic-bg-image {
+  width: 64px;
+  background-size: contain;
+}
+
+.sc-table-dynamic-tag-container {
+  background: var(--sc-color-main-light);
+  display: none;
+  width: 250px;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.sc-table-recipe-card.sc-selected .sc-table-dynamic-tag-container {
+  display: inline-block;
+  overflow-y: scroll;
+  height: 100px;
+}
+
+.sc-table-tag-quantity {
+  background-color: var(--sc-color-main-light) !important;
+  text-align: center !important;
+  font-size: 1.2rem !important;
+  width: 32px !important;
+  flex: auto;
+  height: auto !important;
+}
+
+.sc-table-recipe-card.sc-selected .sc-table-tag-quantity {
+  border-radius: 0px !important;
+}
+
+.sc-table-button {
+  width: 32px;
+}
+
+.sc-table-button > i {
+  margin-top: 3px !important;
+  margin-right: 3px !important;
+}
+
+.sc-table-quantity-button {
+  width: 32px;
+  display: none;
+}
+
+.sc-table-recipe-card.sc-selected .sc-table-quantity-button {
+  display: inline-block;
 }
 
 .sc-tag-corners-cut {
@@ -657,7 +757,8 @@
 }
 
 .sc-tags-container,
-.sc-tag-editor-tags-container {
+.sc-tag-editor-tags-container,
+.sc-table-item-tags-container {
   display: flex;
   max-width: fit-content;
   color: black;

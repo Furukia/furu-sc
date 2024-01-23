@@ -1,5 +1,8 @@
 import { MODULE, MODULE_NAME } from "./const.js"; //import the const variables
-import { checkEditRights, checkTagsPresence, createFolderIfMissing, getCorrectQuantityPathForItem, getPercentForAllIngredients, localize } from "./helpers.js";
+import { checkEditRights, checkTagsPresence, 
+  createFolderIfMissing, getCorrectQuantityPathForItem, 
+  getPercentForAllIngredients, getPercentForAllTags, 
+  localize } from "./helpers.js";
 import { RegisterSettings, ValidateSettings } from "./settings.js";
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";
@@ -108,7 +111,7 @@ Handlebars.registerHelper('getCorrectQuantityValue', function (item) {
 Handlebars.registerHelper('getPercentForItem', function (ingredientInfo) {
   return ((ingredientInfo.currentReqQuantity + ingredientInfo.modifier) / ingredientInfo.requiredQuantity) * 100;
 });
-Handlebars.registerHelper('getPercentForAllIngredients', getPercentForAllIngredients);
+
 Handlebars.registerHelper('checkEditRights', checkEditRights);
 Handlebars.registerHelper('noEditRights', function () {
   return !checkEditRights();

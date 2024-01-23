@@ -503,6 +503,15 @@ export class CraftingTableData {
                 CraftTable.craftTable.ingredients = await this.getIngredientInfo(recipe.ingredients);
                 await CraftingTableData.checkIngredients();
                 break;
+            case "tags":
+                options = {
+                    height: 520
+                }
+                // Create a copy from the recipe tags, to track if the actor has enough to craft with.
+                CraftTable.craftTable.tags = foundry.utils.duplicate(recipe.tags);
+                // Check actors items and make a list of items that have at least one of the necessary tags
+                await CraftingTableData.checkTags();
+                break;
             default:
                 options = {
                     height: 700
@@ -576,7 +585,6 @@ export class CraftingTableData {
         const ingredientsInfo = CraftTable.craftTable.ingredients;
         const selectedActor = CraftTable.craftTable.userActorsData.selectedActor;
         const actorItems = selectedActor.items;
-        // Why change "length" to "size" foundry...
         if (!actorItems.size) {
             ui.notifications.error(`"${selectedActor.name}" - ${localize("FURU-SC.NOTIFICATIONS.ACTOR_NO_ITEMS")}`);
             return;
@@ -604,6 +612,53 @@ export class CraftingTableData {
         })
     }
 
+    /**
+     * Check if the selected actor has the required tags for crafting,
+     * and update the craft table accordingly.
+     *
+     * @return {void} 
+     */
+    static async checkTags() {
+        const tags = CraftTable.craftTable.tags;
+        const tagKeys = Object.keys(tags);
+        const selectedActor = CraftTable.craftTable.userActorsData.selectedActor;
+        const actorItems = selectedActor.items;
+        console.log(selectedActor, actorItems);
+
+        if (!actorItems.size) {
+            ui.notifications.error(`"${selectedActor.name}" - ${localize("FURU-SC.NOTIFICATIONS.ACTOR_NO_ITEMS")}`);
+            return;
+        }
+
+        const tagInstanceCount = {};
+        const suitableIngredients = {};
+        for (const item of actorItems) {
+            const itemTags = item.getFlag(MODULE, "craftTags");
+            if (!itemTags) {
+                continue;
+            }
+            const itemTagsKeys = Object.keys(itemTags);
+
+            if (tagKeys.some(tag => itemTagsKeys.includes(tag))) {
+                suitableIngredients[item.id] = {
+                    selected: false,
+                    consumeQuantity: 0,
+                    ingredient: item
+                };
+            }
+
+            for (const tag of tagKeys) {
+                const currentTagQuantity = itemTags[tag];
+                if (!currentTagQuantity) continue;
+                tagInstanceCount[tag] = (tagInstanceCount[tag] || 0) + currentTagQuantity;
+            }
+        }
+
+        const isEnoughTags = tagKeys.every(tag => tagInstanceCount[tag] >= tags[tag]);
+
+        CraftTable.craftTable.isEnoughTags = isEnoughTags;
+        CraftTable.craftTable.ingredients = suitableIngredients;
+    }
 
     /**
      * Crafts an item based on the selected actor and recipe.

@@ -143,3 +143,55 @@ export function checkTagsPresence(item) {
 export function checkTagVisibility(tag, query) {
     return query ? tag.toLowerCase().includes(query.toLowerCase()) : true;
 }
+
+/**
+ * Calculate the percentage of available tags compared to required tags.
+ *
+ * @return {number} The percentage of available tags compared to required tags
+ */
+export function getPercentForAllTags() {
+    const ingredientsInfo = CraftTable.craftTable.ingredients;
+    const requiredTags = CraftTable.craftTable.tags;
+    if (!requiredTags || !ingredientsInfo) return;
+    let tagQuantity = {};
+
+    Object.keys(ingredientsInfo).forEach(function (key) {
+        const ingredient = ingredientsInfo[key].ingredient;
+        const consumeQuantity = ingredientsInfo[key].consumeQuantity;
+        const tags = ingredient.getFlag(MODULE, "craftTags");
+        if (!tags) return;
+        for (let i = 0; i < consumeQuantity; i++) {
+            Object.keys(tags).forEach(function (key) {
+                const quantity = tags[key];
+                const currentQuantity = tagQuantity[key] ?? 0;
+                tagQuantity[key] = currentQuantity + quantity;
+            })
+        }
+    });
+    let maxQuantity = 0;
+    let remainder = 0;
+
+    Object.keys(requiredTags).forEach(function (key) {
+        const requiredQuantity = requiredTags[key];
+        const quantity = tagQuantity[key] ?? 0;
+        maxQuantity += requiredQuantity;
+        remainder += Math.max(0, requiredQuantity - quantity);
+    })
+    return ((maxQuantity - remainder) / maxQuantity) * 100
+}
+
+/**
+ * Checks if the given quantity is less than or equal to the current quantity for the specified item type.
+ *
+ * @param {Object} item - The item object to check the quantity for
+ * @param {number} quantity - The quantity to compare
+ * @return {boolean} Returns true if the quantity is less than or equal to the current quantity, otherwise false
+ */
+export function checkQuantity(item, quantity) {
+    if (!item) return false;
+    if (!quantity) return false;
+    const pathObject = getCorrectQuantityPathForItem(item.type);
+    let currentQuantity = foundry.utils.getProperty(item, pathObject.path);
+    if(!currentQuantity) currentQuantity = 1;
+    return quantity <= currentQuantity
+}
