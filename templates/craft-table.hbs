@@ -115,6 +115,7 @@
         {{/if}}
         {{!--Tags--}}
         {{#if (equals recipe.type "tags")}}
+        {{#if isEnoughTags}}
         <p class="sc-table-header2 sc-br-full sc-br-tr-rad15 sc-br-tl-rad15">
             {{localize "FURU-SC.CRAFT_TABLE_UI.SUITABLE_INGREDIENTS"}}
         </p>
@@ -177,6 +178,11 @@
         <div class="sc-loading-bar sc-br-full sc-br-rad15">
             <div class="sc-loading-bar-fill sc-br-rad15" style="width: {{completionPercent}}%;"></div>
         </div>
+        {{else}}
+        <ul style="display: contents; list-style-type: none;">
+            <li class="notification warning">{{localize "FURU-SC.CRAFT_TABLE_UI.NOTIFICATIONS.NOT_ENOUGH_ITEMS_WITH_TAGS"}}</li>
+        </ul>
+        {{/if}}
         {{/if}}
     </div>
 </form>

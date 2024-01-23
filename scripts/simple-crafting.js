@@ -1,8 +1,10 @@
 import { MODULE, MODULE_NAME } from "./const.js"; //import the const variables
-import { checkEditRights, checkTagsPresence, 
-  createFolderIfMissing, getCorrectQuantityPathForItem, 
-  getPercentForAllIngredients, getPercentForAllTags, 
-  localize } from "./helpers.js";
+import {
+  checkEditRights, checkTagsPresence,
+  createFolderIfMissing, getCorrectQuantityPathForItem,
+  getPercentForAllIngredients, getPercentForAllTags,
+  localize
+} from "./helpers.js";
 import { RegisterSettings, ValidateSettings } from "./settings.js";
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";
@@ -56,19 +58,12 @@ Hooks.on('getSceneControlButtons', addButton);
 
 
 Hooks.on(`getItemSheetHeaderButtons`, function (app, buttons) {
-  // If user can edit
-  if (!checkEditRights()) return;
-
   // If app has document
   if (!app?.document) return;
-
   const appsItem = app.document;
-
-  let hasTags = checkTagsPresence(appsItem);
-
   buttons.unshift({
-    label: localize("FURU-SC.CRAFT_TAGS"),
-    class: `sc-craft-tags-button${hasTags ? '-active' : ''}`,
+    label: game.settings.get(MODULE, 'hideLabel') ? '' : localize("FURU-SC.CRAFT_TAGS"),
+    class: `sc-craft-tags-header-button`,
     get icon() {
       return `fas fa-tags`;
     },
@@ -77,6 +72,20 @@ Hooks.on(`getItemSheetHeaderButtons`, function (app, buttons) {
     }
   });
 
+});
+
+
+Hooks.on(`renderItemSheet`, function (app, [elem], options) {
+  elem = elem.closest('.window-app');
+  if (!elem?.querySelector('.sc-craft-tags-header-button')) return;
+  // Get header Button
+  const tagsButton = elem.querySelector('.sc-craft-tags-header-button');
+  // Get tags
+  const tags = app.document.getFlag(MODULE, 'craftTags');
+  // Set color to green if tags exist
+  tagsButton.style.color = tags ? 'var(--sc-color-green)' : '';
+  // Change label if needed
+  tagsButton.innerHTML = `<i class="fas fa-tags"></i> ${game.settings.get(MODULE, 'hideLabel') ? '' : localize("FURU-SC.CRAFT_TAGS")}`;
 });
 
 /*

@@ -7,7 +7,8 @@
                 class="sc-br-none"
                 placeholder="{{localize "FURU-SC.TAGS_EDITOR_UI.SEARCH_PLACEHOLDER"}}" 
                 value="{{searchQuery}}" />
-        </div>        
+        </div>    
+        {{#if (checkEditRights)}}    
         <div class="sc-tags-button">
             <button type="button" title="{{localize "FURU-SC.TAGS_EDITOR_UI.TOOLTIPS.CLEAR_TAGS"}}" 
             class="sc-br-none sc-br-rad10" data-action="clear-tags">
@@ -20,6 +21,7 @@
                 <i class="fas fa-plus"></i>
             </button>
         </div>
+        {{/if}}
     </div>
     <div style="padding:10px;" class="sc-recipe-card sc-br-full sc-br-rad15">
         <p class="sc-tag-editor-item-name sc-br-full sc-br-br-rad15 sc-br-bl-rad15">
@@ -32,17 +34,23 @@
             <div class="sc-tag-editor-tags-container sc-br-none sc-tag-corners-cut" data-tag="{{this.tag}}">
                 <input type="text" title="{{localize "FURU-SC.TAGS_EDITOR_UI.TOOLTIPS.TAG_QUANTITY"}}" 
                     name="tags.{{this.tag}}.quantity"
+                    {{#if (noEditRights)}}readonly{{/if}}
                     class="sc-tag-editor-tag-quantity sc-br-none sc-br-rad0 sc-br-bl-rad15 
                     sc-br-tl-rad15 sc-br-left sc-br-top sc-br-bottom"
                     value="{{this.quantity}}" />
                 <input type="text" title="{{localize "FURU-SC.TAGS_EDITOR_UI.TOOLTIPS.CHANGE_TAG"}}" 
                     name="tags.{{this.tag}}.tag"
+                    {{#if (noEditRights)}}readonly{{/if}}
                     class="sc-tag-editor-tag sc-br-none sc-br-rad0 sc-br-left sc-br-top sc-br-bottom"
                     value="{{this.tag}}" />
+                {{#if (checkEditRights)}}
                 <button type="button" title="{{localize "FURU-SC.TAGS_EDITOR_UI.TOOLTIPS.REMOVE_TAG"}}"
                     class="sc-tag-editor-tag-remove-button sc-br-none sc-br-rad0 sc-br-left" data-action="remove-tag">
                     <i class="fas fa-xmark"></i>
                 </button>
+                {{else}}
+                <p class="sc-tag-remove-button sc-br-none sc-br-rad0 sc-br-left" style="min-width: 64px; margin: 0px;">
+                {{/if}}
             </div>
             {{/if}}
             {{/each}}

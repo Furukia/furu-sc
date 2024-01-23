@@ -20,6 +20,10 @@
       "QUANTITY": {
         "name": "System quantity path",
         "hint": "If the system provides an ability to track the quantity of an item, you can provide a path relative to an item, for that variable. \"Simple Crafting\" will use it instead of using it's own quantity system."
+      },
+      "HIDE_TAGS_LABEL":{
+        "name": "Hide tags label",
+        "hint": "Hides label of the tag editor header button in an item window."
       }
     },
     "CRAFT_MENU": "Craft menu",
@@ -66,6 +70,9 @@
     },
     "CRAFT_TABLE": "Craft table",
     "CRAFT_TABLE_UI": {
+      "NOTIFICATIONS": {
+        "NOT_ENOUGH_ITEMS_WITH_TAGS": "You don't have enough ingredients with required tags to craft this item!"
+      },
       "TOOLTIPS": {
         "SELECT_ACTOR": "Select an actor that crafts this item",
         "RELOAD_CRAFT_TABLE": "Reload craft table",
@@ -125,7 +132,8 @@
       "SPECIAL_SYMBOLS": "Don't use any special symbols in this input field!",
       "INSUFFICIENT_ITEM_QUANTITY": "You already selected the maximum possible amount of this item!",
       "ENOUGH_TAGS": "You already provided enough tags to craft an item!",
-      "NOT_ENOUGH_TAGS": "You don't have enough tags to craft this item!"
+      "NOT_ENOUGH_TAGS": "You don't have enough tags to craft this item!",
+      "INVALID_RECIPE_TYPE": "Invalid recipe type!"
     },
     "NEW_RECIPE": "New recipe",
     "DEFAULT_DESCRIPTION": "Fill me in!",

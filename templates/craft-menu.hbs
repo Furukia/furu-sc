@@ -226,16 +226,22 @@
                                     name="{{../id}}.tags.{{@key}}.quantity"
                                     title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.TAG_QUANTITY"}}" 
                                     class="sc-tag-quantity sc-br-none sc-br-rad0 sc-br-bl-rad15 
-                                    sc-br-tl-rad15 sc-br-left sc-br-top sc-br-bottom"{{#if (noEditRights)}}readonly{{/if}}
+                                    sc-br-tl-rad15 sc-br-left sc-br-top sc-br-bottom"
+                                    {{#if (noEditRights)}}readonly{{/if}}
                                     value="{{this}}" />
                                 <input type="text" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.CHANGE_TAG"}}" 
                                     name="{{../id}}.tags.{{@key}}.tag"
-                                    class="sc-tag sc-br-none sc-br-rad0 sc-br-left sc-br-top sc-br-bottom" {{#if (noEditRights)}}readonly{{/if}}
+                                    class="sc-tag sc-br-none sc-br-rad0 sc-br-left sc-br-top sc-br-bottom" 
+                                    {{#if (noEditRights)}}readonly{{/if}}
                                     value="{{@key}}" />
+                                {{#if (checkEditRights)}}
                                 <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.REMOVE_TAG"}}"
                                     class="sc-tag-remove-button sc-br-none sc-br-rad0 sc-br-left" data-action="remove-tag">
                                     <i class="fas fa-xmark"></i>
                                 </button>
+                                {{else}}
+                                <p class="sc-tag-remove-button sc-br-none sc-br-rad0 sc-br-left" style="min-width: 64px; margin: 0px;">
+                                {{/if}}
                             </div>
                         {{/each}}
                         </div>

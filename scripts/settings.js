@@ -79,6 +79,15 @@ export function RegisterSettings() {
         type: QuantityConfig,
         restricted: true
     });
+
+    game.settings.register(MODULE, 'hideLabel', {
+        name: localize("FURU-SC.SETTINGS.HIDE_TAGS_LABEL.name"),
+        hint: localize("FURU-SC.SETTINGS.HIDE_TAGS_LABEL.hint"),
+        scope: "world",
+        config: true,
+        default: false,
+        type: Boolean
+    });
 }
 /**
  * Validates the settings of the module. And fixes them as needed.

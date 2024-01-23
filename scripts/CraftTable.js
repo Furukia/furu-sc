@@ -135,15 +135,35 @@ export class CraftTable extends FormApplication {
         let updatedQuantity = 0;
         switch (action) {
             case "craft-item":
-                //TODO tag support
-                // Process ingredients
-                if (this.object.type === "items" && getPercentForAllIngredients() === 100)
-                    await CraftingTableData.processIngredientsQuantityOnCraft();
-                // Try to craft the item
-                await CraftingTableData.craftItem();
-                // Then reset ingredients
-                this.ingredients = await CraftingTableData.getIngredientInfo(this.object.ingredients);
-                await CraftingTableData.checkIngredients();
+                switch (this.object.type) {
+                    case "items":
+                        // Process ingredients
+                        if (getPercentForAllIngredients() !== 100) return;
+                        await CraftingTableData.processIngredientsQuantityOnCraft();
+                        // Try to craft the item
+                        await CraftingTableData.craftItem();
+                        // Then reset ingredients
+                        this.ingredients = await CraftingTableData.getIngredientInfo(this.object.ingredients);
+                        await CraftingTableData.checkIngredients();
+                        break;
+                    case "tags":
+                        // Process tags
+                        if (getPercentForAllTags() !== 100) return;
+                        await CraftingTableData.processTagsQuantityOnCraft();
+                        // Try to craft the item
+                        await CraftingTableData.craftItem();
+                        // Then reset tags
+                        this.tags = foundry.utils.duplicate(this.object.tags);
+                        await CraftingTableData.checkTags();
+                        break;
+                    case "text":
+                        // Just craft an item
+                        await CraftingTableData.craftItem();
+                        break;
+                    default:
+                        ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.INVALID_RECIPE_TYPE"));
+                        break;
+                }
                 this.render();
                 break;
             case "reload-window":
@@ -199,8 +219,10 @@ export class CraftTable extends FormApplication {
         }
     }
 
+    /**
+     * Returns the data for the GUI of the Craft table.
+     */
     getData() {
-        console.log(this);
         const isEnoughTags = this.object.type === "tags" ? this.isEnoughTags : true;
         let completionPercent = 0;
         switch (this.object.type) {
@@ -221,7 +243,6 @@ export class CraftTable extends FormApplication {
             selectedActor: this.userActorsData.selectedActor,
             ownedActors: this.userActorsData.ownedActors
         }
-        console.log(data);
         return data;
     }
 }

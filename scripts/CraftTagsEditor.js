@@ -1,6 +1,6 @@
 import { CRAFT_TAGS_EDITOR_TEMPLATE, CRAFT_TAGS_EDITOR_ID, MODULE } from "./const.js";
 import { TagUiData, TagsData } from "./crafting.js";
-import { checkTagsPresence, localize } from "./helpers.js";
+import { checkTagsPresence, checkEditRights, localize } from "./helpers.js";
 
 export class CraftTagsEditor extends FormApplication {
     constructor(object, options) {
@@ -48,6 +48,7 @@ export class CraftTagsEditor extends FormApplication {
      */
     async _handleInputEnter(event) {
         if (event.key !== "Enter") return;
+        if (!checkEditRights()) return;
         this.submit();
         return;
     }
@@ -58,6 +59,10 @@ export class CraftTagsEditor extends FormApplication {
      * @param {Object} event - The click event object.
      */
     async _handleButtonClick(event) {
+        if (!checkEditRights()) {
+            ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.NO_RIGHTS"));
+            return;
+        }
         const clickedElement = $(event.currentTarget);
         const action = clickedElement.data().action;
         const selectedTag = clickedElement.parents('[data-tag]')?.data()?.tag;
@@ -66,7 +71,7 @@ export class CraftTagsEditor extends FormApplication {
         switch (action) {
             case "add-tag":
                 const newTag = await TagsData.tryAddTag(currentTags);
-                if(!newTag) return;
+                if (!newTag) return;
                 currentTags[newTag] = 1;
                 this.object.setFlag(MODULE, "craftTags", currentTags);
                 this.render()
@@ -111,6 +116,7 @@ export class CraftTagsEditor extends FormApplication {
             this.render();
             return;
         }
+        if (!checkEditRights()) return;
 
         const updateObject = await TagsData.tryReformatTagsData(expandedData.tags);
         if (!updateObject) {

@@ -623,7 +623,6 @@ export class CraftingTableData {
         const tagKeys = Object.keys(tags);
         const selectedActor = CraftTable.craftTable.userActorsData.selectedActor;
         const actorItems = selectedActor.items;
-        console.log(selectedActor, actorItems);
 
         if (!actorItems.size) {
             ui.notifications.error(`"${selectedActor.name}" - ${localize("FURU-SC.NOTIFICATIONS.ACTOR_NO_ITEMS")}`);
@@ -750,6 +749,34 @@ export class CraftingTableData {
                 if (finalQuantity === 0) {
                     item.delete();
                 }
+            }
+        }
+    }
+
+    /**
+     * Process the quantity of tags on the craft by consuming the required ingredients.
+     *
+     * @return {Promise<void>} A promise that resolves when the quantity processing is completed.
+     */
+    static async processTagsQuantityOnCraft() {
+        const ingredientsInfo = CraftTable.craftTable.ingredients;
+        // Sort the ingredients by consumeQuantity to get only the items we want to affect.
+        let usedIngredientsInfo = {};
+        for (const key of Object.keys(ingredientsInfo)) {
+            if (ingredientsInfo[key].consumeQuantity > 0) {
+                usedIngredientsInfo[key] = ingredientsInfo[key];
+            }
+        }
+        // Process the items
+        for (const key of Object.keys(usedIngredientsInfo)) {
+            const ingredient = usedIngredientsInfo[key].ingredient;
+            const consumeQuantity = usedIngredientsInfo[key].consumeQuantity;
+            const pathObject = getCorrectQuantityPathForItem(ingredient.type);
+            const currentQuantity = foundry.utils.getProperty(ingredient, pathObject.path);
+            const finalQuantity = Math.max(0, currentQuantity - consumeQuantity);
+            await ingredient.update({ [pathObject.path]: finalQuantity });
+            if (finalQuantity === 0) {
+                ingredient.delete();
             }
         }
     }
