@@ -1,4 +1,4 @@
-import { MODULE, DATA_DEFAULT_FOLDER, RECIPES, DEFAULT_RECIPES_DATA, SPECIAL_SYMBOLS_REGEX } from "./const.js"; //import the const variables
+import { MODULE, DATA_DEFAULT_FOLDER, RECIPES, DEFAULT_RECIPES_DATA, SPECIAL_SYMBOLS_REGEX, DEFAULT_RECIPE_SETTINGS } from "./const.js"; //import the const variables
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";
 import { getCorrectQuantityPathForItem, processSourceId, localize, checkTagVisibility } from "./helpers.js";
@@ -12,7 +12,19 @@ import { socketNotification, socketSaveFile } from "./sockets.js";
  * @property {string} type - A type of a recipe. (text, items, tags)
  * @property {bool} isVisible - Is a recipe visible right now?
  * @property {bool} editMode - Are we editing this recipe text or not?
- * @property {Object} target - The object that we want to craft.
+ * @property {Object} settings - An object that contains various settings of this recipe
+ * @property {bool} settings.isTargetList - If this recipe should consider target as a list, of target items, instead of a singular item
+ * @property {bool} settings.allowDismantling - If this recipe should allow dismantling. Effectively creating ingredients from target(s)
+ * @property {bool} settings.isSecret - Make this recipe a secret for the players. They won't be able to craft it until they found out how.
+ * @property {bool} settings.allowModifiers - Allows players to provide quantity modifiers. Those are added to the required quantity, allowing to craft with less required items
+ * @property {bool} settings.isOneTime - Makes the recipe one use. Hiding it from players after that.
+ * @property {bool} settings.isHidden - Is a recipe hidden right now? Which is more important than visibility, and triggered by GM/One tim
+ * @property {bool} settings.sendCraftRequest - Whether to send a craft request to the GM or just craft immediately
+ * @property {Object} settings.macros - The object that contains macros that should be activated before(open craft table) or after crafting
+ * @property {Object} settings.macros.openMacros - The macro that should be activated before(open craft table)
+ * @property {Object} settings.macros.craftMacros - The macro that should be activated after crafting
+ * @property {bool} settings.macros.activateAsGM - Activate macros as GM
+ * @property {Object} target - The object(s) that we want to craft.
  * @property {Object} ingredients - The list of key/value id/ingredient objects we use to craft the target.(Items recipe type) 
  * @property {Object} tags - The list of key/value tags/quantity pairs we use to craft the target.(Tags recipe type) 
  */
@@ -34,6 +46,7 @@ export class RecipeData {
             type: "text",
             isVisible: true,
             editMode: false,
+            settings: DEFAULT_RECIPE_SETTINGS,
             target: undefined,
             ingredients: undefined,
             tags: undefined

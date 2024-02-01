@@ -13,3 +13,17 @@ export const CRAFT_TABLE_ID = `${MODULE}-craft-table`;
 export const QUANTITY_CONFIG_ID = `${MODULE}-quantity-config`;
 export const CRAFT_TAGS_EDITOR_ID = `${MODULE}-craft-tags-editor`;
 export const SPECIAL_SYMBOLS_REGEX = /[\\\/ .,:*?"<>|+\-\%!@]/gi;
+export const DEFAULT_RECIPE_SETTINGS = {
+    isTargetList: false,
+    allowDismantling: false,
+    isSecret: false,
+    allowModifiers: false,
+    isOneTime: false,
+    isHidden: false,
+    sendCraftRequest: false,
+    macros: {
+        openMacros: undefined,
+        craftMacros: undefined,
+        activateAsGM: false
+    }
+};
