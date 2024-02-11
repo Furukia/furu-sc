@@ -13,12 +13,13 @@ import { socketNotification, socketSaveFile } from "./sockets.js";
  * @property {bool} isVisible - Is a recipe visible right now?
  * @property {bool} editMode - Are we editing this recipe text or not?
  * @property {Object} settings - An object that contains various settings of this recipe
+ * @property {bool} settings.opened - Is this recipe settings block is open.
  * @property {bool} settings.isTargetList - If this recipe should consider target as a list, of target items, instead of a singular item
  * @property {bool} settings.allowDismantling - If this recipe should allow dismantling. Effectively creating ingredients from target(s)
  * @property {bool} settings.isSecret - Make this recipe a secret for the players. They won't be able to craft it until they found out how.
  * @property {bool} settings.allowModifiers - Allows players to provide quantity modifiers. Those are added to the required quantity, allowing to craft with less required items
  * @property {bool} settings.isOneTime - Makes the recipe one use. Hiding it from players after that.
- * @property {bool} settings.isHidden - Is a recipe hidden right now? Which is more important than visibility, and triggered by GM/One tim
+ * @property {bool} settings.isHidden - Is a recipe hidden right now? Which is more important than visibility, and triggered by GM/One time recipes
  * @property {bool} settings.sendCraftRequest - Whether to send a craft request to the GM or just craft immediately
  * @property {Object} settings.macros - The object that contains macros that should be activated before(open craft table) or after crafting
  * @property {Object} settings.macros.openMacros - The macro that should be activated before(open craft table)
@@ -164,11 +165,29 @@ export class RecipeData {
         }
         await this.updateRecipe(recipeID, updateData);
     }
+    /**
+     * Toggle's recipe settings menu on or off.
+     *
+     * @param {number} recipeID - The ID of the recipe.
+     */
+    static async toggleSettingsMenu(recipeID) {
+        // get all existing recipes
+        const allRecipes = CraftMenu.craftMenu.object;
+        // turn the settings menu on/off
+        let _settingsOppened = !allRecipes[recipeID].settings?.opened ?? false;
+        const updateData = {
+            settings: { opened: _settingsOppened }
+        }
+        await this.updateRecipe(recipeID, updateData);
+    }
 
     /**
      * Resets the recipes mode.
      *
-     * This function iterates through all recipes in the craft menu and updates their properties to disable edit mode and make them visible.
+     * This function iterates through all recipes in the craft menu and updates their properties to:
+     * disable edit mode
+     * hide the settings menu 
+     * and make the recipe visible.
      * It calls the `updateRecipe` function for each recipe to perform the update.
      *
      * @return {Promise} A promise that resolves when all the recipes have been updated.
@@ -178,7 +197,8 @@ export class RecipeData {
         for (const recipeID in recipes) {
             const updateData = {
                 editMode: false,
-                isVisible: true
+                isVisible: true,
+                settings: { opened: false }
             };
             await this.updateRecipe(recipeID, updateData, { allRecipes: recipes });
         }

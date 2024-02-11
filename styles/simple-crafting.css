@@ -263,6 +263,51 @@
  * tmce editor end
  */
 
+/*
+ * recipe settings stuff
+ */
+
+.sc-recipe-settings-container {
+  display: none;
+  position: absolute;
+  right: 0;
+  width: 96%;
+  height: 63%;
+  margin: 18px;
+  margin-top: 0px;
+  color: black;
+  background: var(--sc-color-main-light);
+  z-index: 1;
+}
+
+.sc-recipe-settings-container.sc-opened {
+  display: flex;
+  transition: 0.3s;
+}
+
+.sc-recipe-settings-header {
+  text-align: center;
+  flex: 0.1;
+}
+
+.sc-recipe-settings-block {
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.sc-setting-span {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: baseline;
+  align-items: center;
+  font-size: 1.2rem;
+  padding: 10px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+/*
+ * recipe settings end
+ */
 .sc-recipe-container .sc-edit-container {
   display: flex;
   flex-direction: row;

@@ -35,7 +35,7 @@ export class CraftMenu extends FormApplication {
             id: CRAFT_MENU_ID,
             template: CRAFT_MENU_TEMPLATE,
             title: localize("FURU-SC.CRAFT_MENU"),
-            scrollY: [".sc-recipe-container", ".sc-required-items"],
+            scrollY: [".sc-recipe-container", ".sc-required-items", ".sc-recipe-settings-block"],
             dragDrop: [{
                 dropSelector: `.sc-target-item-container, 
         .sc-target-item-container .sc-target-image, 
@@ -102,7 +102,8 @@ export class CraftMenu extends FormApplication {
             let recipeData = expandedData[recipeId];
             updateData[recipeId] = {
                 name: recipeData.name,
-                type: recipeData.type
+                type: recipeData.type,
+                settings: recipeData.settings
             };
             // Handle tags
             if (recipeData.tags) {
@@ -351,6 +352,10 @@ export class CraftMenu extends FormApplication {
                 if (!selectedTag) return;
                 await RecipeData.removeTag(recipeID, selectedTag);
                 this.render()
+                break;
+            case "edit-recipe-settings":
+                await RecipeData.toggleSettingsMenu(recipeID);
+                this.render();
                 break;
             default:
                 console.warn(`${MODULE} | Invalid action detected:`, { action, recipeID });

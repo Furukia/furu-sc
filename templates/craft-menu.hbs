@@ -116,13 +116,54 @@
                             <i class="fas fa-plus "></i>
                         </button>
                         {{/if}}
+                        {{!--Settings button--}}
+                        <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.EDIT_RECIPE_SETTINGS"}}"
+                            class="sc-br-none sc-br-rad10" data-action="edit-recipe-settings">
+                            <i class="fas fa-gear "></i>
+                        </button>
                         {{/if}}
                         <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.CRAFT_FROM_RECIPE"}}"
                             class="sc-br-none sc-br-rad10" data-action="craft-from-recipe">
                             <i class="fas fa-hammer-crash"></i>
                         </button>
                     </div>
+                </div>   
+                {{#if (checkEditRights)}}
+                <div class="sc-recipe-settings-container flexcol sc-br-full sc-br-rad15 {{#if settings.opened}}sc-opened{{/if}}">
+                    <h2 class="sc-recipe-settings-header sc-br-none sc-br-bottom">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.TITLE"}}</h2>
+                    <div class="sc-recipe-settings-block">
+                        <span class="sc-setting-span">
+                            <input type="checkbox" name="{{id}}.settings.isTargetList" class="sc-br-none" {{checked settings.isTargetList}}>
+                            <label for="{{id}}.settings.isTargetList">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.IS_TARGET_LIST"}}</label>
+                        </span>
+                        <span class="sc-setting-span">
+                            <input type="checkbox" name="{{id}}.settings.allowDismantling" class="sc-br-none" {{checked settings.allowDismantling}}>
+                            <label for="{{id}}.settings.allowDismantling">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.ALLOW_DISMANTLING"}}</label>
+                        </span>
+                        <span class="sc-setting-span">
+                            <input type="checkbox" name="{{id}}.settings.isSecret" class="sc-br-none" {{checked settings.isSecret}}>
+                            <label for="{{id}}.settings.isSecret">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.IS_SECRET"}}</label>
+                        </span>
+                        <span class="sc-setting-span">
+                            <input type="checkbox" name="{{id}}.settings.allowModifiers" class="sc-br-none" {{checked settings.allowModifiers}}>
+                            <label for="{{id}}.settings.allowModifiers">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.ALLOW_MODIFIERS"}}</label>
+                        </span>
+                        <span class="sc-setting-span">
+                            <input type="checkbox" name="{{id}}.settings.isOneTime" class="sc-br-none" {{checked settings.isOneTime}}>
+                            <label for="{{id}}.settings.isOneTime">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.IS_ONE_TIME"}}</label>
+                        </span>
+                        <span class="sc-setting-span">
+                            <input type="checkbox" name="{{id}}.settings.isHidden" class="sc-br-none" {{checked settings.isHidden}}>
+                            <label for="{{id}}.settings.isHidden">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.IS_HIDDEN"}}</label>
+                        </span>
+                        <span class="sc-setting-span">
+                            <input type="checkbox" name="{{id}}.settings.sendCraftRequest" class="sc-br-none" {{checked settings.sendCraftRequest}}>
+                            <label for="{{id}}.settings.sendCraftRequest">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.SEND_CRAFT_REQUEST"}}</label>
+                        </span>
+                        {{!--TODO: Add macro related settings--}}
+                    </div>
                 </div>
+                {{/if}}
                 <div class="sc-items-container sc-br-full sc-br-rad15" data-recipe-id="{{id}}">
                     <div class="sc-target-item-container sc-br-right sc-br-tl-rad15 sc-br-bl-rad15">
                         {{#if target}}

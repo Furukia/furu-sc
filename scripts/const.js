@@ -14,6 +14,7 @@ export const QUANTITY_CONFIG_ID = `${MODULE}-quantity-config`;
 export const CRAFT_TAGS_EDITOR_ID = `${MODULE}-craft-tags-editor`;
 export const SPECIAL_SYMBOLS_REGEX = /[\\\/ .,:*?"<>|+\-\%!@]/gi;
 export const DEFAULT_RECIPE_SETTINGS = {
+    opened: false,
     isTargetList: false,
     allowDismantling: false,
     isSecret: false,
