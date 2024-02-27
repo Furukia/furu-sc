@@ -66,7 +66,7 @@
         <div class="sc-recipe-container">
             {{#each recipes}}
             {{#if isVisible}}
-            <div class="sc-recipe-card sc-br-full sc-br-rad15" data-recipe-id="{{id}}">
+            <div class="sc-recipe-card sc-br-full sc-br-rad15 {{#if settings.isHidden}}sc-hidden{{/if}}" data-recipe-id="{{id}}">
                 <div class="sc-edit-container">
                     <div class="sc-edit-name">
                         <p>{{localize "FURU-SC.CRAFT_MENU_UI.RECIPE_NAME"}}</p>
@@ -129,7 +129,8 @@
                     </div>
                 </div>   
                 {{#if (checkEditRights)}}
-                <div class="sc-recipe-settings-container flexcol sc-br-full sc-br-rad15 {{#if settings.opened}}sc-opened{{/if}}">
+                {{#if settings.opened}}
+                <div class="sc-recipe-settings-container flexcol sc-br-full sc-br-rad15">
                     <h2 class="sc-recipe-settings-header sc-br-none sc-br-bottom">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.TITLE"}}</h2>
                     <div class="sc-recipe-settings-block">
                         <span class="sc-setting-span">
@@ -164,7 +165,9 @@
                     </div>
                 </div>
                 {{/if}}
-                <div class="sc-items-container sc-br-full sc-br-rad15" data-recipe-id="{{id}}">
+                {{/if}}
+                {{#unless settings.opened}}
+                <div class="sc-items-container sc-br-full sc-br-rad15 " data-recipe-id="{{id}}">
                     <div class="sc-target-item-container sc-br-right sc-br-tl-rad15 sc-br-bl-rad15">
                         {{#if target}}
                         <h2 class="sc-br-bottom" style="margin:0px;">{{localize "FURU-SC.CRAFT_MENU_UI.TARGET_ITEM"}}
@@ -290,6 +293,7 @@
                     </div>
                     {{/if}}
                 </div>
+                {{/unless}}
             </div>
             {{/if}}
             {{/each}}

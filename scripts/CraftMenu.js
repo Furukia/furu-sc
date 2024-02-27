@@ -102,9 +102,12 @@ export class CraftMenu extends FormApplication {
             let recipeData = expandedData[recipeId];
             updateData[recipeId] = {
                 name: recipeData.name,
-                type: recipeData.type,
-                settings: recipeData.settings
+                type: recipeData.type
             };
+            // Handle settings
+            if (recipeData.settings) {
+                updateData[recipeId].settings = recipeData.settings;
+            }
             // Handle tags
             if (recipeData.tags) {
                 const finalTags = await TagsData.tryReformatTagsData(recipeData.tags);
@@ -454,6 +457,7 @@ export class CraftMenu extends FormApplication {
             world: game.world.id
         }
         const fileNames = game.settings.get(MODULE, 'recipe-files');
+        await RecipeData.processHiddenRecipes();
         return {
             searchQuery: this.searchQuery,
             recipes: this.object,

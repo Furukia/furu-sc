@@ -1,7 +1,7 @@
 import { MODULE, DATA_DEFAULT_FOLDER, RECIPES, DEFAULT_RECIPES_DATA, SPECIAL_SYMBOLS_REGEX, DEFAULT_RECIPE_SETTINGS } from "./const.js"; //import the const variables
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";
-import { getCorrectQuantityPathForItem, processSourceId, localize, checkTagVisibility } from "./helpers.js";
+import { getCorrectQuantityPathForItem, processSourceId, localize, checkTagVisibility, checkEditRights } from "./helpers.js";
 import { socketNotification, socketSaveFile } from "./sockets.js";
 
 /**
@@ -14,6 +14,7 @@ import { socketNotification, socketSaveFile } from "./sockets.js";
  * @property {bool} editMode - Are we editing this recipe text or not?
  * @property {Object} settings - An object that contains various settings of this recipe
  * @property {bool} settings.opened - Is this recipe settings block is open.
+ * TODO:
  * @property {bool} settings.isTargetList - If this recipe should consider target as a list, of target items, instead of a singular item
  * @property {bool} settings.allowDismantling - If this recipe should allow dismantling. Effectively creating ingredients from target(s)
  * @property {bool} settings.isSecret - Make this recipe a secret for the players. They won't be able to craft it until they found out how.
@@ -25,6 +26,7 @@ import { socketNotification, socketSaveFile } from "./sockets.js";
  * @property {Object} settings.macros.openMacros - The macro that should be activated before(open craft table)
  * @property {Object} settings.macros.craftMacros - The macro that should be activated after crafting
  * @property {bool} settings.macros.activateAsGM - Activate macros as GM
+ * TODO END
  * @property {Object} target - The object(s) that we want to craft.
  * @property {Object} ingredients - The list of key/value id/ingredient objects we use to craft the target.(Items recipe type) 
  * @property {Object} tags - The list of key/value tags/quantity pairs we use to craft the target.(Tags recipe type) 
@@ -68,6 +70,11 @@ export class RecipeData {
         let isVisible = false;
 
         Object.values(allRecipes).forEach(recipe => {
+            // We don't need to search for hidden recipes
+            const isHidden = (recipe.settings?.isHidden ?? false) && !checkEditRights();
+            if (isHidden) {
+                return;
+            }
             const searchFields = [
                 recipe.name,
                 recipe.target?.name,
@@ -179,6 +186,21 @@ export class RecipeData {
             settings: { opened: _settingsOppened }
         }
         await this.updateRecipe(recipeID, updateData);
+    }
+
+    /**
+     * Process all hidden recipes and update their visibility status.
+     *
+     * @return {Promise<void>} A promise that resolves once all hidden recipes have been processed.
+     */
+    static async processHiddenRecipes() {
+        const allRecipes = CraftMenu.craftMenu.object;
+        for (const recipeID in allRecipes) {
+            const recipe = allRecipes[recipeID];
+            if ((recipe.settings?.isHidden ?? false) && !checkEditRights()) {
+                await this.updateRecipe(recipeID, { isVisible: false });
+            }
+        }
     }
 
     /**
