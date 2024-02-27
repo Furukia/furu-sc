@@ -21,7 +21,7 @@
         "name": "System quantity path",
         "hint": "If the system provides an ability to track the quantity of an item, you can provide a path relative to an item, for that variable. \"Simple Crafting\" will use it instead of using it's own quantity system."
       },
-      "HIDE_TAGS_LABEL":{
+      "HIDE_TAGS_LABEL": {
         "name": "Hide tags label",
         "hint": "Hides label of the tag editor header button in an item window."
       }
@@ -52,6 +52,16 @@
         "TAG_QUANTITY": "Quantity for this tag",
         "CHANGE_TAG": "Change this tag",
         "REMOVE_TAG": "Remove this tag"
+      },
+      "SETTINGS": {
+        "TITLE": "Recipe settings",
+        "IS_TARGET_LIST": "Allow multiple target items",
+        "ALLOW_DISMANTLING": "Allow to dismantle the target item back to it's components by this recipe",
+        "IS_SECRET": "Make this recipe secret, hiding required components from players",
+        "ALLOW_MODIFIERS": "Allow modifiers, so that players can craft with less items than required. Recommended to use with craft requests",
+        "IS_ONE_TIME": "Make this recipe one time only, hiding it from players after crafting",
+        "IS_HIDDEN": "Hides this recipe from players",
+        "SEND_CRAFT_REQUEST": "Send GM an approval request to create an item"
       },
       "SEARCH_RECIPES": "Search recipes:",
       "SEARCH_PLACEHOLDER": "Search...",
