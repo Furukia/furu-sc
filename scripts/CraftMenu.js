@@ -37,11 +37,7 @@ export class CraftMenu extends FormApplication {
             title: localize("FURU-SC.CRAFT_MENU"),
             scrollY: [".sc-recipe-container", ".sc-required-items", ".sc-recipe-settings-block"],
             dragDrop: [{
-                dropSelector: `.sc-target-item-container, 
-        .sc-target-item-container .sc-target-image, 
-        .sc-items-container .sc-required-item-container,
-        .sc-items-container .sc-required-item-container .sc-required-image,
-        .sc-items-container .sc-required-item-container > p`,
+                dropSelector: `.sc-recipe-card`,
                 permissions: { drop: this._canDragDrop }
             }]
         };
@@ -233,7 +229,7 @@ export class CraftMenu extends FormApplication {
         }
         const recipeID = clickedElement.parents('[data-recipe-id]')?.data()?.recipeId;
         const selectedTag = clickedElement.parents('[data-tag]')?.data()?.tag;
-        let itemID;
+        const itemID = clickedElement.closest('[data-item-id]')?.data()?.itemId;
         switch (action) {
             case 'add-recipe':
                 await RecipeData.createRecipe(this);
@@ -246,12 +242,20 @@ export class CraftMenu extends FormApplication {
                 RecipeData.ProcessQuantity(recipeID, -1, { isTarget: true });
                 break;
             case 'add-quantity':
-                itemID = clickedElement.closest('[data-item-id]')?.data()?.itemId;
+                if (!itemID) return;
                 RecipeData.ProcessQuantity(recipeID, 1, { originalItemId: itemID, isTarget: false });
                 break;
             case 'substract-quantity':
-                itemID = clickedElement.closest('[data-item-id]')?.data()?.itemId;
+                if (!itemID) return;
                 RecipeData.ProcessQuantity(recipeID, -1, { originalItemId: itemID, isTarget: false });
+                break;
+            case 'add-quantity-target-list':
+                if (!itemID) return;
+                RecipeData.ProcessQuantity(recipeID, 1, { originalItemId: itemID, isTargetList: true });
+                break;
+            case 'substract-quantity-target-list':
+                if (!itemID) return;
+                RecipeData.ProcessQuantity(recipeID, -1, { originalItemId: itemID, isTargetList: true });
                 break;
             case 'save-recipe-file':
                 const currentFolder = game.settings.get(MODULE, 'save-path');
@@ -320,8 +324,13 @@ export class CraftMenu extends FormApplication {
                 }
                 break;
             case 'delete-item':
-                itemID = clickedElement.closest('[data-item-id]')?.data()?.itemId;
+                if (!itemID) return;
                 await RecipeData.deleteIngredient(recipeID, itemID);
+                this.render();
+                break;
+            case 'delete-item-target-list':
+                if (!itemID) return;
+                await RecipeData.deleteTargetListItem(recipeID, itemID);
                 this.render();
                 break;
             case 'reload-window':
@@ -383,12 +392,10 @@ export class CraftMenu extends FormApplication {
     async _onDrop(event) {
         const data = TextEditor.getDragEventData(event);
         if (data.type !== "Item") return ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.ITEMS_ONLY"));
-        const element = event.target.closest("[data-recipe-id]");
-        const recipeID = element ? element.dataset.recipeId : null;
-        let dropTargetClass = event.target.className.split(" ")[0];
-        let dropType = "target";
-        if (dropTargetClass !== "sc-target-item-container" && dropTargetClass !== "sc-target-image")
-            dropType = "ingredient";
+        const recipe = event.target.closest("[data-recipe-id]");
+        const recipeID = recipe ? recipe.dataset.recipeId : null;
+        const dropType = event.target.closest("[data-drop-type]")?.dataset?.dropType;
+        if (!recipeID) return;
         const item = await Item.implementation.fromDropData(data);
         const pathObject = getCorrectQuantityPathForItem(item.type);
         switch (dropType) {
@@ -403,18 +410,13 @@ export class CraftMenu extends FormApplication {
                 await RecipeData.tryRecipeNameChange(recipeID, item.name);
                 this.render();
                 break;
+            case 'target-list':
+                await RecipeData.tryRecipeNameChange(recipeID, item.name);
+                RecipeData.ProcessTargetListItem(item, recipeID);
+                break;
             case 'ingredient':
-                const itemSourceID = item.flags.core.sourceId;
-                const itemName = item.name;
-                const targetItem = this.object[recipeID].target;
-                if (targetItem && (targetItem.name === itemName || targetItem.flags.core.sourceId === itemSourceID)) {
-                    const confirmation = await Dialog.confirm({
-                        title: localize("FURU-SC.DIALOGS.INGREDIENT_EQUALS_TARGET.title"),
-                        content: localize("FURU-SC.DIALOGS.INGREDIENT_EQUALS_TARGET.content"),
-                    });
-                    if (!confirmation)
-                        return;
-                }
+                const confirmation = await RecipeData.validateIfItemExistsAsTarget(item, recipeID);
+                if (!confirmation) return;
                 RecipeData.ProcessIngredient(item, recipeID);
                 break;
             default:

@@ -74,6 +74,7 @@
         "TAGS": "Tags"
       },
       "TARGET_ITEM": "Target item:",
+      "TARGET_ITEMS": "Target items:",
       "DESCRIPTION": "Description:",
       "REQUIRED_ITEMS": "Required items:",
       "REQUIRED_TAGS": "Required tags:"

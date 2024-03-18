@@ -155,6 +155,7 @@
 }
 
 .sc-target-item-container > h2,
+.sc-target-items-container > h2,
 .sc-required-item-container > h2,
 .sc-required-tags-container > h2,
 .sc-description-text-container > h2 {
@@ -358,23 +359,30 @@
   height: 450px;
 }
 
-.sc-required-image {
+.sc-required-image,
+.sc-targetList-image {
   max-height: 64px;
 }
 
-.sc-required-item > p {
+.sc-required-item > p,
+.sc-targetList-item > p {
   margin: 0px;
   padding-left: 5px;
   padding-right: 5px;
   overflow-y: auto;
   text-align: center;
   font-size: 1rem;
-  max-height: 64px;
-  width: 350px;
+  width: 100%;
   height: 100%;
+  max-height: 64px;
 }
 
-#crafting-form .sc-required-item > input[type="text"] {
+#crafting-form
+  .sc-required-item
+  > input[type="text"]
+  #crafting-form
+  .sc-targetList-item
+  > input[type="text"] {
   min-width: 10%;
   max-width: min-content;
   height: 100%;
@@ -382,13 +390,14 @@
   font-size: 16px;
 }
 
-.sc-required-item {
+.sc-required-item,
+.sc-targetList-item {
   background: var(--sc-color-secondary-dark);
   display: flex;
   max-width: 100%;
-  width: fit-content;
-  align-items: center;
   margin: 5px;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .sc-required-item-container,
@@ -405,6 +414,7 @@
 }
 
 .sc-required-items,
+.sc-target-items,
 .sc-required-tags {
   display: flex;
   flex-direction: column;
@@ -459,7 +469,15 @@
   flex-direction: column;
 }
 
-.sc-target-item-container > p {
+.sc-target-items-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 50%;
+  max-width: 50%;
+}
+
+.sc-target-item-container > p,
+.sc-target-items-container > p {
   padding-left: 5px;
   padding-right: 5px;
   overflow: hidden;
@@ -806,7 +824,6 @@ input.sc-table-tag-item-name {
 .sc-tag-editor-tags-container,
 .sc-table-item-tags-container {
   display: flex;
-  max-width: fit-content;
   color: var(--sc-text-color);
   margin: 10px;
   margin-top: 5px;
@@ -836,7 +853,7 @@ input.sc-table-tag-item-name {
   text-overflow: ellipsis;
   padding-left: 10px !important;
   padding-right: 10px !important;
-  width: 250px !important;
+  width: 100% !important;
 }
 
 .sc-tag {

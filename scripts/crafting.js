@@ -27,7 +27,8 @@ import { socketNotification, socketSaveFile } from "./sockets.js";
  * @property {Object} settings.macros.craftMacros - The macro that should be activated after crafting
  * @property {bool} settings.macros.activateAsGM - Activate macros as GM
  * TODO END
- * @property {Object} target - The object(s) that we want to craft.
+ * @property {Object} target - The object that we want to craft. Only used if settings.isTargetList is false
+ * @property {Object} targetList - The objects that we want to craft. Only used if settings.isTargetList is true
  * @property {Object} ingredients - The list of key/value id/ingredient objects we use to craft the target.(Items recipe type) 
  * @property {Object} tags - The list of key/value tags/quantity pairs we use to craft the target.(Tags recipe type) 
  */
@@ -51,6 +52,7 @@ export class RecipeData {
             editMode: false,
             settings: DEFAULT_RECIPE_SETTINGS,
             target: undefined,
+            targetList: undefined,
             ingredients: undefined,
             tags: undefined
         };
@@ -61,7 +63,7 @@ export class RecipeData {
 
     /**
     * Searches for recipes based on a search query and updates their visibility in the Craft Menu.
-    *
+    * TODO - TargetList Support
     * @param {string} searchQuery - The search query used to filter the recipes.
     */
     static async searchRecipe(searchQuery) {
@@ -258,6 +260,80 @@ export class RecipeData {
     }
 
     /**
+     * Process a target list for a given item and recipe ID.
+     *
+     * @param {type} item - The target item.
+     * @param {type} recipeID - The ID of the recipe.
+     */
+    static async ProcessTargetListItem(item, recipeID) {
+        let allRecipes = CraftMenu.craftMenu.object;
+        let targetList = allRecipes[recipeID].targetList;
+        let sourceId = processSourceId(item.flags.core.sourceId);
+        if (!targetList) {
+            // No target's in the list. Making it an empty object to fill in later
+            targetList = {};
+        }
+        else if (targetList.hasOwnProperty(sourceId)) {
+            // Already got that target here. Just change it's quantity
+            this.ProcessQuantity(recipeID, 1, { originalItemId: sourceId, isTargetList: true });
+            return; //And leave
+        }
+        // Adding a new target
+        let itemObject = { ...item.toObject(), _id: undefined, _stats: undefined, folder: undefined, ownership: undefined };
+        targetList[sourceId] = itemObject;
+        const pathObject = getCorrectQuantityPathForItem(item.type);
+        if (pathObject.type === "flag") {
+            foundry.utils.setProperty(itemObject, pathObject.path, 1);
+        }
+        allRecipes[recipeID].targetList = targetList;
+        CraftMenu.craftMenu.object = allRecipes;
+        CraftMenu.craftMenu.render();
+    }
+
+
+    /**
+     * Validate if the item exists as a target in the recipe.
+     *
+     * @param {type} item - The item that we check
+     * @param {type} recipeID - The ID of the recipe
+     * @return {type} true if the item exists as a target, false otherwise
+     */
+    static async validateIfItemExistsAsTarget(item, recipeID) {
+        const allRecipes = CraftMenu.craftMenu.object;
+        const recipe = allRecipes[recipeID];
+        const isTargetList = recipe.settings.isTargetList;
+        const itemSourceID = processSourceId(item.flags.core.sourceId);
+        if (isTargetList) {
+            const targetList = recipe.targetList;
+            const targetsArray = Object.values(targetList);
+            if (!targetsArray?.length) return true;
+            for (const targetItem of targetsArray) {
+                if ((targetItem.name === item.name && targetItem.type === item.type) || targetItem.flags.core.sourceId === itemSourceID) {
+                    const confirmation = await Dialog.confirm({
+                        title: localize("FURU-SC.DIALOGS.INGREDIENT_EQUALS_TARGET.title"),
+                        content: localize("FURU-SC.DIALOGS.INGREDIENT_EQUALS_TARGET.content"),
+                    });
+                    if (!confirmation)
+                        return false;
+                    break;
+                }
+            }
+        }
+        else {
+            const targetItem = recipe.target;
+            if (targetItem && ((targetItem.name === item.name && targetItem.type === item.type) || targetItem.flags.core.sourceId === itemSourceID)) {
+                const confirmation = await Dialog.confirm({
+                    title: localize("FURU-SC.DIALOGS.INGREDIENT_EQUALS_TARGET.title"),
+                    content: localize("FURU-SC.DIALOGS.INGREDIENT_EQUALS_TARGET.content"),
+                });
+                if (!confirmation)
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    /**
     * Process the quantity of an item in a recipe or target.
     * @param {string} recipeId - The recipe ID.
     * @param {number} value - The value to add to the item's quantity.
@@ -265,12 +341,15 @@ export class RecipeData {
     * @param {string} options.originalItemId - The original item ID.
     * @param {boolean} options.rewrite - Whether to rewrite the item's quantity instead of adding to it.
     * @param {boolean} options.isTarget - Whether the item is a target or a recipe ingredient.
+    * @param {boolean} options.isTargetList - Whether the item is a target list.
     */
     static async ProcessQuantity(recipeId, value, options = {}) {
         const allRecipes = CraftMenu.craftMenu.object;
-        const { originalItemId = null, rewrite = false, isTarget = true } = options;
+        const { originalItemId = null, rewrite = false, isTarget = true, isTargetList = false } = options;
         let item;
-        if (isTarget) {
+        if (isTargetList) {
+            item = allRecipes[recipeId].targetList[originalItemId];
+        } else if (isTarget) {
             item = allRecipes[recipeId].target;
         } else {
             item = allRecipes[recipeId].ingredients[originalItemId];
@@ -282,7 +361,9 @@ export class RecipeData {
         const numericCurrentQuantity = Number(currentQuantity);
         const updatedQuantity = rewrite ? numericValue : numericCurrentQuantity + numericValue;
         await foundry.utils.setProperty(item, path, Math.max(1, updatedQuantity));
-        if (isTarget) {
+        if (isTargetList) {
+            allRecipes[recipeId].targetList[originalItemId] = item;
+        } else if (isTarget) {
             allRecipes[recipeId].target = item;
         } else {
             allRecipes[recipeId].ingredients[originalItemId] = item;
@@ -302,6 +383,20 @@ export class RecipeData {
         const ingredients = allRecipes[recipeID].ingredients;
         delete ingredients[itemID];
         allRecipes[recipeID].ingredients = ingredients;
+        CraftMenu.craftMenu.object = allRecipes;
+    }
+
+    /**
+     * Deletes a target item from a target list in a recipe.
+     *
+     * @param {string} recipeID - The ID of the recipe.
+     * @param {string} itemID - The ID of the target to be deleted.
+     */
+    static async deleteTargetListItem(recipeID, itemID) {
+        const allRecipes = CraftMenu.craftMenu.object;
+        const targets = allRecipes[recipeID].targetList;
+        delete targets[itemID];
+        allRecipes[recipeID].targetList = targets;
         CraftMenu.craftMenu.object = allRecipes;
     }
 

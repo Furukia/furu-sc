@@ -74,6 +74,7 @@
         "TAGS": "Теги"
       },
       "TARGET_ITEM": "Целевой предмет:",
+      "TARGET_ITEMS": "Целевые предметы:",
       "DESCRIPTION": "Описание:",
       "REQUIRED_ITEMS": "Требуемые предметы:",
       "REQUIRED_TAGS": "Требуемые теги:"
