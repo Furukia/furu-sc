@@ -969,7 +969,7 @@ export class TagsData {
         });
         if (!tag) return null;
         // Check if the tag already exists
-        if (tagList[tag]) {
+        if (tagList && tagList[tag]) {
             ui.notifications.error(localize("FURU-SC.NOTIFICATIONS.TAG_EXISTS"));
             return null;
         }
