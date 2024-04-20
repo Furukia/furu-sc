@@ -809,29 +809,53 @@ export class CraftingTableData {
         CraftTable.craftTable.ingredients = suitableIngredients;
     }
 
+
     /**
-     * Crafts an item based on the selected actor and recipe.
+     * Asynchronously crafts targetItems.
      *
      * @return {Promise<void>} This function does not return a value.
      */
     static async craftItem() {
         const recipe = CraftTable.craftTable.object;
+
+        //check recipe setting for multiple targets
+        const isTargetsMultiple = recipe.settings.isTargetList;
         let craftedItem = recipe.target;
-        const pathObject = getCorrectQuantityPathForItem(craftedItem.type);
-        const selectedActor = CraftTable.craftTable.userActorsData.selectedActor;
-        if (pathObject.type === "system") {
-            let quantityUpdated = await this.tryUpdateActorItemQuantity(selectedActor, craftedItem, pathObject);
-            if (!quantityUpdated) {
-                await getDocumentClass("Item").create(craftedItem, { parent: selectedActor });
+        let targetList = recipe.targetList;
+
+        if (isTargetsMultiple) {
+            const targetsArray = Object.values(targetList);
+            for (const target of targetsArray) {
+                this._craftItem(target);
             }
         }
         else {
-            const currentQuantity = foundry.utils.getProperty(craftedItem, pathObject.path);
-            for (let i = 0; i < currentQuantity; i++) {
-                await getDocumentClass("Item").create(craftedItem, { parent: selectedActor });
+            this._craftItem(craftedItem);
+        }
+    }
+
+    /**
+     * Crafts an item by either updating its quantity in the actor's inventory or creating new items.
+     * Get's called by craftItems()
+     * @param {Object} itemToCraft - The item to be crafted.
+     * @return {Promise<void>} - This function does not return a value.
+     */
+    static async _craftItem(itemToCraft) {
+        const pathObject = getCorrectQuantityPathForItem(itemToCraft.type);
+        const selectedActor = CraftTable.craftTable.userActorsData.selectedActor;
+        if (pathObject.type === "system") {
+            let quantityUpdated = await this.tryUpdateActorItemQuantity(selectedActor, itemToCraft, pathObject);
+            if (!quantityUpdated) {
+                await getDocumentClass("Item").create(itemToCraft, { parent: selectedActor });
             }
         }
-        ui.notifications.info(`${localize("FURU-SC.NOTIFICATIONS.CRAFTED")} ${craftedItem.name}!`);
+        else {
+            const currentQuantity = foundry.utils.getProperty(itemToCraft, pathObject.path);
+            for (let i = 0; i < currentQuantity; i++) {
+                await getDocumentClass("Item").create(itemToCraft, { parent: selectedActor });
+            }
+        }
+        ui.notifications.info(`${localize("FURU-SC.NOTIFICATIONS.CRAFTED")} ${itemToCraft.name}!`);
     }
 
     /**

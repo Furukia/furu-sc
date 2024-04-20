@@ -99,7 +99,8 @@
       "QUANTITY": "Quantity:",
       "REQUIRED_INGREDIENTS": "Required ingredients:",
       "REQUIRED": "Required:",
-      "SUITABLE_INGREDIENTS": "Suitable ingredients:"
+      "SUITABLE_INGREDIENTS": "Suitable ingredients:",
+      "TARGET_ITEMS":"Target items:"
     },
     "QUANTITY_CONFIG_TITLE": "Quantity path config",
     "QUANTITY_CONFIG_UI": {

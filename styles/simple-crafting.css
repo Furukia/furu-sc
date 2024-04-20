@@ -579,9 +579,11 @@
   height: 100%;
   text-align: center;
   font-size: 1.4rem;
+  width: 64px;
 }
 
 #furu-sc-craft-table .sc-recipe-card p,
+#furu-sc-craft-table .sc-table-targets-block p,
 #furu-sc-craft-table .sc-table-ingredients-block p {
   background: var(--sc-color-main-light);
   margin: 0px;
@@ -648,6 +650,7 @@
   margin-right: 75px !important;
 }
 
+.sc-table-targets-container,
 .sc-table-ingredients-container,
 .sc-table-tags-container {
   background-color: var(--sc-color-main-dark-opaque);
@@ -656,6 +659,7 @@
   margin: 0px;
 }
 
+.sc-table-targets-block,
 .sc-table-ingredients-block {
   width: 100%;
   display: grid;
@@ -667,6 +671,7 @@
   padding: 10px;
 }
 
+.sc-table-targets-block p,
 .sc-table-ingredients-block p {
   font-size: 0.8rem;
 }
@@ -675,6 +680,7 @@
   box-shadow: inset 0px 0px 50px 10px var(--sc-text-color);
 }
 
+.sc-table-targets-name,
 .sc-table-ingredients-name {
   height: 100%;
   text-overflow: ellipsis;

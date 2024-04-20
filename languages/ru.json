@@ -99,7 +99,8 @@
       "QUANTITY": "Количество:",
       "REQUIRED_INGREDIENTS": "Требуемые ингредиенты:",
       "REQUIRED": "Требуется:",
-      "SUITABLE_INGREDIENTS": "Подходящие ингредиенты:"
+      "SUITABLE_INGREDIENTS": "Подходящие ингредиенты:",
+      "TARGET_ITEMS": "Целевые предметы:"
     },
     "QUANTITY_CONFIG_TITLE": "Настройка путей для \"количества\"",
     "QUANTITY_CONFIG_UI": {
