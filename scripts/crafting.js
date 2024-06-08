@@ -14,7 +14,7 @@ import { socketNotification, socketSaveFile } from "./sockets.js";
  * @property {bool} editMode - Are we editing this recipe text or not?
  * @property {Object} settings - An object that contains various settings of this recipe
  * @property {bool} settings.opened - Is this recipe settings block is open.
- * TODO:
+TODO:
  * @property {bool} settings.isTargetList - If this recipe should consider target as a list, of target items, instead of a singular item
  * @property {bool} settings.allowDismantling - If this recipe should allow dismantling. Effectively creating ingredients from target(s)
  * @property {bool} settings.isSecret - Make this recipe a secret for the players. They won't be able to craft it until they found out how.
@@ -26,7 +26,7 @@ import { socketNotification, socketSaveFile } from "./sockets.js";
  * @property {Object} settings.macros.openMacros - The macro that should be activated before(open craft table)
  * @property {Object} settings.macros.craftMacros - The macro that should be activated after crafting
  * @property {bool} settings.macros.activateAsGM - Activate macros as GM
- * TODO END
+TODO END
  * @property {Object} target - The object that we want to craft. Only used if settings.isTargetList is false
  * @property {Object} targetList - The objects that we want to craft. Only used if settings.isTargetList is true
  * @property {Object} ingredients - The list of key/value id/ingredient objects we use to craft the target.(Items recipe type) 
@@ -63,7 +63,7 @@ export class RecipeData {
 
     /**
     * Searches for recipes based on a search query and updates their visibility in the Craft Menu.
-    * TODO - TargetList Support
+    TODO - TargetList Support
     * @param {string} searchQuery - The search query used to filter the recipes.
     */
     static async searchRecipe(searchQuery) {
@@ -229,6 +229,7 @@ export class RecipeData {
     }
 
     /**
+    FIXME - changing the system to not use the sourceId
      * Processes an ingredient for a given recipe.
      *
      * @param {Object} item - The ingredient item.
@@ -260,6 +261,7 @@ export class RecipeData {
     }
 
     /**
+    FIXME - changing the system to not use the sourceId
      * Process a target list for a given item and recipe ID.
      *
      * @param {type} item - The target item.
@@ -292,6 +294,7 @@ export class RecipeData {
 
 
     /**
+    FIXME - changing the system to not use the sourceId
      * Validate if the item exists as a target in the recipe.
      *
      * @param {type} item - The item that we check
@@ -605,6 +608,7 @@ export class RecipeData {
 }
 
 /**
+FIXME - changing the system to not use the sourceId
  * @typedef {Object} ingredientInfo
  * @property {string} sourceId - The unique identifier of this ingredient's source item.
  * @property {string} name - The name of the ingredient.
@@ -672,6 +676,7 @@ export class CraftingTableData {
     }
 
     /**
+    FIXME - changing the system to not use the sourceId
      * Retrieves condensed information about ingredients.
      *
      * @param {Object} ingredients - The ingredients object.
@@ -727,6 +732,7 @@ export class CraftingTableData {
     }
 
     /**
+    FIXME - changing the system to not use the sourceId
     * Checks the ingredients of the specified actor against the recipe at the craft table.
     * Then updates the ingredients of the object accordingly.
     * @param {Object} actor - The actor whose ingredients will be checked.
@@ -859,6 +865,7 @@ export class CraftingTableData {
     }
 
     /**
+    FIXME - changing the system to not use the sourceId
      * Try to update the quantity of an item in the actor's inventory.
      *
      * @param {Array} actorItems - The array of items in the actor's inventory.
@@ -891,6 +898,7 @@ export class CraftingTableData {
     }
 
     /**
+    FIXME - changing the system to not use the sourceId
      * Process the quantity of ingredients on craft.
      *
      * @return {Promise<void>} This function does not return a value.

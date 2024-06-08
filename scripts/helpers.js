@@ -72,6 +72,8 @@ export function getCorrectQuantityPathForItem(itemType) {
 }
 
 /**
+TODO
+FIXME
  * Processes the source ID by removing the "Item." prefix and optionally restores it back to the original format.
  *
  * @param {string} sourceId - The source ID to be processed.
@@ -81,6 +83,7 @@ export function getCorrectQuantityPathForItem(itemType) {
 export function processSourceId(sourceId, restore = false) {
     return restore ? "Item." + sourceId : sourceId.split('.')[1];
 }
+
 
 /**
  * Calculates the percentage of remaining ingredients based on the total quantity of ingredients.
