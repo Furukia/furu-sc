@@ -72,8 +72,7 @@ export function getCorrectQuantityPathForItem(itemType) {
 }
 
 /**
-TODO
-FIXME
+DELETE - sourceId was changed from flags.core.sourceId to _stats.compendiumSource
  * Processes the source ID by removing the "Item." prefix and optionally restores it back to the original format.
  *
  * @param {string} sourceId - The source ID to be processed.
@@ -82,6 +81,37 @@ FIXME
  */
 export function processSourceId(sourceId, restore = false) {
     return restore ? "Item." + sourceId : sourceId.split('.')[1];
+}
+
+/**
+ * Processes the compendium source from item's "_stats.compendiumSource" and extracts the source ID.
+ *
+ * @param {Object} item - The item object.
+ * @return {string} The extracted source ID.
+ */
+export function processCompendiumSource(item) {
+    // version 11 compatibility
+    let compendiumSource = item.flags?.core?.sourceId;
+    // version 12+
+    if (!compendiumSource) {
+        compendiumSource = item._stats?.compendiumSource ?? item.id;
+    }
+    const splitSource = compendiumSource.split('.');
+    const sourceId = splitSource[splitSource.length - 1];
+    return sourceId;
+}
+/**
+ * Compares two items based on their name, type, and compendium source.
+ *
+ * @param {Object} item1 - The first item to compare.
+ * @param {Object} item2 - The second item to compare.
+ * @return {boolean} Returns true if the items are similar, false otherwise.
+ */
+export function compareItems(item1, item2) {
+    const equalNames = item1.name === item2.name;
+    const equalTypes = item1.type === item2.type;
+    const equalSource = processCompendiumSource(item1) === processCompendiumSource(item2);
+    return (equalNames && equalTypes) || equalSource;
 }
 
 
@@ -195,6 +225,6 @@ export function checkQuantity(item, quantity) {
     if (!quantity) return false;
     const pathObject = getCorrectQuantityPathForItem(item.type);
     let currentQuantity = foundry.utils.getProperty(item, pathObject.path);
-    if(!currentQuantity) currentQuantity = 1;
+    if (!currentQuantity) currentQuantity = 1;
     return quantity <= currentQuantity
 }

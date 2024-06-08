@@ -400,7 +400,7 @@ export class CraftMenu extends FormApplication {
         const pathObject = getCorrectQuantityPathForItem(item.type);
         switch (dropType) {
             case 'target':
-                const itemObject = { ...item.toObject(), _id: undefined, _stats: undefined, folder: undefined, ownership: undefined };
+                const itemObject = { ...item.toObject(), _id: undefined, folder: undefined, ownership: undefined };
                 const updateData = {
                     target: itemObject
                 };

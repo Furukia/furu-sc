@@ -1,7 +1,7 @@
 import { MODULE, DATA_DEFAULT_FOLDER, RECIPES, DEFAULT_RECIPES_DATA, SPECIAL_SYMBOLS_REGEX, DEFAULT_RECIPE_SETTINGS } from "./const.js"; //import the const variables
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";
-import { getCorrectQuantityPathForItem, processSourceId, localize, checkTagVisibility, checkEditRights } from "./helpers.js";
+import { getCorrectQuantityPathForItem, processCompendiumSource, compareItems, localize, checkTagVisibility, checkEditRights } from "./helpers.js";
 import { socketNotification, socketSaveFile } from "./sockets.js";
 
 /**
@@ -183,7 +183,7 @@ export class RecipeData {
         // get all existing recipes
         const allRecipes = CraftMenu.craftMenu.object;
         // turn the settings menu on/off
-        let _settingsOppened = !allRecipes[recipeID].settings?.opened ?? false;
+        let _settingsOppened = !allRecipes[recipeID].settings?.opened;
         const updateData = {
             settings: { opened: _settingsOppened }
         }
@@ -238,7 +238,7 @@ export class RecipeData {
     static async ProcessIngredient(item, recipeID) {
         let allRecipes = CraftMenu.craftMenu.object;
         let ingredients = allRecipes[recipeID].ingredients;
-        let sourceId = processSourceId(item.flags.core.sourceId);
+        let sourceId = processCompendiumSource(item);
         if (!ingredients) {
             // No ingredients. Making it an empty object to fill in later
             ingredients = {};
@@ -249,7 +249,7 @@ export class RecipeData {
             return; //And leave
         }
         // Adding a new ingredient
-        let itemObject = { ...item.toObject(), _id: undefined, _stats: undefined, folder: undefined, ownership: undefined };
+        let itemObject = { ...item.toObject(), _id: undefined, folder: undefined, ownership: undefined };
         ingredients[sourceId] = itemObject;
         const pathObject = getCorrectQuantityPathForItem(item.type);
         if (pathObject.type === "flag") {
@@ -270,7 +270,7 @@ export class RecipeData {
     static async ProcessTargetListItem(item, recipeID) {
         let allRecipes = CraftMenu.craftMenu.object;
         let targetList = allRecipes[recipeID].targetList;
-        let sourceId = processSourceId(item.flags.core.sourceId);
+        let sourceId = processCompendiumSource(item);
         if (!targetList) {
             // No target's in the list. Making it an empty object to fill in later
             targetList = {};
@@ -281,7 +281,7 @@ export class RecipeData {
             return; //And leave
         }
         // Adding a new target
-        let itemObject = { ...item.toObject(), _id: undefined, _stats: undefined, folder: undefined, ownership: undefined };
+        let itemObject = { ...item.toObject(), _id: undefined, folder: undefined, ownership: undefined };
         targetList[sourceId] = itemObject;
         const pathObject = getCorrectQuantityPathForItem(item.type);
         if (pathObject.type === "flag") {
@@ -305,13 +305,12 @@ export class RecipeData {
         const allRecipes = CraftMenu.craftMenu.object;
         const recipe = allRecipes[recipeID];
         const isTargetList = recipe.settings.isTargetList;
-        const itemSourceID = processSourceId(item.flags.core.sourceId);
         if (isTargetList) {
             const targetList = recipe.targetList;
             const targetsArray = Object.values(targetList);
             if (!targetsArray?.length) return true;
             for (const targetItem of targetsArray) {
-                if ((targetItem.name === item.name && targetItem.type === item.type) || targetItem.flags.core.sourceId === itemSourceID) {
+                if (compareItems(targetItem, item)) {
                     const confirmation = await Dialog.confirm({
                         title: localize("FURU-SC.DIALOGS.INGREDIENT_EQUALS_TARGET.title"),
                         content: localize("FURU-SC.DIALOGS.INGREDIENT_EQUALS_TARGET.content"),
@@ -324,7 +323,7 @@ export class RecipeData {
         }
         else {
             const targetItem = recipe.target;
-            if (targetItem && ((targetItem.name === item.name && targetItem.type === item.type) || targetItem.flags.core.sourceId === itemSourceID)) {
+            if (targetItem && compareItems(targetItem, item)) {
                 const confirmation = await Dialog.confirm({
                     title: localize("FURU-SC.DIALOGS.INGREDIENT_EQUALS_TARGET.title"),
                     content: localize("FURU-SC.DIALOGS.INGREDIENT_EQUALS_TARGET.content"),
@@ -687,7 +686,7 @@ export class CraftingTableData {
         let ingredientsArray = Object.values(ingredients);
         let ingredientsInfo = {};
         ingredientsArray.forEach(ingredient => {
-            let sourceId = processSourceId(ingredient.flags.core.sourceId);
+            let sourceId = processCompendiumSource(ingredient)
             const pathObject = getCorrectQuantityPathForItem(ingredient.type);
             const path = pathObject.path;
             const currentQuantity = foundry.utils.getProperty(ingredient, path);
@@ -750,7 +749,7 @@ export class CraftingTableData {
             // if we don't have a source, we just use the actual item's id
             // Because most of the system allow's creating item's directly in the actor's sheet
             // Those item's can be considered the source if they were used while creating a recipe
-            const sourceId = item.flags?.core?.sourceId ? processSourceId(item.flags.core.sourceId) : item.id;
+            const sourceId = processCompendiumSource(item);
             const pathObject = getCorrectQuantityPathForItem(item.type);
             if (ingredientsInfo.hasOwnProperty(sourceId)) {
                 if (pathObject.type === "system") {
@@ -877,12 +876,13 @@ export class CraftingTableData {
         const actorItems = selectedActor.items;
         if (!pathObject)
             pathObject = getCorrectQuantityPathForItem(craftedItem.type);
-        const craftedItemSourceId = processSourceId(craftedItem.flags.core.sourceId);
+        console.log(pathObject, craftedItem);
+        const craftedItemSourceId = processCompendiumSource(craftedItem);
         for (const item of actorItems) {
             if (item.type !== craftedItem.type)
                 continue;
 
-            const sourceId = item.flags?.core?.sourceId ? processSourceId(item.flags.core.sourceId) : item.id;
+            const sourceId = processCompendiumSource(item);
 
             if (sourceId !== craftedItemSourceId)
                 continue;
@@ -912,10 +912,7 @@ export class CraftingTableData {
         let ingredientInstanceCount = {};
         for (let i = 0; i < actorItems.length; i++) {
             const item = actorItems[i];
-            // if we don't have a source, we just use the actual item's id
-            // Because most of the system allow's creating item's directly in the actor's sheet
-            // Those item's can be considered the source if they were used while creating a recipe
-            const sourceId = item.flags?.core?.sourceId ? processSourceId(item.flags.core.sourceId) : item.id;
+            const sourceId = processCompendiumSource(item);
             const pathObject = getCorrectQuantityPathForItem(item.type);
             if (recipe.ingredients.hasOwnProperty(sourceId)) {
                 if (pathObject.type === "system") {
@@ -1053,11 +1050,10 @@ export class TagsData {
         }
         // Update tags.
         let updateObject = {};
-        const updateTags = updateData;
         // Update never deletes, nor creates any new tags. So we just rewrite values for every old tag.
         for (const tag of oldTags) {
-            let updateTag = updateTags[tag];
-            updateObject[updateTag?.tag ?? tag] = Math.max(1, Number(updateTag?.quantity) ?? currentData[tag]);
+            let updateTag = updateData[tag];
+            updateObject[updateTag?.tag ?? tag] = Math.max(1, Number(updateTag?.quantity));
         }
         return updateObject;
     }
