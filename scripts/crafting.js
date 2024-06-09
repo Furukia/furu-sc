@@ -686,7 +686,7 @@ export class CraftingTableData {
         let ingredientsArray = Object.values(ingredients);
         let ingredientsInfo = {};
         ingredientsArray.forEach(ingredient => {
-            let sourceId = processCompendiumSource(ingredient)
+            const sourceId = processCompendiumSource(ingredient);
             const pathObject = getCorrectQuantityPathForItem(ingredient.type);
             const path = pathObject.path;
             const currentQuantity = foundry.utils.getProperty(ingredient, path);
@@ -746,9 +746,6 @@ export class CraftingTableData {
         }
         let ingredientInstanceCount = {};
         actorItems.forEach(item => {
-            // if we don't have a source, we just use the actual item's id
-            // Because most of the system allow's creating item's directly in the actor's sheet
-            // Those item's can be considered the source if they were used while creating a recipe
             const sourceId = processCompendiumSource(item);
             const pathObject = getCorrectQuantityPathForItem(item.type);
             if (ingredientsInfo.hasOwnProperty(sourceId)) {
@@ -876,22 +873,22 @@ export class CraftingTableData {
         const actorItems = selectedActor.items;
         if (!pathObject)
             pathObject = getCorrectQuantityPathForItem(craftedItem.type);
-        console.log(pathObject, craftedItem);
         const craftedItemSourceId = processCompendiumSource(craftedItem);
         for (const item of actorItems) {
             if (item.type !== craftedItem.type)
                 continue;
-
             const sourceId = processCompendiumSource(item);
-
             if (sourceId !== craftedItemSourceId)
                 continue;
-
             const currentQuantity = foundry.utils.getProperty(item, pathObject.path);
             const addQuantity = foundry.utils.getProperty(craftedItem, pathObject.path);
-            const finalQuantity = currentQuantity + addQuantity;
-
-            await item.update({ [pathObject.path]: finalQuantity });
+            //check if we are working with strings
+            let quantityType = "number"
+            if (typeof currentQuantity !== "number" || typeof addQuantity !== "number") {
+                quantityType = "string"
+            }
+            const finalQuantity = Number(currentQuantity) + Number(addQuantity);
+            await item.update({ [pathObject.path]: quantityType === "string" ? finalQuantity.toString() : finalQuantity });
             return true
         }
         return false;
@@ -923,7 +920,7 @@ export class CraftingTableData {
                 }
                 const currentQuantity = ingredientInstanceCount[sourceId];
                 const requiredQuantity = foundry.utils.getProperty(recipe.ingredients[sourceId], pathObject.path);
-                let finalQuantity = Math.max(0, currentQuantity - requiredQuantity);
+                let finalQuantity = Math.max(0, Number(currentQuantity) - Number(requiredQuantity));
                 await item.update({ [pathObject.path]: finalQuantity });
                 if (finalQuantity === 0) {
                     item.delete();
@@ -952,7 +949,7 @@ export class CraftingTableData {
             const consumeQuantity = usedIngredientsInfo[key].consumeQuantity;
             const pathObject = getCorrectQuantityPathForItem(ingredient.type);
             const currentQuantity = foundry.utils.getProperty(ingredient, pathObject.path);
-            const finalQuantity = Math.max(0, currentQuantity - consumeQuantity);
+            const finalQuantity = Math.max(0, Number(currentQuantity) - Number(consumeQuantity));
             await ingredient.update({ [pathObject.path]: finalQuantity });
             if (finalQuantity === 0) {
                 ingredient.delete();
