@@ -1,7 +1,6 @@
 import { MODULE, DATA_DEFAULT_FOLDER } from "./const.js"; //import the const variables
 import { CraftTable } from "./CraftTable.js";
 
-
 /**
  * Creates a folder if it is missing at the specified path.
  *

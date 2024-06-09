@@ -1,10 +1,5 @@
 import { MODULE, MODULE_NAME } from "./const.js"; //import the const variables
-import {
-  checkEditRights, checkTagsPresence,
-  createFolderIfMissing, getCorrectQuantityPathForItem,
-  getPercentForAllIngredients, getPercentForAllTags,
-  localize
-} from "./helpers.js";
+import { checkEditRights, createFolderIfMissing, getCorrectQuantityPathForItem, localize } from "./helpers.js";
 import { RegisterSettings, ValidateSettings } from "./settings.js";
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";

@@ -1,5 +1,5 @@
 import { MODULE } from "./const.js"; //import the const variables
-import { RecipeData } from "./crafting.js";
+import { RecipeData } from "./RecipeData.js";
 import { localize } from "./helpers.js";
 
 

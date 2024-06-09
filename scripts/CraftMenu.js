@@ -1,7 +1,9 @@
 
 
 import { MODULE, CRAFT_MENU_TEMPLATE, CRAFT_MENU_ID } from "./const.js"; //import the const variables
-import { CraftingTableData, RecipeData, TagsData } from "./crafting.js";
+import { RecipeData } from "./RecipeData.js";
+import { CraftingTableData } from "./CraftingTableData.js";
+import { TagsData } from "./TagsData.js";
 import { checkEditRights, getCorrectQuantityPathForItem, getFullFilePath, localize } from "./helpers.js";
 import { socketSaveFile } from "./sockets.js";
 export class CraftMenu extends FormApplication {

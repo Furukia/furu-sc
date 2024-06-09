@@ -1,6 +1,6 @@
 
 import { MODULE, CRAFT_TABLE_TEMPLATE, CRAFT_TABLE_ID } from "./const.js"; //import the const variables
-import { CraftingTableData } from "./crafting.js";
+import { CraftingTableData } from "./CraftingTableData.js";
 import { getPercentForAllIngredients, getPercentForAllTags, checkQuantity, localize, getCorrectQuantityPathForItem } from "./helpers.js";
 /** 
  * This application works with a single recipe as it's object and handles the crafting process.

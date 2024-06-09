@@ -1,7 +1,7 @@
 import { MODULE, DATA_DEFAULT_FOLDER, RECIPES } from "./const.js"; //import the const variables
 import { getFileNames, localize } from "./helpers.js";
 import { QuantityConfig } from "./QuantityConfig.js";
-import { RecipeData } from "./crafting.js";
+import { RecipeData } from "./RecipeData.js";
 
 
 /**
