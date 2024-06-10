@@ -1,7 +1,7 @@
 import { MODULE } from "./const.js";
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";
-import { getCorrectQuantityPathForItem, processCompendiumSource, localize } from "./helpers.js";
+import { getCorrectQuantityPathForItem, processCompendiumSource, processItemCompatibility, localize } from "./helpers.js";
 
 /**
  * @typedef {Object} ingredientInfo
@@ -224,11 +224,11 @@ export class CraftingTableData {
         if (isTargetsMultiple) {
             const targetsArray = Object.values(targetList);
             for (const target of targetsArray) {
-                this._craftItem(target);
+                this._craftItem(processItemCompatibility(target));
             }
         }
         else {
-            this._craftItem(craftedItem);
+            this._craftItem(processItemCompatibility(craftedItem));
         }
     }
 

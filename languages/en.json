@@ -30,7 +30,7 @@
     "CRAFT_MENU_UI": {
       "NOTIFICATIONS": {
         "WRONG_SYSTEM": "This recipes file was made in another game system. Item's probably won't be compatible at all!",
-        "WRONG_WORLD": "This recipes file was made in another world. Item's probably won't be compatible at all!"
+        "WRONG_WORLD": "This recipes file was made in another world. Item's probably won't be compatible unless you use the same system and compendiums!"
       },
       "TOOLTIPS": {
         "SEARCH": "Search for a recipe",
@@ -100,7 +100,7 @@
       "REQUIRED_INGREDIENTS": "Required ingredients:",
       "REQUIRED": "Required:",
       "SUITABLE_INGREDIENTS": "Suitable ingredients:",
-      "TARGET_ITEMS":"Target items:"
+      "TARGET_ITEMS": "Target items:"
     },
     "QUANTITY_CONFIG_TITLE": "Quantity path config",
     "QUANTITY_CONFIG_UI": {

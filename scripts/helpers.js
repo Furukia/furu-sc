@@ -113,6 +113,27 @@ export function compareItems(item1, item2) {
     return (equalNames && equalTypes) || equalSource;
 }
 
+/**
+ * Processes item compatibility for different Foundry versions.
+ * In v12 sourceId was moved from flags.core.sourceId to _stats.compendiumSource
+ * I want to provide compatibility for v11+
+ * Which is why we need this function
+ *
+ * @param {Object} item - The item to process compatibility for.
+ * @return {Object} The processed item.
+ */
+export function processItemCompatibility(item) {
+    const foundryVersion = game.world.coreVersion;
+    const shortVersion = Number(foundryVersion.split('.')[0]);
+    const compendiumSource = processCompendiumSource(item);
+    if (shortVersion === 11 && !item.flags?.core?.sourceId) {
+        foundry.utils.setProperty(item, "flags.core.sourceId", compendiumSource);
+    }
+    if (shortVersion >= 12 && !item._stats?.compendiumSource) {
+        foundry.utils.setProperty(item, "_stats.compendiumSource", compendiumSource);
+    }
+    return item;
+}
 
 /**
  * Calculates the percentage of remaining ingredients based on the total quantity of ingredients.
