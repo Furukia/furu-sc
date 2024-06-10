@@ -237,6 +237,7 @@
                             <input type="text" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.ITEM_QUANTITY"}}"
                                 name="{{id}}.target.quantity"
                                 class="sc-quantity-input sc-br-none sc-br-rad0 {{#if (checkEditRights)}}sc-br-left sc-br-right{{/if}}"
+                                style="width: 100%"
                                 {{#if (noEditRights)}}readonly{{/if}} value="{{getCorrectQuantityValue target}}" />
                             {{#if (checkEditRights)}}
                             <button type="button" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.ADD_QUANTITY"}}"

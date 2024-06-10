@@ -125,6 +125,7 @@
       "INVALID_NUMBER": "Please enter a valid number!",
       "NO_INGREDIENTS": "This recipe has no ingredients. Please add some ingredients before crafting.",
       "NO_TARGET": "This recipe has no target item. Please add a target to craft.",
+      "NO_TARGETS": "This recipe has no target items. Please add at least one target to craft.",
       "FILE_RELOADED": "Selected file reloaded!",
       "ITEMS_ONLY": "Only items can be dropped in a craft menu!",
       "ACTOR_NOT_FOUND": "Actor not found!",

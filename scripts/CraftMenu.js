@@ -31,9 +31,9 @@ export class CraftMenu extends FormApplication {
         const overrides = {
             closeOnSubmit: false, // do not close when submitted
             submitOnChange: true, // submit when any input changes
-            height: 600,
+            //height: "auto",
             width: 800,
-            resizable: false,
+            resizable: true,
             id: CRAFT_MENU_ID,
             template: CRAFT_MENU_TEMPLATE,
             title: localize("FURU-SC.CRAFT_MENU"),
@@ -294,8 +294,12 @@ export class CraftMenu extends FormApplication {
                         ui.notifications.warn(localize("FURU-SC.NOTIFICATIONS.NO_TAGS"));
                         return;
                     }
-                if (!this.object[recipeID].target) {
+                if (!this.object[recipeID].target && !this.object[recipeID].settings.isTargetList) {
                     ui.notifications.warn(localize("FURU-SC.NOTIFICATIONS.NO_TARGET"));
+                    return;
+                }
+                else if (!this.object[recipeID].targetList && this.object[recipeID].settings.isTargetList) {
+                    ui.notifications.warn(localize("FURU-SC.NOTIFICATIONS.NO_TARGETS"));
                     return;
                 }
                 await CraftingTableData.openCraftTable(recipeID);
