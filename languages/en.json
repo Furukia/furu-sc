@@ -145,7 +145,8 @@
       "INSUFFICIENT_ITEM_QUANTITY": "You already selected the maximum possible amount of this item!",
       "ENOUGH_TAGS": "You already provided enough tags to craft an item!",
       "NOT_ENOUGH_TAGS": "You don't have enough tags to craft this item!",
-      "INVALID_RECIPE_TYPE": "Invalid recipe type!"
+      "INVALID_RECIPE_TYPE": "Invalid recipe type!",
+      "FOUND_QUANTITY_PATH_DEFAULT": "Found quantity path setting preset for items in the current system. Setting up..."
     },
     "NEW_RECIPE": "New recipe",
     "DEFAULT_DESCRIPTION": "Fill me in!",

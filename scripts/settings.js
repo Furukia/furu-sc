@@ -1,4 +1,4 @@
-import { MODULE, DATA_DEFAULT_FOLDER, RECIPES } from "./const.js"; //import the const variables
+import { MODULE, DATA_DEFAULT_FOLDER, RECIPES, MODULE_NAME, QUANTITY_PATH_DEFAULTS } from "./const.js"; //import the const variables
 import { getFileNames, localize } from "./helpers.js";
 import { QuantityConfig } from "./QuantityConfig.js";
 import { RecipeData } from "./RecipeData.js";
@@ -70,6 +70,12 @@ export function RegisterSettings() {
         default: null,
         type: Array
     });
+    game.settings.register(MODULE, "quantity-path-is-set", {
+        scope: "world",
+        config: true,
+        default: false,
+        type: Boolean
+    });
 
     game.settings.registerMenu(MODULE, "quantity-config", {
         name: localize("FURU-SC.SETTINGS.QUANTITY.name"),
@@ -119,6 +125,16 @@ export async function ValidateSettings() {
         console.log(`${MODULE} | File:`, fileNames[0]);
     }
 
+    const isSet = game.settings.get(MODULE, 'quantity-path-is-set');
+    if (!isSet) {
+        const systemId = game.system.id;
+        const quantityPath = QUANTITY_PATH_DEFAULTS[systemId];
+        if (quantityPath) {
+            ui.notifications.info(`${MODULE_NAME} - ${localize("FURU-SC.NOTIFICATIONS.FOUND_QUANTITY_PATH_DEFAULT")}`);
+            game.settings.set(MODULE, 'quantity-path', quantityPath);
+        }
+        game.settings.set(MODULE, 'quantity-path-is-set', true);
+    }
     let quantitySetting = game.settings.get(MODULE, 'quantity-path');
     if (!quantitySetting || quantitySetting.length === 0) {
         let itemTypes = CONFIG.Item.typeLabels;
