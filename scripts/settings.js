@@ -72,7 +72,7 @@ export function RegisterSettings() {
     });
     game.settings.register(MODULE, "quantity-path-is-set", {
         scope: "world",
-        config: true,
+        config: false,
         default: false,
         type: Boolean
     });
