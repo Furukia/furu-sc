@@ -1,14 +1,14 @@
 <form>
     <div id="crafting-form">
         <ul style="display: contents; list-style-type: none;">
-            {{#if (equals fileInfo.system worldInfo.system)}}
-            {{else}}
+            {{#unless (equals fileInfo.system worldInfo.system)}}
             <li class="notification error">{{localize "FURU-SC.CRAFT_MENU_UI.NOTIFICATIONS.WRONG_SYSTEM"}}</li>
-            {{/if}}
-            {{#if (equals fileInfo.world worldInfo.world)}}
-            {{else}}
-            <li class="notification warning">{{localize "FURU-SC.CRAFT_MENU_UI.NOTIFICATIONS.WRONG_WORLD"}}</li>
-            {{/if}}
+            {{/unless}}
+            {{#unless hideWrongWorldNotification}}
+                {{#unless (equals fileInfo.world worldInfo.world)}}
+                <li class="notification warning">{{localize "FURU-SC.CRAFT_MENU_UI.NOTIFICATIONS.WRONG_WORLD"}}</li>
+                {{/unless}}
+            {{/unless}}
         </ul>
         <div class="sc-control-container">
             <div class="sc-search-recipe">

@@ -47,7 +47,7 @@ export function RegisterSettings() {
         default: []
     });
     /*
-     * Maybe will implement later
+    TODO: Maybe will implement later
      *
     let dataHandlingType = {
         'all': localize("FURU-SC.SETTINGS.DATA_HANDLING.types.all"),
@@ -87,18 +87,27 @@ export function RegisterSettings() {
         restricted: true
     });
 
-    game.settings.register(MODULE, 'hideLabel', {
+    game.settings.register(MODULE, 'hide-label', {
         name: localize("FURU-SC.SETTINGS.HIDE_TAGS_LABEL.name"),
         hint: localize("FURU-SC.SETTINGS.HIDE_TAGS_LABEL.hint"),
+        scope: "client",
+        config: true,
+        default: false,
+        type: Boolean
+    });
+    game.settings.register(MODULE, 'allow-force-crafting', {
+        name: localize("FURU-SC.SETTINGS.ALLOW_FORCE_CRAFTING.name"),
+        hint: localize("FURU-SC.SETTINGS.ALLOW_FORCE_CRAFTING.hint"),
         scope: "world",
         config: true,
         default: false,
         type: Boolean
     });
-    game.settings.register(MODULE, 'allowForceCrafting', {
-        name: localize("FURU-SC.SETTINGS.ALLOW_FORCE_CRAFTING.name"),
-        hint: localize("FURU-SC.SETTINGS.ALLOW_FORCE_CRAFTING.hint"),
-        scope: "world",
+
+    game.settings.register(MODULE, 'hide-wrong-world-notification', {
+        name: localize("FURU-SC.SETTINGS.HIDE_WRONG_WORLD_NOTIFICATION.name"),
+        hint: localize("FURU-SC.SETTINGS.HIDE_WRONG_WORLD_NOTIFICATION.hint"),
+        scope: "client",
         config: true,
         default: false,
         type: Boolean

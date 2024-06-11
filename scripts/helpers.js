@@ -278,5 +278,5 @@ export function sendNotificationToChat(message, options) {
  * @return {boolean} Returns true if force crafting is allowed, otherwise false.
  */
 export function isAllowedForceCraft(recipe) {
-    return recipe.settings.allowForceCraft || game.settings.get(MODULE, "allowForceCrafting")
+    return recipe.settings.allowForceCraft || game.settings.get(MODULE, "allow-force-crafting")
 }

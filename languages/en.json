@@ -28,6 +28,10 @@
       "ALLOW_FORCE_CRAFTING": {
         "name": "Allow force crafting",
         "hint": "Allow players to force craft any recipe without using ingredients. Can be set up per recipe. In case of such craft's GM's will receive notifications in chat."
+      },
+      "HIDE_WRONG_WORLD_NOTIFICATION": {
+        "name": "Hide wrong world notification",
+        "hint": "Hides the \"This recipes file was made in another world\" notification in craft menu."
       }
     },
     "CRAFT_MENU": "Craft menu",

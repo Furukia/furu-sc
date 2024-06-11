@@ -482,7 +482,8 @@ export class CraftMenu extends FormApplication {
             fileInfo: this.fileInfo,
             worldInfo: worldInfo,
             fileNames: fileNamesObject,
-            recipeTypes: recipeTypes
+            recipeTypes: recipeTypes,
+            hideWrongWorldNotification: game.settings.get(MODULE, 'hide-wrong-world-notification')
         };
         return data;
     }

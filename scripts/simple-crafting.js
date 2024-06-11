@@ -57,7 +57,7 @@ Hooks.on(`getItemSheetHeaderButtons`, function (app, buttons) {
   if (!app?.document) return;
   const appsItem = app.document;
   buttons.unshift({
-    label: game.settings.get(MODULE, 'hideLabel') ? '' : localize("FURU-SC.CRAFT_TAGS"),
+    label: game.settings.get(MODULE, 'hide-label') ? '' : localize("FURU-SC.CRAFT_TAGS"),
     class: `sc-craft-tags-header-button`,
     get icon() {
       return `fas fa-tags`;
@@ -80,7 +80,7 @@ Hooks.on(`renderItemSheet`, function (app, [elem], options) {
   // Set color to green if tags exist
   tagsButton.style.color = tags ? 'var(--sc-color-green)' : '';
   // Change label if needed
-  tagsButton.innerHTML = `<i class="fas fa-tags"></i> ${game.settings.get(MODULE, 'hideLabel') ? '' : localize("FURU-SC.CRAFT_TAGS")}`;
+  tagsButton.innerHTML = `<i class="fas fa-tags"></i> ${game.settings.get(MODULE, 'hide-label') ? '' : localize("FURU-SC.CRAFT_TAGS")}`;
 });
 
 /*
