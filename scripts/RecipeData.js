@@ -228,7 +228,6 @@ export class RecipeData {
     }
 
     /**
-    FIXME - changing the system to not use the sourceId
      * Processes an ingredient for a given recipe.
      *
      * @param {Object} item - The ingredient item.
@@ -260,7 +259,6 @@ export class RecipeData {
     }
 
     /**
-    FIXME - changing the system to not use the sourceId
      * Process a target list for a given item and recipe ID.
      *
      * @param {type} item - The target item.
@@ -293,7 +291,6 @@ export class RecipeData {
 
 
     /**
-    FIXME - changing the system to not use the sourceId
      * Validate if the item exists as a target in the recipe.
      *
      * @param {type} item - The item that we check

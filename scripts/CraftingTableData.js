@@ -71,7 +71,6 @@ export class CraftingTableData {
     }
 
     /**
-    FIXME - changing the system to not use the sourceId
      * Retrieves condensed information about ingredients.
      *
      * @param {Object} ingredients - The ingredients object.
@@ -257,7 +256,6 @@ export class CraftingTableData {
     }
 
     /**
-    FIXME - changing the system to not use the sourceId
      * Try to update the quantity of an item in the actor's inventory.
      *
      * @param {Array} actorItems - The array of items in the actor's inventory.
@@ -291,7 +289,6 @@ export class CraftingTableData {
     }
 
     /**
-    FIXME - changing the system to not use the sourceId
      * Process the quantity of ingredients on craft.
      *
      * @return {Promise<void>} This function does not return a value.

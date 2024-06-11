@@ -71,18 +71,6 @@ export function getCorrectQuantityPathForItem(itemType) {
 }
 
 /**
-DELETE - sourceId was changed from flags.core.sourceId to _stats.compendiumSource
- * Processes the source ID by removing the "Item." prefix and optionally restores it back to the original format.
- *
- * @param {string} sourceId - The source ID to be processed.
- * @param {boolean} [restore=false] - Whether or not to restore the source ID.
- * @return {string} - The processed source ID.
- */
-export function processSourceId(sourceId, restore = false) {
-    return restore ? "Item." + sourceId : sourceId.split('.')[1];
-}
-
-/**
  * Processes the compendium source from item's "_stats.compendiumSource" and extracts the source ID.
  *
  * @param {Object} item - The item object.
