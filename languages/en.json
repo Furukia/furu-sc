@@ -59,7 +59,8 @@
         "ADD_TAG": "Add a new tag",
         "TAG_QUANTITY": "Quantity for this tag",
         "CHANGE_TAG": "Change this tag",
-        "REMOVE_TAG": "Remove this tag"
+        "REMOVE_TAG": "Remove this tag",
+        "EDIT_RECIPE_SETTINGS": "Edit recipe settings"
       },
       "SETTINGS": {
         "TITLE": "Recipe settings",
