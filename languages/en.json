@@ -24,6 +24,10 @@
       "HIDE_TAGS_LABEL": {
         "name": "Hide tags label",
         "hint": "Hides label of the tag editor header button in an item window."
+      },
+      "ALLOW_FORCE_CRAFTING": {
+        "name": "Allow force crafting",
+        "hint": "Allow players to force craft any recipe without using ingredients. Can be set up per recipe. In case of such craft's GM's will receive notifications in chat."
       }
     },
     "CRAFT_MENU": "Craft menu",
@@ -58,7 +62,7 @@
         "IS_TARGET_LIST": "Allow multiple target items",
         "ALLOW_DISMANTLING": "Allow to dismantle the target item back to it's components by this recipe",
         "IS_SECRET": "Make this recipe secret, hiding required components from players",
-        "ALLOW_MODIFIERS": "Allow modifiers, so that players can craft with less items than required. Recommended to use with craft requests",
+        "ALLOW_FORCE_CRAFT": "Allow players to force craft by recipe so they can create items even if they lack ingredients. You will receive a chat message about forced crafting.",
         "IS_ONE_TIME": "Make this recipe one time only, hiding it from players after crafting",
         "IS_HIDDEN": "Hides this recipe from players",
         "SEND_CRAFT_REQUEST": "Send GM an approval request to create an item"
@@ -100,7 +104,8 @@
       "REQUIRED_INGREDIENTS": "Required ingredients:",
       "REQUIRED": "Required:",
       "SUITABLE_INGREDIENTS": "Suitable ingredients:",
-      "TARGET_ITEMS": "Target items:"
+      "TARGET_ITEMS": "Target items:",
+      "FORCE_CRAFT": "Force craft this recipe. Does not require ingredients. GM will be notified!"
     },
     "QUANTITY_CONFIG_TITLE": "Quantity path config",
     "QUANTITY_CONFIG_UI": {
@@ -200,6 +205,9 @@
       },
       "SEARCH_TAGS": "Search tags:",
       "SEARCH_PLACEHOLDER": "Search..."
+    },
+    "CHAT_MESSAGES": {
+      "FORCE_CRAFT": "<h2>Force crafted</h2><p>Recipe: \"%r\"</p><p>Player: \"%p\" </p><p>Actor: \"%a\" </p>"
     }
   }
 }

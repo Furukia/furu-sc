@@ -134,30 +134,38 @@
                             <input type="checkbox" name="{{id}}.settings.isTargetList" class="sc-br-none" {{checked settings.isTargetList}}>
                             <label for="{{id}}.settings.isTargetList">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.IS_TARGET_LIST"}}</label>
                         </span>
-                        <span class="sc-setting-span">
-                            <input type="checkbox" name="{{id}}.settings.allowDismantling" class="sc-br-none" {{checked settings.allowDismantling}}>
-                            <label for="{{id}}.settings.allowDismantling">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.ALLOW_DISMANTLING"}}</label>
-                        </span>
-                        <span class="sc-setting-span">
-                            <input type="checkbox" name="{{id}}.settings.isSecret" class="sc-br-none" {{checked settings.isSecret}}>
-                            <label for="{{id}}.settings.isSecret">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.IS_SECRET"}}</label>
-                        </span>
-                        <span class="sc-setting-span">
-                            <input type="checkbox" name="{{id}}.settings.allowModifiers" class="sc-br-none" {{checked settings.allowModifiers}}>
-                            <label for="{{id}}.settings.allowModifiers">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.ALLOW_MODIFIERS"}}</label>
-                        </span>
-                        <span class="sc-setting-span">
-                            <input type="checkbox" name="{{id}}.settings.isOneTime" class="sc-br-none" {{checked settings.isOneTime}}>
-                            <label for="{{id}}.settings.isOneTime">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.IS_ONE_TIME"}}</label>
-                        </span>
+                        <hr class="sc-hr">
                         <span class="sc-setting-span">
                             <input type="checkbox" name="{{id}}.settings.isHidden" class="sc-br-none" {{checked settings.isHidden}}>
                             <label for="{{id}}.settings.isHidden">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.IS_HIDDEN"}}</label>
                         </span>
+                        <hr class="sc-hr">
+                        <span class="sc-setting-span">
+                            <input type="checkbox" name="{{id}}.settings.allowForceCraft" class="sc-br-none" {{checked settings.allowForceCraft}}>
+                            <label for="{{id}}.settings.allowForceCraft">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.ALLOW_FORCE_CRAFT"}}</label>
+                        </span>
+                        {{!--
+                        <hr class="sc-hr">
+                        <span class="sc-setting-span">
+                            <input type="checkbox" name="{{id}}.settings.allowDismantling" class="sc-br-none" {{checked settings.allowDismantling}}>
+                            <label for="{{id}}.settings.allowDismantling">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.ALLOW_DISMANTLING"}}</label>
+                        </span>
+                        <hr class="sc-hr">
+                        <span class="sc-setting-span">
+                            <input type="checkbox" name="{{id}}.settings.isSecret" class="sc-br-none" {{checked settings.isSecret}}>
+                            <label for="{{id}}.settings.isSecret">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.IS_SECRET"}}</label>
+                        </span>
+                        <hr class="sc-hr">
+                        <span class="sc-setting-span">
+                            <input type="checkbox" name="{{id}}.settings.isOneTime" class="sc-br-none" {{checked settings.isOneTime}}>
+                            <label for="{{id}}.settings.isOneTime">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.IS_ONE_TIME"}}</label>
+                        </span>
+                        <hr class="sc-hr">
                         <span class="sc-setting-span">
                             <input type="checkbox" name="{{id}}.settings.sendCraftRequest" class="sc-br-none" {{checked settings.sendCraftRequest}}>
                             <label for="{{id}}.settings.sendCraftRequest">{{localize "FURU-SC.CRAFT_MENU_UI.SETTINGS.SEND_CRAFT_REQUEST"}}</label>
                         </span>
+                        --}}
                         {{!--  
                         TODO: Add macro related settings
                         --}}

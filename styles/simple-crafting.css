@@ -294,7 +294,8 @@
   overflow-x: hidden;
 }
 
-.sc-setting-span {
+.sc-setting-span,
+.sc-force-craft-block {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
@@ -302,6 +303,7 @@
   padding: 10px;
   padding-top: 0;
   padding-bottom: 0;
+  color: var(--sc-text-color);
 }
 /*
  * recipe settings end
@@ -878,4 +880,8 @@ input.sc-table-tag-item-name {
   padding-left: 5%;
   height: auto !important;
   width: auto !important;
+}
+.sc-hr {
+  border-top: 3px solid var(--sc-color-main-dark);
+  border-bottom: none;
 }

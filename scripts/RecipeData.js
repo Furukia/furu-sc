@@ -13,19 +13,17 @@ import { socketNotification, socketSaveFile } from "./sockets.js";
  * @property {bool} editMode - Are we editing this recipe text or not?
  * @property {Object} settings - An object that contains various settings of this recipe
  * @property {bool} settings.opened - Is this recipe settings block is open.
-TODO:
  * @property {bool} settings.isTargetList - If this recipe should consider target as a list, of target items, instead of a singular item
- * @property {bool} settings.allowDismantling - If this recipe should allow dismantling. Effectively creating ingredients from target(s)
- * @property {bool} settings.isSecret - Make this recipe a secret for the players. They won't be able to craft it until they found out how.
- * @property {bool} settings.allowModifiers - Allows players to provide quantity modifiers. Those are added to the required quantity, allowing to craft with less required items
- * @property {bool} settings.isOneTime - Makes the recipe one use. Hiding it from players after that.
+TODO: @property {bool} settings.allowDismantling - If this recipe should allow dismantling. Effectively creating ingredients from target(s)
+TODO: @property {bool} settings.isSecret - Make this recipe a secret for the players. They won't be able to craft it until they found out the ingredients for it.
+ * @property {bool} settings.allowForceCraft - Allow players to force craft by recipe so they can create items even if they lack ingredients.
+TODO: @property {bool} settings.isOneTime - Makes the recipe one use. Hiding it from players after that.
  * @property {bool} settings.isHidden - Is a recipe hidden right now? Which is more important than visibility, and triggered by GM/One time recipes
- * @property {bool} settings.sendCraftRequest - Whether to send a craft request to the GM or just craft immediately
- * @property {Object} settings.macros - The object that contains macros that should be activated before(open craft table) or after crafting
- * @property {Object} settings.macros.openMacros - The macro that should be activated before(open craft table)
- * @property {Object} settings.macros.craftMacros - The macro that should be activated after crafting
- * @property {bool} settings.macros.activateAsGM - Activate macros as GM
-TODO END
+TODO: @property {bool} settings.sendCraftRequest - Whether to send a craft request to the GM or just craft immediately
+TODO: @property {Object} settings.macros - The object that contains macros that should be activated before(open craft table) or after crafting
+TODO: @property {Object} settings.macros.openMacros - The macro that should be activated before(open craft table)
+TODO: @property {Object} settings.macros.craftMacros - The macro that should be activated after crafting
+TODO: @property {bool} settings.macros.activateAsGM - Activate macros as GM
  * @property {Object} target - The object that we want to craft. Only used if settings.isTargetList is false
  * @property {Object} targetList - The objects that we want to craft. Only used if settings.isTargetList is true
  * @property {Object} ingredients - The list of key/value id/ingredient objects we use to craft the target.(Items recipe type) 

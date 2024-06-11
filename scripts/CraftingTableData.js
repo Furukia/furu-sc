@@ -1,7 +1,7 @@
 import { MODULE } from "./const.js";
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";
-import { getCorrectQuantityPathForItem, processCompendiumSource, processItemCompatibility, localize } from "./helpers.js";
+import { getCorrectQuantityPathForItem, processCompendiumSource, processItemCompatibility, localize, isAllowedForceCraft } from "./helpers.js";
 
 /**
  * @typedef {Object} ingredientInfo
@@ -12,7 +12,6 @@ import { getCorrectQuantityPathForItem, processCompendiumSource, processItemComp
  * @property {string} quantityPath - A path to the quantity of an original item.
  * @property {string} currentReqQuantity - A number value representing the current quantity required for this ingredient.
  * @property {number} requiredQuantity - A number value representing the full required quantity of this ingredient to craft with.
- * @property {number} modifier - A number value representing a bonus value we can add/substract from a quantity, to get to the required quantity.
  */
 
 /*
@@ -28,6 +27,10 @@ export class CraftingTableData {
         const allRecipes = CraftMenu.craftMenu.object;
         const recipe = allRecipes[recipeID];
         const recipeType = recipe.type;
+        //Check if we allow force crafting
+        if (isAllowedForceCraft(recipe)) {
+            CraftTable.craftTable.forceCraft = false;
+        }
         // Store the original recipe in the craft table
         CraftTable.craftTable.object = { ...recipe };
         delete CraftTable.craftTable.object.id;
@@ -92,8 +95,7 @@ export class CraftingTableData {
                 type: ingredient.type,
                 quantityPath: path,
                 currentReqQuantity: currentQuantity,
-                requiredQuantity: currentQuantity,
-                modifier: 0
+                requiredQuantity: currentQuantity
             }
         })
         return ingredientsInfo;
@@ -126,7 +128,6 @@ export class CraftingTableData {
     }
 
     /**
-    FIXME - changing the system to not use the sourceId
     * Checks the ingredients of the specified actor against the recipe at the craft table.
     * Then updates the ingredients of the object accordingly.
     * @param {Object} actor - The actor whose ingredients will be checked.
@@ -152,8 +153,7 @@ export class CraftingTableData {
                 }
                 let currentQuantity = ingredientInstanceCount[sourceId];
                 const requiredQuantity = ingredientsInfo[sourceId].requiredQuantity;
-                const quantityModifier = ingredientsInfo[sourceId].modifier;
-                const finalQuantity = Math.max(0, requiredQuantity - currentQuantity - quantityModifier);
+                const finalQuantity = Math.max(0, requiredQuantity - currentQuantity);
                 ingredientsInfo[sourceId].currentReqQuantity = finalQuantity;
             }
         })

@@ -113,7 +113,7 @@ Handlebars.registerHelper('getCorrectQuantityValue', function (item) {
  * "getPercentForAllIngredients": all of `currentReqQuantity` === 0 -> 100%
  */
 Handlebars.registerHelper('getPercentForItem', function (ingredientInfo) {
-  return ((ingredientInfo.currentReqQuantity + ingredientInfo.modifier) / ingredientInfo.requiredQuantity) * 100;
+  return (ingredientInfo.currentReqQuantity / ingredientInfo.requiredQuantity) * 100;
 });
 
 Handlebars.registerHelper('checkEditRights', checkEditRights);

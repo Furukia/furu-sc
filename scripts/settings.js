@@ -95,6 +95,14 @@ export function RegisterSettings() {
         default: false,
         type: Boolean
     });
+    game.settings.register(MODULE, 'allowForceCrafting', {
+        name: localize("FURU-SC.SETTINGS.ALLOW_FORCE_CRAFTING.name"),
+        hint: localize("FURU-SC.SETTINGS.ALLOW_FORCE_CRAFTING.hint"),
+        scope: "world",
+        config: true,
+        default: false,
+        type: Boolean
+    });
 }
 /**
  * Validates the settings of the module. And fixes them as needed.

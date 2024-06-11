@@ -1,4 +1,4 @@
-import { MODULE, DATA_DEFAULT_FOLDER } from "./const.js"; //import the const variables
+import { MODULE, DATA_DEFAULT_FOLDER, MODULE_NAME } from "./const.js"; //import the const variables
 import { CraftTable } from "./CraftTable.js";
 
 /**
@@ -132,15 +132,13 @@ export function getPercentForAllIngredients() {
     const ingredientsInfo = CraftTable.craftTable.ingredients;
     let remainingQuantity = 0;
     let fullQuantity = 0;
-    let fullModifier = 0;
 
     Object.keys(ingredientsInfo).forEach(function (key) {
         const ingredientInfo = ingredientsInfo[key];
         remainingQuantity += ingredientInfo.currentReqQuantity;
         fullQuantity += ingredientInfo.requiredQuantity;
-        fullModifier += ingredientInfo.modifier;
     });
-    return ((fullQuantity - (remainingQuantity + fullModifier)) / fullQuantity) * 100;
+    return ((fullQuantity - remainingQuantity) / fullQuantity) * 100;
 }
 
 /**
@@ -235,4 +233,50 @@ export function checkQuantity(item, quantity) {
     let currentQuantity = foundry.utils.getProperty(item, pathObject.path);
     if (!currentQuantity) currentQuantity = 1;
     return quantity <= currentQuantity
+}
+
+/**
+ * Sends a notification to the chat with the specified message and options.
+ *
+ * @param {string} message - The message to be sent to the chat.
+ * @param {object} [options] - The options for customizing the notification.
+ * @param {boolean} [options.GmOnly=true] - Whether to send the notification only to GMs.
+ * @param {string} [options.playerName=null] - The name of the player to be replaced in the message.
+ * @param {string} [options.recipeName=null] - The name of the recipe to be replaced in the message.
+ * @param {boolean} [options.localize=true] - Whether to localize the message.
+ * @param {string} [options.speaker=MODULE_NAME] - The alias of the speaker in the chat.
+ * @return {void}
+ */
+export function sendNotificationToChat(message, options) {
+    const {
+        GmOnly = true,
+        playerName = null,
+        recipeName = null,
+        actorName = null,
+        localizeMessage = false,
+        speaker = MODULE_NAME
+    } = options;
+    let GmList = GmOnly ? game.users.filter(user => user.isGM) : null;
+    if (localizeMessage) message = localize(message);
+    if (playerName) message = message.replace("\%p", playerName);
+    if (recipeName) message = message.replace("\%r", recipeName);
+    if (actorName) message = message.replace("\%a", actorName);
+    let messageData = {
+        content: message,
+    }
+    if (GmList) messageData.whisper = GmList;
+    if (speaker) messageData.speaker = {
+        alias: speaker
+    };
+    ChatMessage.create(messageData);
+}
+
+/**
+ * Checks if force crafting is allowed for a given recipe.
+ *
+ * @param {Object} recipe - The recipe to check.
+ * @return {boolean} Returns true if force crafting is allowed, otherwise false.
+ */
+export function isAllowedForceCraft(recipe) {
+    return recipe.settings.allowForceCraft || game.settings.get(MODULE, "allowForceCrafting")
 }

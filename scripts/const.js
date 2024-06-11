@@ -18,7 +18,7 @@ export const DEFAULT_RECIPE_SETTINGS = {
     isTargetList: false,
     allowDismantling: false,
     isSecret: false,
-    allowModifiers: false,
+    allowForceCraft: false,
     isOneTime: false,
     isHidden: false,
     sendCraftRequest: false,
