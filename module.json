@@ -2,10 +2,10 @@
   "id": "furu-sc",
   "title": "Furukai's Simple Crafting",
   "description": "A system independent module, to create your own crafting recipes.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "compatibility": {
-    "minimum": "11",
-    "verified": "11.315"
+    "minimum": "11.315",
+    "verified": "12.317"
   },
   "authors": [
     {
@@ -39,6 +39,6 @@
   "manifest": "https://github.com/Furukia/furu-sc/releases/latest/download/module.json",
   "url": "https://github.com/Furukia/furu-sc",
   "changelog": "https://github.com/Furukia/furu-sc/blob/main/CHANGELOG.md",
-  "download": "https://github.com/Furukia/furu-sc/releases/download/1.1.0/module.zip",
+  "download": "https://github.com/Furukia/furu-sc/releases/download/1.2.0/module.zip",
   "bugs": "https://github.com/Furukia/furu-sc/issues"
 }

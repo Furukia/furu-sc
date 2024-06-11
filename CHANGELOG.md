@@ -1,5 +1,66 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+and this project tries to adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+- Adding more automatic quantity-path configurations for different systems.
+- More recipe settings:
+  - Allow dismantling - If recipe should allow dismantling. Effectively creating ingredients from target(s)
+  - isSecret - Make this recipe a secret for the players. They won't be able to craft it until they found out the ingredients for it.
+  - isOneTime - Makes the recipe one use. Hiding it from players after crafting.
+  - sendCraftRequest - Whether to send a craft request to the GM or just craft immediately
+  - Macro support - Implementing macros support to check if player can craft or just call it in parallel with crafting for whatever...
+
+## [1.2.0] - 11.06.2024
+
+### Added
+
+- v12 support and v11 backwards compatibility. 
+
+#### Recipe settings
+
+- Now every recipe has its own settings. You can change them by clicking the cog button in the header of the recipe. Note that if your player's are allowed to edit recipes, they will be able to edit those settings too.
+
+- Current recipe settings list:
+  - Hide recipe - Hides the recipe from the players. Also changes the color of the recipe card, for easy recognition by GM.
+  - Allow multiple targets - Allows you to craft multiple target items instead of just one.
+  - Allow force crafting - Allows players to force craft any recipe without using ingredients. Can be set up per recipe. GM will receive a chat message about forced crafting.
+
+#### New Settings
+
+- Allow force crafting(World setting) - Allows players to force craft ANY recipe without using ingredients. Overrides the similar recipe setting.
+- Hide wrong world notification(Client setting) - Hides the "This recipes file was made in another world" notification in craft menu.
+
+#### Automatic quantity path setup
+
+- Added automatic quantity-path setting setup for:
+  - DnD5e
+  - DnD3.5e
+  - Pathfinder2e
+  - Simple Worldbuilding
+  - TheWitcherTRPG
+  - Coriolis
+
+### Changed
+
+- UI has been tweaked. But just a little. To be more user friendly.
+- The "This recipes file was made in another world" notification text now gives a hint about compendia. Also changed it styling from "error" to "warning"
+
+### Fixed
+
+- Handled deprecation warning's in the console.
+- Fixed an issue that didn't allow to add a new tag if the tags are empty to old recipes.
+- While handling v12 support found and fixed an [issue](https://github.com/Furukia/furu-sc/issues/3) with how simple crafting handled compendium id's. Now they should work correctly. Also using the same compendium's allow's to easily use recipes in other worlds with the same game system.
+- Added a String/Number check while updating quantity of actors target's and ingredient's. This should save users from the cases where [1+1 becomes 11...](https://github.com/Furukia/furu-sc/issues/1) (I don't know why DnD 5e handles quantity as string's now 	┐(￣ヘ￣;)┌ ).
+
+### Removed
+
+- Modifiers. You probably didn't know they existed. The main idea was an ability to add "ghost" item quantities to allow crafting an item without all ingredients by replacing them with those "ghost's". Modifiers are replaced with "force crafting". It's' far less complicated and much more easy for me and players this way.
+
 ## [1.1.0] - 23.01.2024
 
 ### Added
