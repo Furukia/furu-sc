@@ -70,6 +70,7 @@ export function RegisterSettings() {
         default: null,
         type: Array
     });
+    // Set to true if we found a default quantity-path config for current game system and set it up
     game.settings.register(MODULE, "quantity-path-is-set", {
         scope: "world",
         config: false,
@@ -132,8 +133,8 @@ export async function ValidateSettings() {
         if (quantityPath) {
             ui.notifications.info(`${MODULE_NAME} - ${localize("FURU-SC.NOTIFICATIONS.FOUND_QUANTITY_PATH_DEFAULT")}`);
             game.settings.set(MODULE, 'quantity-path', quantityPath);
+            game.settings.set(MODULE, 'quantity-path-is-set', true);
         }
-        game.settings.set(MODULE, 'quantity-path-is-set', true);
     }
     let quantitySetting = game.settings.get(MODULE, 'quantity-path');
     if (!quantitySetting || quantitySetting.length === 0) {
