@@ -313,8 +313,13 @@ export class CraftingTableData {
                 }
                 const currentQuantity = ingredientInstanceCount[sourceId];
                 const requiredQuantity = foundry.utils.getProperty(recipe.ingredients[sourceId], pathObject.path);
+                //check if we are working with strings
+                let quantityType = "number"
+                if (typeof currentQuantity !== "number" || typeof requiredQuantity !== "number") {
+                    quantityType = "string"
+                }
                 let finalQuantity = Math.max(0, Number(currentQuantity) - Number(requiredQuantity));
-                await item.update({ [pathObject.path]: finalQuantity });
+                await item.update({ [pathObject.path]: quantityType === "string" ? finalQuantity.toString() : finalQuantity });
                 if (finalQuantity === 0) {
                     item.delete();
                 }
@@ -342,8 +347,13 @@ export class CraftingTableData {
             const consumeQuantity = usedIngredientsInfo[key].consumeQuantity;
             const pathObject = getCorrectQuantityPathForItem(ingredient.type);
             const currentQuantity = foundry.utils.getProperty(ingredient, pathObject.path);
+            //check if we are working with strings
+            let quantityType = "number"
+            if (typeof currentQuantity !== "number" || typeof consumeQuantity !== "number") {
+                quantityType = "string"
+            }
             const finalQuantity = Math.max(0, Number(currentQuantity) - Number(consumeQuantity));
-            await ingredient.update({ [pathObject.path]: finalQuantity });
+            await ingredient.update({ [pathObject.path]: quantityType === "string" ? finalQuantity.toString() : finalQuantity });
             if (finalQuantity === 0) {
                 ingredient.delete();
             }
