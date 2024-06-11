@@ -465,13 +465,25 @@ export class CraftMenu extends FormApplication {
             world: game.world.id
         }
         const fileNames = game.settings.get(MODULE, 'recipe-files');
+        let fileNamesObject = {};
+        for (const fileName of fileNames) {
+            fileNamesObject[fileName] = fileName;
+        }
+        const recipeTypes = {
+            "text": localize("FURU-SC.CRAFT_MENU_UI.TYPES.TEXT"),
+            "items": localize("FURU-SC.CRAFT_MENU_UI.TYPES.ITEMS"),
+            "tags": localize("FURU-SC.CRAFT_MENU_UI.TYPES.TAGS")
+        }
+
         await RecipeData.processHiddenRecipes();
-        return {
+        const data = {
             searchQuery: this.searchQuery,
             recipes: this.object,
             fileInfo: this.fileInfo,
             worldInfo: worldInfo,
-            fileNames: fileNames
+            fileNames: fileNamesObject,
+            recipeTypes: recipeTypes
         };
+        return data;
     }
 }

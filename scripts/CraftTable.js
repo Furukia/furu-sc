@@ -235,13 +235,17 @@ export class CraftTable extends FormApplication {
             default:
                 break;
         }
+        let ownedActors = {};
+        for (const actor of Object.values(this.userActorsData.ownedActors)) {
+            ownedActors[actor.id] = actor.name;
+        }
         let data = {
             recipe: this.object,
             isEnoughTags: isEnoughTags,
             completionPercent: completionPercent,
             ingredients: this.ingredients,
-            selectedActor: this.userActorsData.selectedActor,
-            ownedActors: this.userActorsData.ownedActors
+            selectedActorId: this.userActorsData.selectedActor.id,
+            ownedActors: ownedActors
         }
         return data;
     }

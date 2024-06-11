@@ -117,7 +117,7 @@ export class RecipeData {
             console.error(`Recipe with id ${recipeID} not found`);
             return;
         }
-        const updatedRecipe = mergeObject(allRecipes[recipeID], updateData, {
+        const updatedRecipe = foundry.utils.mergeObject(allRecipes[recipeID], updateData, {
             overwrite: true,
             insertKeys: true,
             insertValues: true
@@ -411,7 +411,7 @@ export class RecipeData {
         const allRecipes = CraftMenu.craftMenu.object;
         const tags = allRecipes[recipeID].tags ?? {};
         const tagObject = { [tag]: 1 };
-        const finalData = mergeObject(tags, tagObject, { insertKeys: true });
+        const finalData = foundry.utils.mergeObject(tags, tagObject, { insertKeys: true });
         this.updateRecipe(recipeID, { tags: finalData });
     }
 
@@ -441,7 +441,7 @@ export class RecipeData {
         const tagQuantity = tags[tag];
         delete tags[tag];
         const tagObject = { [value]: tagQuantity };
-        const finalData = mergeObject(tags, tagObject, { insertKeys: true });
+        const finalData = foundry.utils.mergeObject(tags, tagObject, { insertKeys: true });
         this.updateRecipe(recipeID, { tags: finalData });
     }
 
@@ -466,7 +466,7 @@ export class RecipeData {
             finalQuantity = currentQuantity + quantity;
         }
         const tagObject = { [tag]: Number(finalQuantity) };
-        const finalData = mergeObject(tags, tagObject, { overwrite: true });
+        const finalData = foundry.utils.mergeObject(tags, tagObject, { overwrite: true });
         this.updateRecipe(recipeID, { tags: finalData });
     }
 
@@ -567,7 +567,7 @@ export class RecipeData {
      */
     static async saveDataToJSONFile(updateData, path = DATA_DEFAULT_FOLDER, filename = RECIPES, options = {}) {
         const { userId = game.user.id, fileInfo = { system: game.system.id, world: game.world.id } } = options;
-        const finalData = mergeObject({ fileInfo: fileInfo }, updateData, { insertKeys: true });
+        const finalData = foundry.utils.mergeObject({ fileInfo: fileInfo }, updateData, { insertKeys: true });
         const safeName = filename.replace(/[\\\/ .,:*?"<>|+\-\%!@]/gi, '_') + ".json";
         const file = new File([JSON.stringify(finalData, null, ' ')], safeName, { type: 'application/json' });
         const response = await FilePicker.upload("data", path, file, {}, { notify: false });

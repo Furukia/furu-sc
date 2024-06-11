@@ -3,11 +3,7 @@
         <div class="sc-select-actor">
             <p>{{localize "FURU-SC.CRAFT_TABLE_UI.ACTOR_SELECTION"}}</p>
             <select data-select="select-actor" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.SELECT_ACTOR"}}">
-                {{#select selectedActor.id}}
-                {{#each ownedActors}}
-                <option value="{{this.id}}">{{this.name}}</option>
-                {{/each}}
-                {{/select}}
+                {{selectOptions ownedActors selected=selectedActorId}}
             </select>
         </div>
         <div class="sc-table-button">

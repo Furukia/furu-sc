@@ -20,12 +20,8 @@
             </div>
             <div class="sc-select-recipe-file">
                 <p>{{localize "FURU-SC.CRAFT_MENU_UI.CURRENT_FILE"}}</p>
-                <select data-select="select-file" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.SELECT_FILE"}}">
-                    {{#select (getCurrentFile)}}
-                    {{#each fileNames}}
-                    <option value="{{this}}">{{this}}</option>
-                    {{/each}}
-                    {{/select}}
+                <select name="fileSelect" data-select="select-file" title="{{localize "FURU-SC.CRAFT_MENU_UI.TOOLTIPS.SELECT_FILE"}}">
+                    {{selectOptions fileNames selected=(getCurrentFile)}}
                 </select>
             </div>
             {{#if (checkEditRights)}}
@@ -79,11 +75,7 @@
                         {{#if (checkEditRights)}}
                         <select data-select="select_recipe_type" {{#if (noEditRights)}}readonly{{/if}}
                             name="{{id}}.type">
-                            {{#select type}}
-                            <option value="text">{{localize "FURU-SC.CRAFT_MENU_UI.TYPES.TEXT"}}</option>
-                            <option value="items">{{localize "FURU-SC.CRAFT_MENU_UI.TYPES.ITEMS"}}</option>
-                            <option value="tags">{{localize "FURU-SC.CRAFT_MENU_UI.TYPES.TAGS"}}</option>
-                            {{/select}}
+                            {{selectOptions ../recipeTypes selected=type}}
                         </select>
                         {{else}}
                         <input type="text" class="sc-br-none" readonly value="
