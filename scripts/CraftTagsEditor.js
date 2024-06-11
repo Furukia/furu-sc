@@ -1,5 +1,5 @@
 import { CRAFT_TAGS_EDITOR_TEMPLATE, CRAFT_TAGS_EDITOR_ID, MODULE } from "./const.js";
-import { TagUiData, TagsData } from "./crafting.js";
+import { TagUiData, TagsData } from "./TagsData.js";
 import { checkTagsPresence, checkEditRights, localize } from "./helpers.js";
 
 export class CraftTagsEditor extends FormApplication {

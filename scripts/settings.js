@@ -1,7 +1,7 @@
-import { MODULE, DATA_DEFAULT_FOLDER, RECIPES } from "./const.js"; //import the const variables
+import { MODULE, DATA_DEFAULT_FOLDER, RECIPES, MODULE_NAME, QUANTITY_PATH_DEFAULTS } from "./const.js"; //import the const variables
 import { getFileNames, localize } from "./helpers.js";
 import { QuantityConfig } from "./QuantityConfig.js";
-import { RecipeData } from "./crafting.js";
+import { RecipeData } from "./RecipeData.js";
 
 
 /**
@@ -47,7 +47,7 @@ export function RegisterSettings() {
         default: []
     });
     /*
-     * Maybe will implement later
+    TODO: Maybe will implement later
      *
     let dataHandlingType = {
         'all': localize("FURU-SC.SETTINGS.DATA_HANDLING.types.all"),
@@ -70,6 +70,13 @@ export function RegisterSettings() {
         default: null,
         type: Array
     });
+    // Set to true if we found a default quantity-path config for current game system and set it up
+    game.settings.register(MODULE, "quantity-path-is-set", {
+        scope: "world",
+        config: false,
+        default: false,
+        type: Boolean
+    });
 
     game.settings.registerMenu(MODULE, "quantity-config", {
         name: localize("FURU-SC.SETTINGS.QUANTITY.name"),
@@ -80,10 +87,27 @@ export function RegisterSettings() {
         restricted: true
     });
 
-    game.settings.register(MODULE, 'hideLabel', {
+    game.settings.register(MODULE, 'hide-label', {
         name: localize("FURU-SC.SETTINGS.HIDE_TAGS_LABEL.name"),
         hint: localize("FURU-SC.SETTINGS.HIDE_TAGS_LABEL.hint"),
+        scope: "client",
+        config: true,
+        default: false,
+        type: Boolean
+    });
+    game.settings.register(MODULE, 'allow-force-crafting', {
+        name: localize("FURU-SC.SETTINGS.ALLOW_FORCE_CRAFTING.name"),
+        hint: localize("FURU-SC.SETTINGS.ALLOW_FORCE_CRAFTING.hint"),
         scope: "world",
+        config: true,
+        default: false,
+        type: Boolean
+    });
+
+    game.settings.register(MODULE, 'hide-wrong-world-notification', {
+        name: localize("FURU-SC.SETTINGS.HIDE_WRONG_WORLD_NOTIFICATION.name"),
+        hint: localize("FURU-SC.SETTINGS.HIDE_WRONG_WORLD_NOTIFICATION.hint"),
+        scope: "client",
         config: true,
         default: false,
         type: Boolean
@@ -119,6 +143,16 @@ export async function ValidateSettings() {
         console.log(`${MODULE} | File:`, fileNames[0]);
     }
 
+    const isSet = game.settings.get(MODULE, 'quantity-path-is-set');
+    if (!isSet) {
+        const systemId = game.system.id;
+        const quantityPath = QUANTITY_PATH_DEFAULTS[systemId];
+        if (quantityPath) {
+            ui.notifications.info(`${MODULE_NAME} - ${localize("FURU-SC.NOTIFICATIONS.FOUND_QUANTITY_PATH_DEFAULT")}`);
+            game.settings.set(MODULE, 'quantity-path', quantityPath);
+            game.settings.set(MODULE, 'quantity-path-is-set', true);
+        }
+    }
     let quantitySetting = game.settings.get(MODULE, 'quantity-path');
     if (!quantitySetting || quantitySetting.length === 0) {
         let itemTypes = CONFIG.Item.typeLabels;

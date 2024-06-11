@@ -1,13 +1,23 @@
 :root {
   --sc-color-background-dark: #202020;
+  --sc-color-green: #008000;
+  /* Main colors */
   --sc-color-main-light: #deb887;
   --sc-color-main-dark: #704214;
   --sc-color-main-dark-opaque: #70421488;
   --sc-color-secondary-light: #bb8b54;
   --sc-color-secondary-dark: #9e733b;
-  --sc-color-green: #008000;
+  --sc-text-color: #000000;
+  --sc-text-color-grey: #808080;
 }
-
+.sc-hidden {
+  /* Hidden colors */
+  --sc-color-main-light: #aa66ee;
+  --sc-color-main-dark: #4e0080;
+  --sc-color-main-dark-opaque: #4e008088;
+  --sc-color-secondary-light: #9d35de;
+  --sc-color-secondary-dark: #6c4e89;
+}
 /*
  *borders
  */
@@ -127,7 +137,7 @@
 .sc-cm-button button,
 .sc-tags-button button,
 .sc-table-button button {
-  color: black;
+  color: var(--sc-text-color);
   cursor: pointer;
   width: 32px;
   height: 32px;
@@ -141,19 +151,20 @@
 }
 
 .sc-disabled {
-  color: #808080;
+  color: var(--sc-text-color-grey);
 }
 
 .sc-target-item-container > h2,
+.sc-target-items-container > h2,
 .sc-required-item-container > h2,
 .sc-required-tags-container > h2,
 .sc-description-text-container > h2 {
   max-height: 40px;
   padding-left: 5px;
   padding-right: 5px;
-  text-wrap: nowrap;
+  white-space: nowrap;
   overflow-y: hidden;
-  overflow-x: scroll;
+  overflow-x: auto;
   text-align: center;
   font-size: large;
 }
@@ -192,11 +203,9 @@
   margin-bottom: 10px;
 }
 
-.sc-recipe-container .sc-description-container,
-.sc-recipe-container .sc-items-container,
-.sc-recipe-container .sc-target-container {
+.sc-recipe-container .sc-items-container {
   background: var(--sc-color-main-light);
-  color: black;
+  color: var(--sc-text-color);
   margin: 10px;
   padding-top: 10px;
   padding-left: 10px;
@@ -243,7 +252,7 @@
 }
 
 .sc-recipe-container .tmce-editor-container .editor {
-  color: black;
+  color: var(--sc-text-color);
   height: 300px;
   width: 100%;
   overflow: hidden;
@@ -263,17 +272,57 @@
  * tmce editor end
  */
 
+/*
+ * recipe settings stuff
+ */
+
+.sc-recipe-settings-container {
+  display: flex;
+  margin: 10px;
+  color: var(--sc-text-color);
+  background: var(--sc-color-main-light);
+  padding-bottom: 10px;
+}
+
+.sc-recipe-settings-header {
+  text-align: center;
+  flex: 0.1;
+}
+
+.sc-recipe-settings-block {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sc-setting-span,
+.sc-force-craft-block {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  font-size: 1.2rem;
+  padding: 10px;
+  padding-top: 0;
+  padding-bottom: 0;
+  color: var(--sc-text-color);
+}
+/*
+ * recipe settings end
+ */
 .sc-recipe-container .sc-edit-container {
   display: flex;
   flex-direction: row;
   align-items: flex-end;
-  color: black;
+  color: var(--sc-text-color);
   border: none;
   cursor: pointer;
   margin-top: 10px;
   margin-bottom: 10px;
   margin-left: 10px;
   margin-right: 10px;
+}
+
+.sc-recipe-container .sc-edit-container.sc-hidden {
+  color: var(--sc-color-main-light);
 }
 
 .sc-recipe-container .sc-items-container,
@@ -284,7 +333,7 @@
 }
 
 .sc-recipe-container button {
-  color: black;
+  color: var(--sc-text-color);
   border: none;
   cursor: pointer;
   width: 32px;
@@ -307,28 +356,35 @@
   position: relative;
   padding-right: 5px;
   top: 10px;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
-  height: 450px;
+  height: 750px;
 }
 
-.sc-required-image {
+.sc-required-image,
+.sc-targetList-image {
   max-height: 64px;
 }
 
-.sc-required-item > p {
+.sc-required-item > p,
+.sc-targetList-item > p {
   margin: 0px;
   padding-left: 5px;
   padding-right: 5px;
-  overflow-y: scroll;
+  overflow-y: auto;
   text-align: center;
   font-size: 1rem;
-  max-height: 64px;
-  width: 350px;
+  width: 100%;
   height: 100%;
+  max-height: 64px;
 }
 
-#crafting-form .sc-required-item > input[type="text"] {
+#crafting-form
+  .sc-required-item
+  > input[type="text"]
+  #crafting-form
+  .sc-targetList-item
+  > input[type="text"] {
   min-width: 10%;
   max-width: min-content;
   height: 100%;
@@ -336,13 +392,14 @@
   font-size: 16px;
 }
 
-.sc-required-item {
+.sc-required-item,
+.sc-targetList-item {
   background: var(--sc-color-secondary-dark);
   display: flex;
   max-width: 100%;
-  width: fit-content;
-  align-items: center;
   margin: 5px;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .sc-required-item-container,
@@ -359,11 +416,12 @@
 }
 
 .sc-required-items,
+.sc-target-items,
 .sc-required-tags {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   margin-bottom: 10px;
   max-height: 250px;
 }
@@ -413,7 +471,15 @@
   flex-direction: column;
 }
 
-.sc-target-item-container > p {
+.sc-target-items-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 50%;
+  max-width: 50%;
+}
+
+.sc-target-item-container > p,
+.sc-target-items-container > p {
   padding-left: 5px;
   padding-right: 5px;
   overflow: hidden;
@@ -431,7 +497,7 @@
 .sc-description-text {
   max-height: 250px;
   padding-left: 10px;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
   max-width: 100%;
   overflow-wrap: break-word;
@@ -475,7 +541,7 @@
 #furu-sc-craft-tags-editor input[type="text"],
 #crafting-form input[type="search"],
 #furu-sc-craft-tags-editor input[type="search"] {
-  color: black;
+  color: var(--sc-text-color);
   background: var(--sc-color-main-light);
   height: 100%;
 }
@@ -492,7 +558,7 @@
 
 #crafting-form select,
 #furu-sc-craft-table select {
-  color: black;
+  color: var(--sc-text-color);
   background: var(--sc-color-main-light);
   border-color: var(--sc-color-secondary-dark);
   height: 100%;
@@ -515,20 +581,22 @@
   height: 100%;
   text-align: center;
   font-size: 1.4rem;
+  width: 64px;
 }
 
 #furu-sc-craft-table .sc-recipe-card p,
+#furu-sc-craft-table .sc-table-targets-block p,
 #furu-sc-craft-table .sc-table-ingredients-block p {
   background: var(--sc-color-main-light);
   margin: 0px;
   text-align: center;
-  color: black;
+  color: var(--sc-text-color);
   padding-left: 5px;
   padding-right: 5px;
 }
 
 #furu-sc-craft-table h2 {
-  color: black;
+  color: var(--sc-text-color);
   font-size: 1.5rem;
   text-align: center;
 }
@@ -559,7 +627,7 @@
   font-size: 1rem;
   text-overflow: clip;
   height: 31px;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
 }
 
@@ -584,6 +652,7 @@
   margin-right: 75px !important;
 }
 
+.sc-table-targets-container,
 .sc-table-ingredients-container,
 .sc-table-tags-container {
   background-color: var(--sc-color-main-dark-opaque);
@@ -592,6 +661,7 @@
   margin: 0px;
 }
 
+.sc-table-targets-block,
 .sc-table-ingredients-block {
   width: 100%;
   display: grid;
@@ -599,24 +669,26 @@
   grid-template-columns: 22% 22% 22% 22%;
   max-height: 400px;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   padding: 10px;
 }
 
+.sc-table-targets-block p,
 .sc-table-ingredients-block p {
   font-size: 0.8rem;
 }
 
 .sc-table-ingredients-image {
-  box-shadow: inset 0px 0px 50px 10px black;
+  box-shadow: inset 0px 0px 50px 10px var(--sc-text-color);
 }
 
+.sc-table-targets-name,
 .sc-table-ingredients-name {
   height: 100%;
   text-overflow: ellipsis;
   overflow-wrap: break-word;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   max-height: 36px;
 }
 
@@ -637,7 +709,7 @@ input.sc-table-tag-item-name {
   max-height: 100%;
   font-size: 1rem;
   width: 100px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .sc-table-required-text {
@@ -653,7 +725,7 @@ input.sc-table-tag-item-name {
   justify-content: space-between;
   max-height: 230px;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   padding: 10px;
   transition: 0.3s;
 }
@@ -694,7 +766,7 @@ input.sc-table-tag-item-name {
 
 .sc-table-recipe-card.sc-selected .sc-table-dynamic-tag-container {
   display: inline-block;
-  overflow-y: scroll;
+  overflow-y: auto;
   height: 100px;
 }
 
@@ -742,7 +814,7 @@ input.sc-table-tag-item-name {
   margin-right: 10px;
   max-height: 300px;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .sc-tag-editor-item-name {
@@ -752,7 +824,7 @@ input.sc-table-tag-item-name {
   bottom: 13px;
   margin-left: 75px !important;
   margin-right: 75px !important;
-  color: black;
+  color: var(--sc-text-color);
   text-align: center;
 }
 
@@ -760,8 +832,7 @@ input.sc-table-tag-item-name {
 .sc-tag-editor-tags-container,
 .sc-table-item-tags-container {
   display: flex;
-  max-width: fit-content;
-  color: black;
+  color: var(--sc-text-color);
   margin: 10px;
   margin-top: 5px;
   margin-bottom: 5px;
@@ -790,7 +861,7 @@ input.sc-table-tag-item-name {
   text-overflow: ellipsis;
   padding-left: 10px !important;
   padding-right: 10px !important;
-  width: 250px !important;
+  width: 100% !important;
 }
 
 .sc-tag {
@@ -809,4 +880,8 @@ input.sc-table-tag-item-name {
   padding-left: 5%;
   height: auto !important;
   width: auto !important;
+}
+.sc-hr {
+  border-top: 3px solid var(--sc-color-main-dark);
+  border-bottom: none;
 }

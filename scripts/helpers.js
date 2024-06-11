@@ -1,6 +1,5 @@
-import { MODULE, DATA_DEFAULT_FOLDER } from "./const.js"; //import the const variables
+import { MODULE, DATA_DEFAULT_FOLDER, MODULE_NAME } from "./const.js"; //import the const variables
 import { CraftTable } from "./CraftTable.js";
-
 
 /**
  * Creates a folder if it is missing at the specified path.
@@ -72,14 +71,56 @@ export function getCorrectQuantityPathForItem(itemType) {
 }
 
 /**
- * Processes the source ID by removing the "Item." prefix and optionally restores it back to the original format.
+ * Processes the compendium source from item's "_stats.compendiumSource" and extracts the source ID.
  *
- * @param {string} sourceId - The source ID to be processed.
- * @param {boolean} [restore=false] - Whether or not to restore the source ID.
- * @return {string} - The processed source ID.
+ * @param {Object} item - The item object.
+ * @return {string} The extracted source ID.
  */
-export function processSourceId(sourceId, restore = false) {
-    return restore ? "Item." + sourceId : sourceId.split('.')[1];
+export function processCompendiumSource(item) {
+    // version 11 compatibility
+    let compendiumSource = item.flags?.core?.sourceId;
+    // version 12+
+    if (!compendiumSource) {
+        compendiumSource = item._stats?.compendiumSource ?? item.id;
+    }
+    const splitSource = compendiumSource.split('.');
+    const sourceId = splitSource[splitSource.length - 1];
+    return sourceId;
+}
+/**
+ * Compares two items based on their name, type, and compendium source.
+ *
+ * @param {Object} item1 - The first item to compare.
+ * @param {Object} item2 - The second item to compare.
+ * @return {boolean} Returns true if the items are similar, false otherwise.
+ */
+export function compareItems(item1, item2) {
+    const equalNames = item1.name === item2.name;
+    const equalTypes = item1.type === item2.type;
+    const equalSource = processCompendiumSource(item1) === processCompendiumSource(item2);
+    return (equalNames && equalTypes) || equalSource;
+}
+
+/**
+ * Processes item compatibility for different Foundry versions.
+ * In v12 sourceId was moved from flags.core.sourceId to _stats.compendiumSource
+ * I want to provide compatibility for v11+
+ * Which is why we need this function
+ *
+ * @param {Object} item - The item to process compatibility for.
+ * @return {Object} The processed item.
+ */
+export function processItemCompatibility(item) {
+    const foundryVersion = game.world.coreVersion;
+    const shortVersion = Number(foundryVersion.split('.')[0]);
+    const compendiumSource = processCompendiumSource(item);
+    if (shortVersion === 11 && !item.flags?.core?.sourceId) {
+        foundry.utils.setProperty(item, "flags.core.sourceId", compendiumSource);
+    }
+    if (shortVersion >= 12 && !item._stats?.compendiumSource) {
+        foundry.utils.setProperty(item, "_stats.compendiumSource", compendiumSource);
+    }
+    return item;
 }
 
 /**
@@ -91,15 +132,13 @@ export function getPercentForAllIngredients() {
     const ingredientsInfo = CraftTable.craftTable.ingredients;
     let remainingQuantity = 0;
     let fullQuantity = 0;
-    let fullModifier = 0;
 
     Object.keys(ingredientsInfo).forEach(function (key) {
         const ingredientInfo = ingredientsInfo[key];
         remainingQuantity += ingredientInfo.currentReqQuantity;
         fullQuantity += ingredientInfo.requiredQuantity;
-        fullModifier += ingredientInfo.modifier;
     });
-    return ((fullQuantity - (remainingQuantity + fullModifier)) / fullQuantity) * 100;
+    return ((fullQuantity - remainingQuantity) / fullQuantity) * 100;
 }
 
 /**
@@ -192,6 +231,52 @@ export function checkQuantity(item, quantity) {
     if (!quantity) return false;
     const pathObject = getCorrectQuantityPathForItem(item.type);
     let currentQuantity = foundry.utils.getProperty(item, pathObject.path);
-    if(!currentQuantity) currentQuantity = 1;
+    if (!currentQuantity) currentQuantity = 1;
     return quantity <= currentQuantity
+}
+
+/**
+ * Sends a notification to the chat with the specified message and options.
+ *
+ * @param {string} message - The message to be sent to the chat.
+ * @param {object} [options] - The options for customizing the notification.
+ * @param {boolean} [options.GmOnly=true] - Whether to send the notification only to GMs.
+ * @param {string} [options.playerName=null] - The name of the player to be replaced in the message.
+ * @param {string} [options.recipeName=null] - The name of the recipe to be replaced in the message.
+ * @param {boolean} [options.localize=true] - Whether to localize the message.
+ * @param {string} [options.speaker=MODULE_NAME] - The alias of the speaker in the chat.
+ * @return {void}
+ */
+export function sendNotificationToChat(message, options) {
+    const {
+        GmOnly = true,
+        playerName = null,
+        recipeName = null,
+        actorName = null,
+        localizeMessage = false,
+        speaker = MODULE_NAME
+    } = options;
+    let GmList = GmOnly ? game.users.filter(user => user.isGM) : null;
+    if (localizeMessage) message = localize(message);
+    if (playerName) message = message.replace("\%p", playerName);
+    if (recipeName) message = message.replace("\%r", recipeName);
+    if (actorName) message = message.replace("\%a", actorName);
+    let messageData = {
+        content: message,
+    }
+    if (GmList) messageData.whisper = GmList;
+    if (speaker) messageData.speaker = {
+        alias: speaker
+    };
+    ChatMessage.create(messageData);
+}
+
+/**
+ * Checks if force crafting is allowed for a given recipe.
+ *
+ * @param {Object} recipe - The recipe to check.
+ * @return {boolean} Returns true if force crafting is allowed, otherwise false.
+ */
+export function isAllowedForceCraft(recipe) {
+    return recipe.settings.allowForceCraft || game.settings.get(MODULE, "allow-force-crafting")
 }

@@ -1,7 +1,7 @@
 
 import { MODULE, CRAFT_TABLE_TEMPLATE, CRAFT_TABLE_ID } from "./const.js"; //import the const variables
-import { CraftingTableData } from "./crafting.js";
-import { getPercentForAllIngredients, getPercentForAllTags, checkQuantity, localize, getCorrectQuantityPathForItem } from "./helpers.js";
+import { CraftingTableData } from "./CraftingTableData.js";
+import { getPercentForAllIngredients, getPercentForAllTags, checkQuantity, localize, getCorrectQuantityPathForItem, sendNotificationToChat, isAllowedForceCraft } from "./helpers.js";
 /** 
  * This application works with a single recipe as it's object and handles the crafting process.
  */
@@ -66,6 +66,9 @@ export class CraftTable extends FormApplication {
 
         const expandedData = foundry.utils.expandObject(formData);
         const recipe = this.object;
+        if (isAllowedForceCraft(recipe)) {
+            this.forceCraft = expandedData.forceCraft;
+        }
         if (recipe.type === "tags") {
             Object.keys(expandedData).forEach((key) => {
                 const consumeQuantity = expandedData[key].consumeQuantity;
@@ -135,6 +138,19 @@ export class CraftTable extends FormApplication {
         let updatedQuantity = 0;
         switch (action) {
             case "craft-item":
+                if (!!this.forceCraft) {
+                    // Just craft
+                    await CraftingTableData.craftItem();
+                    this.render();
+                    const messageOptions = {
+                        playerName: game.user.name,
+                        recipeName: this.object.name,
+                        actorName: this.userActorsData.selectedActor?.name,
+                        localizeMessage: true,
+                    }
+                    sendNotificationToChat("FURU-SC.CHAT_MESSAGES.FORCE_CRAFT", messageOptions);
+                    break;
+                }
                 switch (this.object.type) {
                     case "items":
                         // Process ingredients
@@ -223,9 +239,10 @@ export class CraftTable extends FormApplication {
      * Returns the data for the GUI of the Craft table.
      */
     getData() {
-        const isEnoughTags = this.object.type === "tags" ? this.isEnoughTags : true;
+        const recipe = this.object;
+        const isEnoughTags = recipe.type === "tags" ? this.isEnoughTags : true;
         let completionPercent = 0;
-        switch (this.object.type) {
+        switch (recipe.type) {
             case "items":
                 completionPercent = getPercentForAllIngredients();
                 break;
@@ -235,13 +252,21 @@ export class CraftTable extends FormApplication {
             default:
                 break;
         }
+        let ownedActors = {};
+        for (const actor of Object.values(this.userActorsData.ownedActors)) {
+            ownedActors[actor.id] = actor.name;
+        }
         let data = {
-            recipe: this.object,
+            recipe: recipe,
             isEnoughTags: isEnoughTags,
             completionPercent: completionPercent,
             ingredients: this.ingredients,
-            selectedActor: this.userActorsData.selectedActor,
-            ownedActors: this.userActorsData.ownedActors
+            selectedActorId: this.userActorsData.selectedActor.id,
+            ownedActors: ownedActors
+        }
+        if (isAllowedForceCraft(recipe)) {
+            data.allowForceCraft = true;
+            data.forceCraft = this.forceCraft;
         }
         return data;
     }

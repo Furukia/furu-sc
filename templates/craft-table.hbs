@@ -3,11 +3,7 @@
         <div class="sc-select-actor">
             <p>{{localize "FURU-SC.CRAFT_TABLE_UI.ACTOR_SELECTION"}}</p>
             <select data-select="select-actor" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.SELECT_ACTOR"}}">
-                {{#select selectedActor.id}}
-                {{#each ownedActors}}
-                <option value="{{this.id}}">{{this.name}}</option>
-                {{/each}}
-                {{/select}}
+                {{selectOptions ownedActors selected=selectedActorId}}
             </select>
         </div>
         <div class="sc-table-button">
@@ -17,60 +13,140 @@
             </button>
         </div>
     </div>
+    {{#if allowForceCraft}}
+    <div class="sc-force-craft-block sc-recipe-card sc-br-full sc-br-rad15">
+        <input type="checkbox" name="forceCraft" class="sc-br-none" {{checked forceCraft}}>
+        <label for="forceCraft">{{localize "FURU-SC.CRAFT_TABLE_UI.FORCE_CRAFT"}}</label>
+    </div>
+    {{/if}}
     <div style="padding:10px;" class="sc-recipe-card sc-br-full sc-br-rad15">
         <p class="sc-table-header sc-br-full sc-br-br-rad15 sc-br-bl-rad15">{{recipe.name}}</p>
-        <div class="sc-recipe-card sc-br-full sc-br-rad15" style="margin-top: -5px; margin-bottom: 5px;">
-            <div class="sc-table-target-block">
-                <img src="{{recipe.target.img}}"
-                    class="sc-table-target-image sc-br-none sc-br-right sc-br-tl-rad12_5 sc-br-bl-rad12_5" />
-                <div style="width:inherit;">
-                    <p class="sc-table-target-name sc-br-bottom">
-                        {{recipe.target.name}}
-                    </p>
-                    <div class="sc-table-target-quantity">
-                        <p class="sc-br-right" style="height: 100%;">{{localize "FURU-SC.CRAFT_TABLE_UI.QUANTITY"}}</p>
-                        <p style="min-width: 64px; width: 100%; height: 100%;">
-                            {{getCorrectQuantityValue recipe.target}}
+        {{!--Single Target item--}}
+        {{#unless recipe.settings.isTargetList}}
+            <div class="sc-recipe-card sc-br-full sc-br-rad15" style="margin-top: -5px; margin-bottom: 5px;">
+                <div class="sc-table-target-block">
+                    <img src="{{recipe.target.img}}"
+                        class="sc-table-target-image sc-br-none sc-br-right sc-br-tl-rad12_5 sc-br-bl-rad12_5" />
+                    <div style="width:inherit;">
+                        <p class="sc-table-target-name sc-br-bottom">
+                            {{recipe.target.name}}
+                        </p>
+                        <div class="sc-table-target-quantity">
+                            <p class="sc-br-right" style="height: 100%;">{{localize "FURU-SC.CRAFT_TABLE_UI.QUANTITY"}}</p>
+                            <p style="min-width: 64px; width: 100%; height: 100%;">
+                                {{getCorrectQuantityValue recipe.target}}
+                            </p>
+                        </div>
+                    </div>
+                    {{#if forceCraft}}
+                        <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                            class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="craft-item">
+                            <i class="fas fa-hammer-crash "></i>
+                        </button>
+                    {{/if}}
+                    {{#unless forceCraft}}
+                        {{!--Text craft button--}}
+                        {{#if (equals recipe.type "text")}}
+                        <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                            class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="craft-item">
+                            <i class="fas fa-hammer-crash "></i>
+                        </button>
+                        {{/if}}
+                        {{!--Items craft button--}}
+                        {{#if (equals recipe.type "items")}}
+                        {{#if (equals completionPercent 100)}}
+                        <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                            class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="craft-item">
+                            <i class="fas fa-hammer-crash"></i>
+                        </button>
+                        {{else}}
+                        <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                            class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="not-enough-ingredients">
+                            <i class="fas fa-hammer-crash sc-disabled"></i>
+                        </button>
+                        {{/if}}
+                        {{/if}}
+                        {{!--Tags craft button--}}
+                        {{#if (equals recipe.type "tags")}}
+                        {{#if (equals completionPercent 100)}}
+                        <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                            class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="craft-item">
+                            <i class="fas fa-hammer-crash"></i>
+                        </button>
+                        {{else}}
+                        <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                            class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="not-enough-tags">
+                            <i class="fas fa-hammer-crash sc-disabled"></i>
+                        </button>
+                        {{/if}}
+                        {{/if}}
+                    {{/unless}}
+                </div>
+            </div>
+        {{!--Target items list--}}
+        {{else}}
+            <p class="sc-table-header2 sc-br-full sc-br-tr-rad15 sc-br-tl-rad15">
+                {{localize "FURU-SC.CRAFT_TABLE_UI.TARGET_ITEMS"}}
+            </p>
+            <div class="sc-table-targets-container sc-br-rad15 sc-br-full">
+                <div class="sc-table-targets-block">
+                    {{#each recipe.targetList}}
+                    <div class="sc-recipe-card sc-br-full sc-br-rad15" style="display: flex; flex-direction: column;">
+                        <img src="{{this.img}}" class="sc-table-ingredients-image sc-br-none sc-br-tl-rad12_5 sc-br-tr-rad12_5" />
+                        <p class="sc-table-targets-name sc-br-bottom sc-br-top">
+                            {{this.name}}
+                        </p>
+                        <p class="sc-br-bl-rad15 sc-br-br-rad15" style="width: 100%;">
+                            {{getCorrectQuantityValue this}}
                         </p>
                     </div>
+                    {{/each}}
                 </div>
-                {{!--Text craft button--}}
-                {{#if (equals recipe.type "text")}}
+            </div>
+            {{#if forceCraft}}
                 <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
-                    class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="craft-item">
+                    class="sc-br-full sc-br-rad15" style="margin-top:10px" data-action="craft-item">
                     <i class="fas fa-hammer-crash "></i>
                 </button>
+            {{/if}}
+            {{#unless forceCraft}}
+                {{!--Text craft button--}}
+                {{#if (equals recipe.type "text")}}
+                    <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                        class="sc-br-full sc-br-rad15" style="margin-top:10px" data-action="craft-item">
+                        <i class="fas fa-hammer-crash "></i>
+                    </button>
                 {{/if}}
                 {{!--Items craft button--}}
                 {{#if (equals recipe.type "items")}}
-                {{#if (equals completionPercent 100)}}
-                <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
-                    class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="craft-item">
-                    <i class="fas fa-hammer-crash"></i>
-                </button>
-                {{else}}
-                <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
-                    class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="not-enough-ingredients">
-                    <i class="fas fa-hammer-crash sc-disabled"></i>
-                </button>
-                {{/if}}
+                    {{#if (equals completionPercent 100)}}
+                    <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                        class="sc-br-full sc-br-rad15" style="margin-top:10px" data-action="craft-item">
+                        <i class="fas fa-hammer-crash"></i>
+                    </button>
+                    {{else}}
+                    <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                        class="sc-br-full sc-br-rad15" style="margin-top:10px" data-action="not-enough-ingredients">
+                        <i class="fas fa-hammer-crash sc-disabled"></i>
+                    </button>
+                    {{/if}}
                 {{/if}}
                 {{!--Tags craft button--}}
                 {{#if (equals recipe.type "tags")}}
-                {{#if (equals completionPercent 100)}}
-                <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
-                    class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="craft-item">
-                    <i class="fas fa-hammer-crash"></i>
-                </button>
-                {{else}}
-                <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
-                    class="sc-br-br-rad15 sc-br-tr-rad15 sc-br-none sc-br-left" data-action="not-enough-tags">
-                    <i class="fas fa-hammer-crash sc-disabled"></i>
-                </button>
+                    {{#if (equals completionPercent 100)}}
+                    <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                        class="sc-br-full sc-br-rad15" style="margin-top:10px" data-action="craft-item">
+                        <i class="fas fa-hammer-crash"></i>
+                    </button>
+                    {{else}}
+                    <button type="button" title="{{localize "FURU-SC.CRAFT_TABLE_UI.TOOLTIPS.CRAFT_ITEM"}}"
+                        class="sc-br-full sc-br-rad15" style="margin-top:10px" data-action="not-enough-tags">
+                        <i class="fas fa-hammer-crash sc-disabled"></i>
+                    </button>
+                    {{/if}}
                 {{/if}}
-                {{/if}}
-            </div>
-        </div>
+            {{/unless}}
+        {{/unless}}
         {{!--Ingredients--}}
         {{#if (equals recipe.type "items")}}
         {{#if (equals completionPercent 100)}}
@@ -124,7 +200,6 @@
                 {{!-- When we work with tags we are using ingredients differently --}}
                 {{!-- each "ingredient" is an object, with 3 properties --}}
                 {{!-- selected: Bool, consumeQuantity: Number, ingredient: Object --}}
-                    {{!--TODO: WIP--}}
                 {{#each ingredients}}
                 <div class="sc-table-recipe-card {{#if selected}}sc-selected{{/if}} sc-br-full sc-br-rad15"
                 data-ingredient-id="{{@key}}">
@@ -180,7 +255,7 @@
         </div>
         {{else}}
         <ul style="display: contents; list-style-type: none;">
-            <li class="notification warning">{{localize "FURU-SC.CRAFT_TABLE_UI.NOTIFICATIONS.NOT_ENOUGH_ITEMS_WITH_TAGS"}}</li>
+            <li class="notification warning" style="margin-top: 10px;">{{localize "FURU-SC.CRAFT_TABLE_UI.NOTIFICATIONS.NOT_ENOUGH_ITEMS_WITH_TAGS"}}</li>
         </ul>
         {{/if}}
         {{/if}}

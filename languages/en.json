@@ -21,16 +21,24 @@
         "name": "System quantity path",
         "hint": "If the system provides an ability to track the quantity of an item, you can provide a path relative to an item, for that variable. \"Simple Crafting\" will use it instead of using it's own quantity system."
       },
-      "HIDE_TAGS_LABEL":{
+      "HIDE_TAGS_LABEL": {
         "name": "Hide tags label",
         "hint": "Hides label of the tag editor header button in an item window."
+      },
+      "ALLOW_FORCE_CRAFTING": {
+        "name": "Allow force crafting",
+        "hint": "Allow players to force craft any recipe without using ingredients. Can be set up per recipe. In case of such craft's GM's will receive notifications in chat."
+      },
+      "HIDE_WRONG_WORLD_NOTIFICATION": {
+        "name": "Hide wrong world notification",
+        "hint": "Hides the \"This recipes file was made in another world\" notification in craft menu."
       }
     },
     "CRAFT_MENU": "Craft menu",
     "CRAFT_MENU_UI": {
       "NOTIFICATIONS": {
         "WRONG_SYSTEM": "This recipes file was made in another game system. Item's probably won't be compatible at all!",
-        "WRONG_WORLD": "This recipes file was made in another world. Item's probably won't be compatible at all!"
+        "WRONG_WORLD": "This recipes file was made in another world. Item's probably won't be compatible unless you use the same system and compendiums!"
       },
       "TOOLTIPS": {
         "SEARCH": "Search for a recipe",
@@ -51,7 +59,18 @@
         "ADD_TAG": "Add a new tag",
         "TAG_QUANTITY": "Quantity for this tag",
         "CHANGE_TAG": "Change this tag",
-        "REMOVE_TAG": "Remove this tag"
+        "REMOVE_TAG": "Remove this tag",
+        "EDIT_RECIPE_SETTINGS": "Edit recipe settings"
+      },
+      "SETTINGS": {
+        "TITLE": "Recipe settings",
+        "IS_TARGET_LIST": "Allow multiple target items",
+        "ALLOW_DISMANTLING": "Allow to dismantle the target item back to it's components by this recipe",
+        "IS_SECRET": "Make this recipe secret, hiding required components from players",
+        "ALLOW_FORCE_CRAFT": "Allow players to force craft by recipe so they can create items even if they lack ingredients. You will receive a chat message about forced crafting.",
+        "IS_ONE_TIME": "Make this recipe one time only, hiding it from players after crafting",
+        "IS_HIDDEN": "Hides this recipe from players",
+        "SEND_CRAFT_REQUEST": "Send GM an approval request to create an item"
       },
       "SEARCH_RECIPES": "Search recipes:",
       "SEARCH_PLACEHOLDER": "Search...",
@@ -64,6 +83,7 @@
         "TAGS": "Tags"
       },
       "TARGET_ITEM": "Target item:",
+      "TARGET_ITEMS": "Target items:",
       "DESCRIPTION": "Description:",
       "REQUIRED_ITEMS": "Required items:",
       "REQUIRED_TAGS": "Required tags:"
@@ -88,7 +108,9 @@
       "QUANTITY": "Quantity:",
       "REQUIRED_INGREDIENTS": "Required ingredients:",
       "REQUIRED": "Required:",
-      "SUITABLE_INGREDIENTS": "Suitable ingredients:"
+      "SUITABLE_INGREDIENTS": "Suitable ingredients:",
+      "TARGET_ITEMS": "Target items:",
+      "FORCE_CRAFT": "Force craft this recipe. Does not require ingredients. GM will be notified!"
     },
     "QUANTITY_CONFIG_TITLE": "Quantity path config",
     "QUANTITY_CONFIG_UI": {
@@ -113,6 +135,7 @@
       "INVALID_NUMBER": "Please enter a valid number!",
       "NO_INGREDIENTS": "This recipe has no ingredients. Please add some ingredients before crafting.",
       "NO_TARGET": "This recipe has no target item. Please add a target to craft.",
+      "NO_TARGETS": "This recipe has no target items. Please add at least one target to craft.",
       "FILE_RELOADED": "Selected file reloaded!",
       "ITEMS_ONLY": "Only items can be dropped in a craft menu!",
       "ACTOR_NOT_FOUND": "Actor not found!",
@@ -133,7 +156,8 @@
       "INSUFFICIENT_ITEM_QUANTITY": "You already selected the maximum possible amount of this item!",
       "ENOUGH_TAGS": "You already provided enough tags to craft an item!",
       "NOT_ENOUGH_TAGS": "You don't have enough tags to craft this item!",
-      "INVALID_RECIPE_TYPE": "Invalid recipe type!"
+      "INVALID_RECIPE_TYPE": "Invalid recipe type!",
+      "FOUND_QUANTITY_PATH_DEFAULT": "Found quantity path setting preset for items in the current system. Setting up..."
     },
     "NEW_RECIPE": "New recipe",
     "DEFAULT_DESCRIPTION": "Fill me in!",
@@ -186,6 +210,9 @@
       },
       "SEARCH_TAGS": "Search tags:",
       "SEARCH_PLACEHOLDER": "Search..."
+    },
+    "CHAT_MESSAGES": {
+      "FORCE_CRAFT": "<h2>Force crafted</h2><p>Recipe: \"%r\"</p><p>Player: \"%p\" </p><p>Actor: \"%a\" </p>"
     }
   }
 }

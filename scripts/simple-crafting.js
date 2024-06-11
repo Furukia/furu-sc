@@ -1,10 +1,5 @@
 import { MODULE, MODULE_NAME } from "./const.js"; //import the const variables
-import {
-  checkEditRights, checkTagsPresence,
-  createFolderIfMissing, getCorrectQuantityPathForItem,
-  getPercentForAllIngredients, getPercentForAllTags,
-  localize
-} from "./helpers.js";
+import { checkEditRights, createFolderIfMissing, getCorrectQuantityPathForItem, localize } from "./helpers.js";
 import { RegisterSettings, ValidateSettings } from "./settings.js";
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";
@@ -62,7 +57,7 @@ Hooks.on(`getItemSheetHeaderButtons`, function (app, buttons) {
   if (!app?.document) return;
   const appsItem = app.document;
   buttons.unshift({
-    label: game.settings.get(MODULE, 'hideLabel') ? '' : localize("FURU-SC.CRAFT_TAGS"),
+    label: game.settings.get(MODULE, 'hide-label') ? '' : localize("FURU-SC.CRAFT_TAGS"),
     class: `sc-craft-tags-header-button`,
     get icon() {
       return `fas fa-tags`;
@@ -85,7 +80,7 @@ Hooks.on(`renderItemSheet`, function (app, [elem], options) {
   // Set color to green if tags exist
   tagsButton.style.color = tags ? 'var(--sc-color-green)' : '';
   // Change label if needed
-  tagsButton.innerHTML = `<i class="fas fa-tags"></i> ${game.settings.get(MODULE, 'hideLabel') ? '' : localize("FURU-SC.CRAFT_TAGS")}`;
+  tagsButton.innerHTML = `<i class="fas fa-tags"></i> ${game.settings.get(MODULE, 'hide-label') ? '' : localize("FURU-SC.CRAFT_TAGS")}`;
 });
 
 /*
@@ -118,7 +113,7 @@ Handlebars.registerHelper('getCorrectQuantityValue', function (item) {
  * "getPercentForAllIngredients": all of `currentReqQuantity` === 0 -> 100%
  */
 Handlebars.registerHelper('getPercentForItem', function (ingredientInfo) {
-  return ((ingredientInfo.currentReqQuantity + ingredientInfo.modifier) / ingredientInfo.requiredQuantity) * 100;
+  return (ingredientInfo.currentReqQuantity / ingredientInfo.requiredQuantity) * 100;
 });
 
 Handlebars.registerHelper('checkEditRights', checkEditRights);
