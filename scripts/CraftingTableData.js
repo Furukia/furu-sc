@@ -180,11 +180,10 @@ export class CraftingTableData {
         const suitableIngredients = {};
         for (const item of actorItems) {
             const itemTags = item.getFlag(MODULE, "craftTags");
-            if (!itemTags) {
-                continue;
-            }
+            if (!itemTags) continue;
+            const pathObject = getCorrectQuantityPathForItem(item.type);
+            const quantity = foundry.utils.getProperty(item, pathObject.path);
             const itemTagsKeys = Object.keys(itemTags);
-
             if (tagKeys.some(tag => itemTagsKeys.includes(tag))) {
                 suitableIngredients[item.id] = {
                     selected: false,
@@ -194,7 +193,7 @@ export class CraftingTableData {
             }
 
             for (const tag of tagKeys) {
-                const currentTagQuantity = itemTags[tag];
+                const currentTagQuantity = itemTags[tag] * Number(quantity);
                 if (!currentTagQuantity) continue;
                 tagInstanceCount[tag] = (tagInstanceCount[tag] || 0) + currentTagQuantity;
             }
