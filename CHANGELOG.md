@@ -15,6 +15,18 @@ and this project tries to adhere to [Semantic Versioning](https://semver.org/spe
   - sendCraftRequest - Whether to send a craft request to the GM or just craft immediately
   - Macro support - Implementing macros support to check if player can craft or just call it in parallel with crafting for whatever...
 
+## [1.2.1] - 24.01.2025
+### Added
+
+#### Automatic quantity path setup
+
+- DnD 5e config updated to include newly added "facility" item type
+- Added automatic quantity-path setting setup for DC 20 system
+
+### Fixed
+
+- Fixed tags not accounting for item's quantity.
+
 ## [1.2.0] - 11.06.2024
 
 ### Added
