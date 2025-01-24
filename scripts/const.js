@@ -362,5 +362,55 @@ export const QUANTITY_PATH_DEFAULTS = {
             "type": "energyPointToken",
             "path": null
         }
+    ],
+    dc20rpg: [
+        {
+            "type": "basicAction",
+            "path": null
+        },
+        {
+            "type": "weapon",
+            "path": "system.quantity"
+        },
+        {
+            "type": "equipment",
+            "path": "system.quantity"
+        },
+        {
+            "type": "consumable",
+            "path": "system.quantity"
+        },
+        {
+            "type": "loot",
+            "path": "system.quantity"
+        },
+        {
+            "type": "feature",
+            "path": null
+        },
+        {
+            "type": "technique",
+            "path": null
+        },
+        {
+            "type": "spell",
+            "path": null
+        },
+        {
+            "type": "class",
+            "path": null
+        },
+        {
+            "type": "subclass",
+            "path": null
+        },
+        {
+            "type": "ancestry",
+            "path": null
+        },
+        {
+            "type": "background",
+            "path": null
+        }
     ]
 }
