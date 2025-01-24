@@ -83,6 +83,10 @@ export const QUANTITY_PATH_DEFAULTS = {
         {
             "type": "backpack",
             "path": null
+        }, 
+        {
+            "type": "facility",
+            "path": null
         }
     ],
     pf2e: [
