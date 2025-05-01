@@ -111,13 +111,11 @@ export function compareItems(item1, item2) {
  * @return {Object} The processed item.
  */
 export function processItemCompatibility(item) {
-    const foundryVersion = game.world.coreVersion;
-    const shortVersion = Number(foundryVersion.split('.')[0]);
     const compendiumSource = processCompendiumSource(item);
-    if (shortVersion === 11 && !item.flags?.core?.sourceId) {
+    if (getFoundryVersionShort() === 11 && !item.flags?.core?.sourceId) {
         foundry.utils.setProperty(item, "flags.core.sourceId", compendiumSource);
     }
-    if (shortVersion >= 12 && !item._stats?.compendiumSource) {
+    if (getFoundryVersionShort() >= 12 && !item._stats?.compendiumSource) {
         foundry.utils.setProperty(item, "_stats.compendiumSource", compendiumSource);
     }
     return item;
@@ -279,4 +277,14 @@ export function sendNotificationToChat(message, options) {
  */
 export function isAllowedForceCraft(recipe) {
     return recipe.settings.allowForceCraft || game.settings.get(MODULE, "allow-force-crafting")
+}
+
+/**
+ * Gets the short single number version of the current Foundry VTT installation.
+ *
+ * @return {number} The short version of the Foundry VTT installation.
+ */
+export function getFoundryVersionShort() {
+    const foundryVersion = game.world.coreVersion;
+    return Number(foundryVersion.split('.')[0]);
 }
