@@ -1,5 +1,5 @@
 import { MODULE, MODULE_NAME } from "./const.js"; //import the const variables
-import { checkEditRights, createFolderIfMissing, getCorrectQuantityPathForItem, localize } from "./helpers.js";
+import { checkEditRights, createFolderIfMissing, getCorrectQuantityPathForItem, localize, getFoundryVersionShort } from "./helpers.js";
 import { RegisterSettings, ValidateSettings } from "./settings.js";
 import { CraftMenu } from "./CraftMenu.js";
 import { CraftTable } from "./CraftTable.js";
@@ -7,10 +7,11 @@ import { CraftTagsEditor } from "./CraftTagsEditor.js";
 import { handleSocketEvent } from "./sockets.js";
 
 /**
- * Adds a button to open a Craft Menu
+ * Adds a button to open a Craft Menu. 
+ * V11-v12 compatible version.
  * @param {Object} controls
  */
-function addButton(controls) {
+function addButtonOld(controls) {
   let buttonControls = controls.find(control => control.name === 'notes');
   buttonControls.tools.push({
     name: 'craftmenu',
@@ -20,6 +21,27 @@ function addButton(controls) {
     onClick: openMenu,
     button: true
   });
+}
+
+/**
+ * Adds a button to open a Craft Menu. 
+ * @param {Object} controls
+ */
+function addButton(controls) {
+  if (getFoundryVersionShort() <= 12) {
+    return addButtonOld(controls);
+  }
+  let buttonControls = controls.notes;
+  const craftMenuButtonData = {
+    button: true,
+    icon: 'fas fa-hammer-crash',
+    name: 'craftMenu',
+    onChange: () => openMenu(),
+    order: 3,
+    title: localize("FURU-SC.CRAFT_MENU"),
+    visible: true
+  }
+  buttonControls.tools.craftMenu = craftMenuButtonData;
 }
 
 /**
