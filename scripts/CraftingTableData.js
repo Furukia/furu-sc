@@ -94,8 +94,8 @@ export class CraftingTableData {
                 img: ingredient.img,
                 type: ingredient.type,
                 quantityPath: path,
-                currentReqQuantity: currentQuantity,
-                requiredQuantity: currentQuantity
+                currentReqQuantity: Number(currentQuantity),
+                requiredQuantity: Number(currentQuantity)
             }
         })
         return ingredientsInfo;
