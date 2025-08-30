@@ -15,7 +15,15 @@ and this project tries to adhere to [Semantic Versioning](https://semver.org/spe
   - sendCraftRequest - Whether to send a craft request to the GM or just craft immediately
   - Macro support - Implementing macros support to check if player can craft or just call it in parallel with crafting for whatever...
 
+## [1.2.3] - 01.05.2025
+
+### Fixed
+
+- Fixes a bug where percentage loading bar in craft table can display incorrect value in case of string typed quantities.
+- Fixes a [bug](https://github.com/Furukia/furu-sc/issues/8) which opened recipe settings an all cards
+
 ## [1.2.2] - 01.05.2025
+
 ### Added
 
 - Basic Foundry v13 compatibility.
@@ -24,6 +32,7 @@ and this project tries to adhere to [Semantic Versioning](https://semver.org/spe
 This release is planned as the last compatible with v11 release. With the next release i want to port all module windows to appV2 framework and to do a major refactor of the code. Which will take a while given my other projects and personal life.
 
 ## [1.2.1] - 24.01.2025
+
 ### Added
 
 #### Automatic quantity path setup
