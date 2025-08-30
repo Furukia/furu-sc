@@ -115,7 +115,8 @@ export class RecipeData {
             console.error(`Recipe with id ${recipeID} not found`);
             return;
         }
-        const updatedRecipe = foundry.utils.mergeObject(allRecipes[recipeID], updateData, {
+        let recipe = allRecipes[recipeID]
+        const updatedRecipe = foundry.utils.mergeObject(recipe, updateData, {
             overwrite: true,
             insertKeys: true,
             insertValues: true
@@ -180,9 +181,9 @@ export class RecipeData {
         // get all existing recipes
         const allRecipes = CraftMenu.craftMenu.object;
         // turn the settings menu on/off
-        let _settingsOppened = !allRecipes[recipeID].settings?.opened;
+        let _settingsOpened = !allRecipes[recipeID].settings?.opened;
         const updateData = {
-            settings: { opened: _settingsOppened }
+            settings: { opened: _settingsOpened }
         }
         await this.updateRecipe(recipeID, updateData);
     }

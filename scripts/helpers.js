@@ -133,8 +133,8 @@ export function getPercentForAllIngredients() {
 
     Object.keys(ingredientsInfo).forEach(function (key) {
         const ingredientInfo = ingredientsInfo[key];
-        remainingQuantity += ingredientInfo.currentReqQuantity;
-        fullQuantity += ingredientInfo.requiredQuantity;
+        remainingQuantity += Number(ingredientInfo.currentReqQuantity);
+        fullQuantity += Number(ingredientInfo.requiredQuantity);
     });
     return ((fullQuantity - remainingQuantity) / fullQuantity) * 100;
 }
